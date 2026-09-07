@@ -1,0 +1,24 @@
+@if (fileName(); as name) {
+  <div class="relative">
+    <button
+      type="button"
+      title="Remove file"
+      aria-label="Remove file"
+      class="absolute -top-1 left-0"
+      (click)="removeFile()"
+    >
+      <nz-icon
+        [nzType]="'close'"
+        nzTheme="outline"
+        class="app-text text-xs"
+      ></nz-icon>
+    </button>
+    @if (isImage()) {
+      <img [src]="imagePreview()" [alt]="name" class="w-24 h-24 rounded-full" />
+    } @else {
+      <div class="w-12 h-14 flex items-end ps-3">
+        <nz-icon class="text-5xl app-text" [nzType]="fileIcon()" nzTheme="outline"></nz-icon>
+      </div>
+    }
+  </div>
+}

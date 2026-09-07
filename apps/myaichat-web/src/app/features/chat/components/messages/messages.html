@@ -1,0 +1,60 @@
+<section class="h-full w-full md:w-11/12 max-w-4xl mx-auto flex flex-col gap-4">
+  @for (message of messages(); track $index) {
+    <div
+      class="w-full mb-4"
+      [class.flex]="true"
+      [class.justify-end]="message.role === 'user'"
+      [class.justify-start]="message.role !== 'user'"
+    >
+      <article
+        class="app-text rounded py-1 px-1.5 relative"
+        [class.app-bg-base]="message.role === 'user'"
+        [class.w-full]="message.role === 'user'"
+        [class.max-w-xl]="message.role === 'user'"
+        [class.min-w-xs]="message.role === 'user'"
+        [class.w-full]="message.role !== 'user'"
+        [class.min-h-12]="message.role !== 'user'"
+      >
+        @if (message.file; as file) {
+          <div class="mb-2">
+            @if (isImage(file)) {
+              <img
+                [src]="getFileUrl(file)"
+                [alt]="getFileName(file)"
+                class="max-w-48 max-h-48 rounded object-contain"
+              />
+            } @else {
+              <div class="flex items-center gap-2 p-2 app-bg-base rounded">
+                <nz-icon class="text-2xl app-text" [nzType]="getFileIcon(file)" nzTheme="outline" />
+                <span class="text-sm app-text truncate max-w-40" [title]="getFileName(file)">{{
+                  getFileName(file)
+                }}</span>
+              </div>
+            }
+          </div>
+        }
+        <markdown [data]="message.content"></markdown>
+        @if (message.outputTokens || message.inputTokens) {
+          <span class="text-xs text-gray-500"
+            >Tokens: {{ message.outputTokens || message.inputTokens }}</span
+          >
+        }
+        <button
+          class="absolute -bottom-8 app-text cursor-pointer hover:bg-gray-400! dark:hover:bg-dark-base! rounded-full p-1 w-8 h-8 flex items-center justify-center trans-c-200"
+          [class.right-1]="message.role === 'user'"
+          [class.left-1]="message.role !== 'user'"
+          type="button"
+          title="Copy message"
+          aria-label="Copy message"
+          (click)="onCopyClick(message.content, $index)"
+        >
+          @if (!isCopied($index)) {
+            <nz-icon class="text-lg" nzType="copy" nzTheme="outline" />
+          } @else {
+            <nz-icon class="text-lg" nzType="check" nzTheme="outline" />
+          }
+        </button>
+      </article>
+    </div>
+  }
+</section>

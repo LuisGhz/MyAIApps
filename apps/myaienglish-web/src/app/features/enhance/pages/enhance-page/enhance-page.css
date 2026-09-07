@@ -1,0 +1,50 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.enhance-surface {
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.14), transparent 28%),
+    linear-gradient(180deg, rgba(19, 28, 42, 0.96) 0%, rgba(11, 17, 28, 0.98) 100%);
+}
+
+.enhance-surface::before {
+  content: '';
+  position: absolute;
+  right: -4rem;
+  bottom: -5rem;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(56, 189, 248, 0) 72%);
+  pointer-events: none;
+}
+
+.enhance-surface > * {
+  position: relative;
+}
+
+.results-loading-bar {
+  display: block;
+  height: 0.95rem;
+  width: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.6) 0%, rgba(59, 130, 246, 0.24) 50%, rgba(30, 41, 59, 0.6) 100%);
+  background-size: 200% 100%;
+  animation: loadingPulse 1.4s ease-in-out infinite;
+}
+
+.results-loading-bar-short {
+  width: 78%;
+}
+
+@keyframes loadingPulse {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

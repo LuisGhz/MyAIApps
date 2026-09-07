@@ -1,0 +1,86 @@
+<main class="grid gap-6 lg:grid-cols-[minmax(0,_1.05fr)_minmax(20rem,_0.95fr)]">
+  <header class="lg:col-[1/-1]">
+    <h1 class="m-0 text-[clamp(1.8rem,2.7vw,2.5rem)] leading-tight tracking-tight text-slate-50">
+      Compare words and phrases
+    </h1>
+    <p class="mt-1.5 text-sm text-slate-400">
+      Add context and compare multiple options side by side.
+    </p>
+  </header>
+
+  <form class="compare-panel app-panel grid content-start gap-4" [formGroup]="compareForm" (ngSubmit)="onSend()">
+    <div class="app-field-group">
+      <label class="app-field-label" for="additional-context">Additional Context</label>
+      <textarea
+        class="app-field-control min-h-[7.5rem] resize-y"
+        formControlName="context"
+        id="additional-context"
+        nz-input
+        placeholder="You can provide any additional context that might help improve the result, e.g. 'I'm waiting a call from my boss'"
+      ></textarea>
+    </div>
+
+    <div class="app-field-group" formArrayName="inputs">
+      <span class="app-field-label">Words or phrases</span>
+      <div class="grid gap-3">
+        @for (group of inputs.controls; track $index) {
+          <label class="sr-only" for="input-{{ $index }}">Input {{ $index + 1 }}</label>
+          <textarea
+            id="input-{{ $index }}"
+            class="app-field-control"
+            [formControlName]="$index"
+            nz-input
+            placeholder="Option {{ $index + 1 }}"
+          ></textarea>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-3 max-[767px]:justify-stretch">
+      <button
+        class="app-secondary-button min-w-12 max-[767px]:w-full"
+        type="button"
+        aria-label="Add input"
+        (click)="addInput()"
+      >
+        <nz-icon class="text-base" nzType="plus" aria-hidden="true" />
+      </button>
+      <button
+        class="app-primary-button min-w-[8.75rem] max-[767px]:w-full"
+        type="submit"
+        [disabled]="compareForm.invalid || isLoading()"
+      >
+        {{ isLoading() ? 'Comparing...' : 'Compare Options' }}
+      </button>
+    </div>
+  </form>
+
+  <section
+    class="compare-panel compare-results app-panel grid content-start gap-4"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <div>
+      <h2 class="app-panel-heading">Comparison Results</h2>
+      @if (!isLoading() && !result()) {
+        <p class="app-muted-copy mt-1.5">Explanations and a final summary will appear here.</p>
+      }
+    </div>
+
+    @if (result()) {
+      <ul class="app-results-list">
+        @for (input of result()!.inputs; track $index) {
+          <li class="app-result-card px-4 py-4">
+            <p class="app-result-label">{{ input.input }}</p>
+            <p class="app-result-copy">{{ input.explanation }}</p>
+          </li>
+        }
+      </ul>
+
+      <section class="border-t border-white/10 pt-4">
+        <p class="m-0 leading-[1.65] text-slate-300">{{ result()!.summary }}</p>
+      </section>
+    }
+  </section>
+</main>

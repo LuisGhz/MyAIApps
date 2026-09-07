@@ -1,0 +1,48 @@
+<nz-modal [nzVisible]="isVisible()" [nzFooter]="null" (nzOnCancel)="closeModal.emit()">
+  <ng-content *nzModalContent>
+    <form [formGroup]="form">
+      <h2 class="text-lg font-semibold mb-4">Configuración avanzada</h2>
+      <p class="mb-2">Aquí puedes ajustar las configuraciones avanzadas de tu chat.</p>
+      <div class="mb-4">
+        <label for="adv-maxTokens" class="block mb-2 text-sm">Max Tokens</label>
+        <nz-input-number
+          id="adv-maxTokens"
+          class="w-full"
+          formControlName="maxTokens"
+          [nzMin]="100"
+          [nzMax]="8000"
+          [nzStep]="1"
+          nzPlaceHolder="Max tokens"
+        />
+        @if (maxTokensErrors(); as errors) {
+          @if (errors['min']) {
+            <p class="text-red-600 text-sm mt-1">Mínimo 100 tokens requeridos</p>
+          }
+          @if (errors['max']) {
+            <p class="text-red-600 text-sm mt-1">Máximo 8000 tokens permitidos</p>
+          }
+        }
+      </div>
+      <div class="mb-4">
+        <label for="adv-temperature" class="block mb-2 text-sm">Temperature</label>
+        <nz-input-number
+          id="adv-temperature"
+          class="w-full"
+          formControlName="temperature"
+          [nzMin]="0"
+          [nzMax]="2"
+          [nzStep]="0.1"
+          nzPlaceHolder="Temperature"
+        />
+        @if (temperatureErrors(); as errors) {
+          @if (errors['min']) {
+            <p class="text-red-600 text-sm mt-1">La temperatura debe ser mayor o igual a 0</p>
+          }
+          @if (errors['max']) {
+            <p class="text-red-600 text-sm mt-1">La temperatura debe ser menor o igual a 2</p>
+          }
+        }
+      </div>
+    </form>
+  </ng-content>
+</nz-modal>

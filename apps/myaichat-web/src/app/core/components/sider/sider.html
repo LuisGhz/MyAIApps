@@ -1,0 +1,120 @@
+<div class="flex flex-col h-full text-gray-200">
+  <!-- Top section: Logo + New Chat -->
+  <div
+    class="p-2 flex items-center justify-between"
+    [class.flex-col]="sidebarCollapsed()"
+    [class.gap-2]="sidebarCollapsed()"
+  >
+    @if (!sidebarCollapsed()) {
+      <button
+        nz-button
+        nzType="text"
+        class="text-gray-200! hover:bg-dark-input!"
+        (click)="onToggleSidebar()"
+      >
+        <span class="text-lg! md:text-xl!" nz-icon nzType="menu-fold" nzTheme="outline"></span>
+      </button>
+    }
+    @if (sidebarCollapsed()) {
+      <button
+        nz-button
+        nzType="text"
+        class="text-gray-200! hover:bg-dark-input!"
+        (click)="onToggleSidebar()"
+      >
+        <span class="text-xl! md:text-lg!"  nz-icon nzType="menu-unfold" nzTheme="outline"></span>
+      </button>
+    }
+    <button
+      class="text-gray-200! hover:bg-dark-input!"
+      routerLink="/"
+      nz-button
+      nzType="text"
+      nz-tooltip
+      nzTooltipTitle="New chat"
+      (click)="collapseIfMobileAndNotCollapsed()"
+    >
+      <span class="text-xl! md:text-lg!" nz-icon nzType="edit" nzTheme="outline"></span>
+    </button>
+  </div>
+
+  <!-- Search -->
+  @if (!sidebarCollapsed()) {
+    <div class="px-2 pb-2">
+      <nz-input-wrapper class="app-bg-surface rounded-lg!">
+        <nz-icon nzInputPrefix nzType="search" class="app-text" />
+        <label for="chat-search" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Search chats</label>
+        <input
+          id="chat-search"
+          aria-label="Search chats"
+          type="text"
+          nz-input
+          placeholder="Buscar chats"
+          [(ngModel)]="searchQuery"
+          class="bg-transparent! text-gray-200! placeholder-gray-500!"
+        />
+      </nz-input-wrapper>
+    </div>
+  }
+
+  <!-- Chat history -->
+  <div class="flex-1 overflow-y-auto px-1">
+    @if (chatsResource.isLoading()) {
+      <!-- Loading skeleton -->
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="flex items-center px-2 py-2">
+          @if (!sidebarCollapsed()) {
+            <nz-skeleton
+              [nzActive]="true"
+              [nzParagraph]="{ rows: 1, width: '100%' }"
+              [nzTitle]="false"
+            ></nz-skeleton>
+          } @else {
+            <nz-skeleton-element
+              nzType="avatar"
+              [nzActive]="true"
+              nzSize="small"
+              nzShape="circle"
+            ></nz-skeleton-element>
+          }
+        </div>
+      }
+    } @else {
+      @for (chat of filteredChats(); track chat.id) {
+        <a
+          class="group relative flex items-center px-2 py-2 rounded-lg cursor-pointer hover:bg-gray-400 dark:hover:bg-dark-input app-text trans-c-200"
+          [routerLink]="['/chat', chat.id]"
+          [class.hidden]="sidebarCollapsed()"
+          (click)="collapseIfMobileAndNotCollapsed()"
+        >
+          @if (!sidebarCollapsed()) {
+            @if (chat.title) {
+              <span class="truncate text-sm flex-1">{{ chat.title }}</span>
+            } @else {
+              <nz-skeleton
+                class="flex-1"
+                [nzActive]="true"
+                [nzParagraph]="{ rows: 1, width: '80%' }"
+                [nzTitle]="false"
+              ></nz-skeleton>
+            }
+            <app-more
+              (deleteChat)="onDeleteChatConfirmed(chat.id)"
+              (renameChat)="onRenameChat(chat.id)"
+            />
+            <app-rename-chat-modal
+              [isVisible]="isRenameChatModalVisible()"
+              [chatTitle]="chatTitleToRename()!"
+              (saveRename)="onSaveRename($event)"
+              (cancelRename)="onCancelRename()"
+            />
+          } @else {
+            <span nz-icon nzType="message" nzTheme="outline" class="text-gray-400"></span>
+          }
+        </a>
+      }
+    }
+  </div>
+
+  <app-bottom-sider (collapseIfMobileAndNotCollapsed)="collapseIfMobileAndNotCollapsed()" />
+</div>

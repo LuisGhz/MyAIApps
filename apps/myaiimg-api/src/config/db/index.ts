@@ -1,0 +1,1 @@
+export { typeOrmConfigModule } from './typeorm.module';

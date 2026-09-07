@@ -1,0 +1,62 @@
+<div class="flex flex-col h-full relative">
+  <!-- Table Container -->
+  <div class="flex-1 overflow-hidden min-w-0 p-4">
+    <div
+      class="h-full w-full min-w-0 thin-scrollbar overflow-x-auto overflow-y-auto app-bg-surface rounded-lg"
+    >
+      <nz-table
+        class="min-w-max"
+        #usersTable
+        [nzData]="users.value()"
+        [nzLoading]="users.isLoading()"
+        [nzShowPagination]="false"
+      >
+        <thead>
+          <tr>
+            <th scope="col">Avatar</th>
+            <th scope="col">Name</th>
+            <th scope="col">GitHub Login</th>
+            <th scope="col">Email</th>
+            <th scope="col">Role</th>
+            <th scope="col">Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users.value(); track user.id) {
+            <tr>
+              <td>
+                @if (user.avatar) {
+                  <img [src]="user.avatar" [alt]="user.name" class="w-8 h-8 rounded-full" />
+                } @else {
+                  <div class="w-8 h-8 rounded-full app-bg-base flex items-center justify-center">
+                    <span class="text-xs">{{ user.name.charAt(0).toUpperCase() }}</span>
+                  </div>
+                }
+              </td>
+              <td>{{ user.name }}</td>
+              <td>
+                <code class="px-2 py-1 rounded text-sm">{{ user.ghLogin }}</code>
+              </td>
+              <td>{{ user.email || 'N/A' }}</td>
+              <td>
+                <nz-select
+                  class="w-32"
+                  [attr.data-testid]="'user-role-' + user.id"
+                  [ngModel]="user.role.id"
+                  (ngModelChange)="onRoleChange(user, $event)"
+                  [nzLoading]="updatingUserId() === user.id"
+                  [nzDisabled]="updatingUserId() === user.id"
+                >
+                  @for (role of roles.value(); track role.id) {
+                    <nz-option [nzValue]="role.id" [nzLabel]="role.name"></nz-option>
+                  }
+                </nz-select>
+              </td>
+              <td>{{ user.createdAt | date: 'dd/MM/yy' }}</td>
+            </tr>
+          }
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+</div>

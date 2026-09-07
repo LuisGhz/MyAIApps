@@ -1,0 +1,36 @@
+<main class="flex flex-col h-full justify-center">
+  <section
+    class="flex flex-col items-center justify-center px-4 overflow-y-auto thin-scrollbar"
+    [class.flex-1]="messages().length > 0"
+    #messagesContainer
+  >
+    @if (messages().length === 0) {
+      <h1 class="text-2xl app-text mb-8 text-center">What can I help with?</h1>
+      <section class="flex flex-col gap-2">
+        @if (prompts.value().length > 0) {
+          <nz-select class="w-60!" [(ngModel)]="selectedPrompt">
+            <nz-option nzValue="" nzLabel=""></nz-option>
+            @for (prompt of prompts.value(); track $index) {
+              <nz-option [nzValue]="prompt.id" [nzLabel]="prompt.name"></nz-option>
+            }
+          </nz-select>
+        }
+        @if (groupedModels().size > 0) {
+          <nz-select class="w-60!" [(ngModel)]="selectedModel">
+            @for (group of groupedModels().entries(); track group[0]) {
+              <nz-option-group [nzLabel]="group[0]">
+                @for (model of group[1]; track model.id) {
+                  <nz-option [nzValue]="model.id" [nzLabel]="model.name"></nz-option>
+                }
+              </nz-option-group>
+            }
+          </nz-select>
+        }
+      </section>
+    } @else {
+      <app-messages [animate.enter]="shouldAnimateTransition() ? 'messages-enter' : ''" />
+    }
+  </section>
+  <!-- Input area -->
+  <app-input-message />
+</main>

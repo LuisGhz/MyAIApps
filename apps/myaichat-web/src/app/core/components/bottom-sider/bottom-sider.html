@@ -1,0 +1,77 @@
+<div class="p-2 border-t border-dark-input">
+  <div class="mb-2">
+    <a
+      class="flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer app-bg-base hover:bg-gray-400! dark:hover:bg-dark-input! app-text trans-c-200"
+      routerLink="/prompts"
+      [class.justify-center]="sidebarCollapsed()"
+      (click)="emitCollapseIfMobileAndNotCollapsed()"
+    >
+      <span class="text-xl! md:text-lg!" nz-icon nzType="file-text" nzTheme="outline"></span>
+      @if (!sidebarCollapsed()) {
+        <span class="text-sm">Prompts</span>
+      }
+    </a>
+    <a
+      class="flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer app-bg-base hover:bg-gray-400! dark:hover:bg-dark-input! app-text trans-c-200"
+      [class.justify-center]="sidebarCollapsed()"
+      *appIsAdmin
+      routerLink="/admin/models"
+      (click)="emitCollapseIfMobileAndNotCollapsed()"
+    >
+      <span class="text-xl! md:text-lg!" nz-icon nzType="setting" nzTheme="outline"></span>
+      @if (!sidebarCollapsed()) {
+        <span class="text-sm">Admin</span>
+      }
+    </a>
+  </div>
+  <button
+    class="flex items-center gap-2 p-2 rounded-lg cursor-pointer relative w-full app-bg-base hover:bg-gray-400! dark:hover:bg-dark-input! app-text trans-c-200"
+    [class.justify-center]="sidebarCollapsed()"
+    (click)="toggleMenu()"
+  >
+    <nz-avatar
+      nzSize="small"
+      [nzText]="firstLetterOfUsername()"
+      class="bg-teal-600! text-white!"
+    ></nz-avatar>
+    @if (!sidebarCollapsed()) {
+      <span class="text-sm truncate">{{ userEmail() }}</span>
+    }
+    @if (isMenuOpen()) {
+      <nav
+        class="absolute bottom-full left-0 mb-2 app-bg-surface rounded-2xl shadow-2xl dark:shadow-dark-elevated py-2 min-w-xs z-50"
+      >
+        <ul class="list-none m-0! p-0!">
+          <li>
+            <section class="flex gap-2 ms-1.5 py-2">
+              <div>
+                <nz-avatar
+                  nzSize="small"
+                  [nzText]="firstLetterOfUsername()"
+                  class="bg-teal-600! text-white!"
+                ></nz-avatar>
+              </div>
+              <div class="text-start">
+                <p class="app-text font-semibold text-sm mt-2">{{ userName() }}</p>
+                <p class="app-text text-xs app-text opacity-75 truncate">@{{ userEmail() }}</p>
+              </div>
+            </section>
+          </li>
+          @for (option of menuOptions(); track option.label) {
+            <li>
+              <button
+                class="w-full flex items-center gap-3 px-4 py-2.5 app-text hover:bg-gray-300! hover:dark:bg-dark-base! cursor-pointer bg-transparent border-none text-left trans-c-200"
+                type="button"
+                role="menuitem"
+                (click)="onOptionClick(option)"
+              >
+                <nz-icon class="text-base" [nzType]="option.icon" nzTheme="outline" />
+                <span class="text-sm">{{ option.label }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      </nav>
+    }
+  </button>
+</div>

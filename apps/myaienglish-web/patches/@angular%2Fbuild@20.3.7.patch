@@ -1,0 +1,20 @@
+diff --git a/src/builders/unit-test/builder.js b/src/builders/unit-test/builder.js
+index 225bb46711c05dda30dc1fcf49a56912aeded60d..d656cbf82dc304187145682b4336496d827a7852 100644
+--- a/src/builders/unit-test/builder.js
++++ b/src/builders/unit-test/builder.js
+@@ -231,14 +231,7 @@ async function* execute(options, context, extensions = {}) {
+                                     },
+                                 ],
+                             });
+-                            // Adjust coverage excludes to not include the otherwise automatically inserted included unit tests.
+-                            // Vite does this as a convenience but is problematic for the bundling strategy employed by the
+-                            // builder's test setup. To workaround this, the excludes are adjusted here to only automaticallyAdd commentMore actions
+-                            // exclude the TypeScript source test files.
+-                            project.config.coverage.exclude = [
+-                                ...(normalizedOptions.codeCoverage?.exclude ?? []),
+-                                '**/*.{test,spec}.?(c|m)ts',
+-                            ];
++                            project.config.coverage.exclude = [...(normalizedOptions.codeCoverage?.exclude ?? [])];
+                         },
+                     },
+                 ],

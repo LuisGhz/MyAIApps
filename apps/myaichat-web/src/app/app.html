@@ -1,0 +1,31 @@
+@if (isAuthenticated()) {
+  <nz-layout class="h-dvh relative">
+    <nz-sider
+      [nzCollapsed]="isSidebarCollapsed()"
+      [nzCollapsedWidth]="collapsedWidth()"
+      [nzWidth]="260"
+      [class.absolute!]="isMobile()"
+      class="app-bg-base top-0 left-0 h-dvh z-50"
+    >
+      <app-sider />
+    </nz-sider>
+    @if (isMobile() && !isSidebarCollapsed()) {
+      <div
+        class="absolute w-dvw h-dvh bg-black/35 z-10"
+        data-testid="app-backdrop"
+        (click)="closeFromBackdrop()"
+        (keydown.escape)="closeFromBackdrop()"
+      ></div>
+    }
+    <nz-layout>
+      <nz-header class="h-12! p-0! app-bg-surface">
+        <app-header />
+      </nz-header>
+      <nz-content class="overflow-hidden app-bg-surface">
+        <router-outlet />
+      </nz-content>
+    </nz-layout>
+  </nz-layout>
+} @else {
+  <router-outlet />
+}

@@ -1,0 +1,44 @@
+<section class="flex items-end gap-2">
+  @if (isImageGeneration()) {
+    <button
+      [class]="
+        `app-bg-surface px-4 py-2.5 rounded-md flex items-center gap-2 mt-1 ${isImageGenerationHovered() ? 'cursor-pointer' : ''}`
+      "
+      (mouseenter)="isImageGenerationHovered.set(true)"
+      (mouseleave)="isImageGenerationHovered.set(false)"
+      (click)="closeImageGeneration()"
+    >
+      @if (isImageGenerationHovered()) {
+        <span>
+          <nz-icon class="app-text text-lg" nzType="close-circle" nzTheme="outline" />
+        </span>
+      } @else {
+        <nz-icon class="app-text text-lg" nzType="picture" nzTheme="outline" />
+      }
+      <span class="app-text">Generate Image</span>
+    </button>
+  }
+  @if (isWebSearch()) {
+    <button
+      [class]="
+        `app-bg-surface px-4 py-2.5 rounded-md flex items-center gap-2 mt-1 ${isWebSearchHovered() ? 'cursor-pointer' : ''}`
+      "
+      (mouseenter)="isWebSearchHovered.set(true)"
+      (mouseleave)="isWebSearchHovered.set(false)"
+      (click)="closeWebSearch()"
+    >
+      @if (isWebSearchHovered()) {
+        <span>
+          <nz-icon
+            class="app-text text-lg relative top-0.5"
+            nzType="close-circle"
+            nzTheme="outline"
+          />
+        </span>
+      } @else {
+        <nz-icon class="app-text text-lg" nzType="compass" nzTheme="outline" />
+      }
+      <span class="app-text">Search on the web</span>
+    </button>
+  }
+</section>

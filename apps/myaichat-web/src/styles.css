@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+@import 'ng-zorro-antd/ng-zorro-antd.dark.min.css' (prefers-color-scheme: dark);
+@import './styles/antd';
+@import './styles/utilities';
+@import './styles/scrollbar';
+
+@theme {
+  --color-dark-base: #171717;
+  --color-dark-surface: #212121;
+  --color-dark-elevated: #2a2a2a;
+  --color-dark-input: #2f2f2f;
+  --color-dark-muted: #353535;
+  --color-dark-border: #404040;
+  --color-dark-border-light: #505050;
+}
+
+p {
+  margin: 0;
+}
+
+.messages-enter {
+  animation: messages-fade-in 500ms ease-out 500ms forwards;
+  opacity: 0;
+}
+
+@keyframes messages-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

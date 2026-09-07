@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "paths": {
+      "src/*": ["./src/*"],
+      "@cfg/*": ["./src/config/*"],
+      "@cmn/*": ["./src/common/*"],
+      "@mod/*": ["./src/modules/*"],
+      "@auth/*": ["./src/modules/auth/*"],
+      "@usr/*": ["./src/modules/user/*"],
+      "@chat/*": ["./src/modules/chat/*"],
+      "@prompts/*": ["./src/modules/prompts/*"],
+      "@models/*": ["./src/modules/models/*"],
+      "@mdl/*": ["./src/modules/models/*"],
+      "@s3/*": ["./src/modules/s3/*"]
+    },
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+    "types": ["jest", "node", "express", "multer"]
+  },
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

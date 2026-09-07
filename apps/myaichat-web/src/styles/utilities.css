@@ -1,0 +1,37 @@
+@layer utilities {
+  .app-bg-base {
+    @apply bg-gray-300! dark:bg-dark-base!;
+  }
+
+  .app-hover-bg-base:hover {
+    @apply bg-gray-400! dark:bg-dark-elevated!;
+  }
+
+  .app-bg-surface {
+    @apply bg-gray-200! dark:bg-dark-surface!;
+  }
+
+  .app-hover-bg-surface:hover {
+    @apply bg-gray-300! dark:bg-dark-elevated!;
+  }
+
+  .app-bg-input {
+    @apply bg-white! dark:bg-dark-input!;
+  }
+
+  .app-border-input {
+    @apply border-gray-400! dark:border-dark-border-light!;
+  }
+
+  .app-text {
+    @apply text-dark-base! dark:text-gray-100!;
+  }
+
+  .app-text-buttons {
+    @apply text-gray-600! dark:text-gray-100!;
+  }
+
+  .trans-c-200 {
+    @apply transition-colors duration-200;
+  }
+}

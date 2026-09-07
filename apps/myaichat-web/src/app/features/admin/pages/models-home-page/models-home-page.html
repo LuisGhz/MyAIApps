@@ -1,0 +1,82 @@
+<div class="flex flex-col h-full relative">
+  <div class="flex justify-end pe-2">
+    <button
+      class="app-text px-5 py-2.5 app-bg-base app-hover-bg-base trans-c-200 rounded-lg cursor-pointer"
+      type="button"
+      (click)="onAdd()"
+    >
+      <span nz-icon nzType="plus"></span>
+      New Model
+    </button>
+  </div>
+  <!-- Table Container -->
+  <div class="flex-1 overflow-hidden min-w-0 p-4">
+    <div class="h-full w-full min-w-0 thin-scrollbar overflow-x-auto overflow-y-auto app-bg-surface rounded-lg">
+      <nz-table
+        class="min-w-xl"
+        #modelTable
+        [nzData]="models.value()"
+        [nzLoading]="models.isLoading()"
+        [nzShowPagination]="false"
+      >
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Short Name</th>
+            <th scope="col">Value</th>
+            <th scope="col">Guest access</th>
+            @if (!isMobile()) {
+              <th scope="col">Developer</th>
+            }
+            <th scope="col" nzWidth="100px" class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (model of models.value(); track model.id) {
+            <tr class="group">
+              <td>{{ model.name }}</td>
+              <td>{{ model.shortName }}</td>
+              <td>
+                <code class="px-2 py-1 rounded text-sm">{{ model.value }}</code>
+              </td>
+              <td>
+                {{ model.guestAccess ? 'Yes' : 'No' }}
+              </td>
+              @if (!isMobile()) {
+                <td>{{ model.developer.name }}</td>
+              }
+              <td class="text-center">
+                <div
+                  class="flex items-center justify-center gap-2 lg:opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <button
+                    class="text-dark-base! dark:text-gray-300! hover:text-blue-500!"
+                    type="button"
+                    aria-label="Edit model"
+                    nz-button
+                    nzType="text"
+                    nzSize="large"
+                    (click)="onEdit(model)"
+                  >
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                  </button>
+                  <button
+                    class="text-dark-base! dark:text-gray-300! hover:text-red-500!"
+                    type="button"
+                    aria-label="Delete model"
+                    nz-button
+                    nzType="text"
+                    nzSize="large"
+                    (click)="onDelete(model)"
+                  >
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+</div>

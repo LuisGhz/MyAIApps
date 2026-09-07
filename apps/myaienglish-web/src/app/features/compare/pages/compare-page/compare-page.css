@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.compare-panel {
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(19, 28, 42, 0.96) 0%, rgba(11, 17, 28, 0.98) 100%);
+}
+
+.compare-results {
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.1), transparent 26%),
+    linear-gradient(180deg, rgba(11, 17, 28, 0.98) 0%, rgba(8, 13, 23, 1) 100%);
+}

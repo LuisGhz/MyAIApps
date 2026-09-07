@@ -1,0 +1,17 @@
+<nz-modal [nzVisible]="isVisible()" [nzClosable]="false">
+  <ng-content *nzModalContent>
+    <label for="rename-chat-title" class="block mb-2 text-sm">Rename your chat</label>
+    <input
+      id="rename-chat-title"
+      type="text"
+      nz-input
+      placeholder="Enter new chat name"
+      [(ngModel)]="newTitle"
+      class="mt-2"
+    />
+  </ng-content>
+  <ng-content *nzModalFooter>
+    <button nz-button nzType="default" (click)="onCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="onSave()">Save</button>
+  </ng-content>
+</nz-modal>

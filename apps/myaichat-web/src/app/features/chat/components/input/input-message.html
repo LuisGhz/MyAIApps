@@ -1,0 +1,47 @@
+<div class="p-4 pb-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="app-bg-input app-border-input rounded-2xl p-3 border">
+      @if (!file) {
+        <section>
+          <app-file-preview />
+        </section>
+      }
+      <section class="flex items-end gap-2">
+        <app-more-options />
+        <label for="chat-message" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Message input</label>
+        <textarea
+          id="chat-message"
+          aria-label="Message input"
+          class="flex-1 bg-transparent! border-none! app-text resize-none focus:shadow-none! hidden-scrollbar"
+          nz-input
+          [ngModel]="messageText()"
+          (ngModelChange)="onMessageTextChange($event)"
+          (keydown)="onKeydown($event)"
+          placeholder="Ask anything"
+          [nzAutosize]="{ minRows: 1, maxRows: 6 }"
+        ></textarea>
+
+        <div class="flex items-center gap-1 shrink-0">
+          <app-microphone />
+          @if (messageText().trim().length > 0) {
+            <button
+              class="app-text-buttons hover:bg-gray-300! dark:hover:bg-dark-base! rounded-full p-1 w-10 h-10 cursor-pointer trans-c-200 flex items-center justify-center"
+              [disabled]="isTranscribing() || isSending()"
+              type="button"
+              title="Send message"
+              aria-label="Send message"
+              (click)="onSend()"
+            >
+              <nz-icon class="text-xl" nzType="send" nzTheme="outline" />
+            </button>
+          }
+        </div>
+      </section>
+      <app-enabled-options />
+    </div>
+
+    <p class="text-center text-xs text-gray-500 mt-2">
+      AI can make mistakes. Check important info.
+    </p>
+  </div>
+</div>

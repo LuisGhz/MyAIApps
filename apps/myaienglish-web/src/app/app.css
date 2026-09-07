@@ -1,0 +1,32 @@
+.workspace-shell {
+  background: linear-gradient(180deg, rgba(18, 24, 37, 0.98) 0%, rgba(11, 16, 27, 0.98) 100%);
+}
+
+.workspace-sider {
+  background: linear-gradient(180deg, #1f2733 0%, #161d28 100%);
+}
+
+.workspace-main {
+  background: linear-gradient(180deg, #101725 0%, #0a111d 100%);
+}
+
+.absolute-menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(18rem, 88vw);
+  max-width: 18rem;
+  z-index: 100;
+  height: 100dvh;
+}
+
+.backdrop-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh;
+  background-color: rgba(5, 11, 20, 0.58);
+  backdrop-filter: blur(6px);
+  z-index: 50;
+}

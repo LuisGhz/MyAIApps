@@ -1,0 +1,26 @@
+<div class="flex items-center gap-2">
+  @if (isRecording()) {
+    <div
+      class="text-sm font-mono text-red-500 animate-pulse font-bold bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-md"
+    >
+      {{ recordingTime() }}
+    </div>
+  }
+  <button
+    class="app-text-buttons hover:bg-gray-300! dark:hover:bg-dark-base! rounded-full p-1 w-10 h-10 cursor-pointer trans-c-200 flex items-center justify-center"
+    [class.text-red-500]="isRecording()"
+    [class.bg-red-100]="isRecording()"
+    [class.dark:bg-red-900]="isRecording()"
+    [disabled]="isTranscribing()"
+    type="button"
+    [title]="isRecording() ? 'Stop recording' : 'Record audio'"
+    [aria-label]="isRecording() ? 'Stop recording' : 'Record audio'"
+    (click)="toggleRecording()"
+  >
+    @if (isTranscribing()) {
+      <nz-icon class="text-xl" nzType="loading" nzTheme="outline" />
+    } @else {
+      <nz-icon class="text-xl" [nzType]="isRecording() ? 'stop' : 'audio'" nzTheme="outline" />
+    }
+  </button>
+</div>

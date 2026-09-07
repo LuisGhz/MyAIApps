@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/swcrc",
+  "sourceMaps": true,
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "dynamicImport": true
+    },
+    "transform": {
+      "decoratorMetadata": true,
+      "legacyDecorator": true
+    },
+    "target": "es2021",
+    "keepClassNames": true,
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["./src/*"],
+      "@cfg/*": ["./src/config/*"],
+      "@cmn/*": ["./src/common/*"],
+      "@mod/*": ["./src/modules/*"],
+      "@auth/*": ["./src/modules/auth/*"],
+      "@usr/*": ["./src/modules/user/*"],
+      "@chat/*": ["./src/modules/chat/*"],
+      "@prompts/*": ["./src/modules/prompts/*"],
+      "@models/*": ["./src/modules/models/*"],
+      "@mdl/*": ["./src/modules/models/*"],
+      "@s3/*": ["./src/modules/s3/*"]
+    }
+  },
+  "minify": false
+}

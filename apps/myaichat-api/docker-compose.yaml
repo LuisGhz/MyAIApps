@@ -1,0 +1,10 @@
+
+services:
+  app-cache:
+    image: redis
+    container_name: myaichat_app_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./app_cache_data:/data
+    command: redis-server --appendonly yes

@@ -1,0 +1,15 @@
+<div class="flex gap-4 items-center py-2">
+  @if (isCollapsed() && isMobile()) {
+    <button
+      class="flex items-center justify-center cursor-pointer h-6 w-6 ms-3!"
+      (click)="unCollapseSideNav()"
+      title="Open sidenav"
+      aria-label="Open sidenav"
+    >
+      <nz-icon class="app-text text-xl! md:text-lg!" nzType="menu-unfold"></nz-icon>
+    </button>
+  }
+  <h1 class="app-text text-xl! my-0!" [class.ms-3]="!isMobile()">
+    {{ headerTitle() }}
+  </h1>
+</div>

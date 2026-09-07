@@ -1,0 +1,164 @@
+@media (prefers-color-scheme: dark) {
+  /* SELECT */
+  .ant-select {
+    color: var(--color-gray-300);
+  }
+
+  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    background-color: var(--color-dark-surface);
+  }
+
+  .ant-select-arrow .anticon:not(.ant-select-suffix) {
+    color: var(--color-gray-300);
+  }
+
+  .ant-select-dropdown {
+    background-color: var(--color-dark-surface);
+  }
+
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background-color: var(--color-dark-elevated);
+  }
+
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: var(--color-dark-muted);
+  }
+
+  .ant-select-item-option-content {
+    color: var(--color-gray-300);
+  }
+
+  /* DATE RANGE */
+  .ant-picker {
+    color: var(--color-dark-border-light);
+    background-color: var(--color-dark-surface);
+  }
+
+  .ant-picker-separator {
+    color: var(--color-dark-border-light);
+  }
+
+  .ant-picker-suffix {
+    color: var(--color-dark-border-light);
+  }
+
+  .ant-picker-panel-container {
+    background-color: var(--color-dark-surface);
+  }
+
+  .ant-picker-header button {
+    color: var(--color-dark-muted);
+  }
+
+  .ant-picker-header > button:hover {
+    color: white;
+  }
+
+  .ant-picker-input > input {
+    color: var(--color-dark-border-light);
+  }
+
+  .ant-picker-content th {
+    color: var(--color-dark-border-light);
+  }
+
+  .ant-picker-cell {
+    color: var(--color-dark-muted);
+  }
+  .ant-picker-cell:hover,
+  .ant-picker-cell .ant-picker-cell-inner:hover {
+    background-color: white;
+    color: var(--color-dark-base);
+  }
+
+  .ant-picker-cell-in-view {
+    color: var(--color-dark-border-light);
+  }
+
+  /* Button */
+  .ant-btn {
+    background-color: var(--color-dark-surface);
+    color: var(--color-dark-border-light);
+  }
+
+  .ant-btn:hover {
+    background-color: var(--color-dark-elevated);
+    color: white;
+    border-color: var(--color-dark-muted);
+  }
+
+  /* Table */
+  .ant-table-thead > tr > th {
+    background-color: var(--color-dark-elevated);
+    color: var(--color-gray-300);
+  }
+
+  .ant-table {
+    background-color: var(--color-dark-elevated);
+    color: var(--color-gray-300);
+  }
+
+  .ant-table-tbody > tr.ant-table-row:hover > td,
+  .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+    background-color: var(--color-dark-elevated);
+  }
+
+  /* Pagination */
+  .ant-pagination-next .ant-pagination-item-link,
+  .ant-pagination-prev .ant-pagination-item-link {
+    background-color: var(--color-dark-surface);
+    color: var(--color-dark-border-light);
+  }
+
+  .ant-pagination-item {
+    background-color: var(--color-dark-surface);
+  }
+
+  .ant-pagination-item:not(.ant-pagination-item-active) a {
+    color: var(--color-dark-border-light);
+  }
+
+  /* Modal */
+  .ant-modal-header {
+    background-color: var(--color-dark-surface);
+    .ant-modal-title {
+      color: var(--color-gray-200);
+    }
+  }
+
+  .ant-modal-content {
+    background-color: var(--color-dark-surface);
+  }
+
+  /* Input */
+  .ant-input {
+    background-color: var(--color-dark-base);
+    color: white;
+  }
+
+  /* label */
+  .ant-form-item .ant-form-item-label > label {
+    color: var(--color-gray-200);
+  }
+
+  /* TABS */
+  .ant-tabs-tab .ant-tabs-tab-btn {
+    color: var(--color-gray-300);
+  }
+
+  /* MODALS */
+  .ant-modal-confirm-confirm {
+    .ant-modal-confirm-title {
+      color: var(--color-gray-300) !important;
+    }
+
+    .ant-modal-confirm-btns .ant-btn:first-child {
+      color: var(--color-gray-300) !important;
+      border-color: var(--color-dark-border-light) !important;
+    }
+
+    .ant-modal-confirm-btns .ant-btn:last-child {
+      color: white !important;
+    }
+  }
+}

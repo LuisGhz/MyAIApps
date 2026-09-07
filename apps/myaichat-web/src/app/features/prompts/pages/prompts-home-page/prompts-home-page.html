@@ -1,0 +1,53 @@
+<div class="flex flex-col h-full">
+  <div class="flex items-center justify-end p-4 border-b border-dark-input">
+    <button
+      class="app-text px-3 py-2 app-bg-base app-hover-bg-base trans-c-200 rounded-lg cursor-pointer"
+      (click)="onCreate()"
+    >
+      <span nz-icon nzType="plus"></span>
+      New Prompt
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-2">
+    @if (prompts.value().length === 0) {
+      <div class="flex items-center justify-center h-full">
+        <nz-empty
+          nzNotFoundContent="No prompts yet"
+          class="[&_.ant-empty-description]:text-gray-400!"
+        ></nz-empty>
+      </div>
+    } @else {
+      @for (prompt of prompts.value(); track prompt.id) {
+        <button
+          class="group relative flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-300 hover:dark:bg-dark-input mb-1 transition-colors max-w-xl mx-auto w-full text-left"
+          (click)="onSelectPrompt(prompt.id)"
+        >
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium app-text truncate text-left">
+              {{ prompt.name }}
+            </div>
+          </div>
+          <div class="flex items-center gap-1 md:opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              nz-button
+              nzType="text"
+              class="text-gray-600! dark:text-gray-400! hover:text-gray-800! hover:dark:text-gray-200! hover:dark:bg-dark-border!"
+              (click)="onEdit(prompt.id, $event)"
+            >
+              <span class="text-xl!" nz-icon nzType="edit"></span>
+            </button>
+            <button
+              nz-button
+              nzType="text"
+              class="text-red-400! hover:text-red-600! hover:dark:text-red-300! hover:dark:bg-dark-border!"
+              (click)="onDelete(prompt.id, $event)"
+            >
+              <span class="text-xl!" nz-icon nzType="delete"></span>
+            </button>
+          </div>
+        </button>
+      }
+    }
+  </div>
+</div>

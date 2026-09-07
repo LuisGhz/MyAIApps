@@ -1,0 +1,110 @@
+<nav class="flex h-full flex-col px-3 py-4 text-slate-100" role="navigation" aria-label="Main navigation">
+  <div [class]="isCollapsed() ? 'flex flex-col items-center gap-2 pb-6' : 'flex items-center gap-3 px-2 pb-6'">
+    <div
+      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/10 text-sm font-semibold text-sky-200 shadow-[0_0_24px_rgba(56,189,248,0.12)]"
+      aria-hidden="true"
+    >
+      AI
+    </div>
+    @if (!isCollapsed()) {
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-semibold tracking-wide text-white">My AI English</p>
+        <p class="truncate text-xs text-slate-400">Write clearer English</p>
+      </div>
+    }
+    @if (!isCollapsed() || !isMobile()) {
+      <button
+        class="wcag-outline flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:border-sky-400/30 hover:text-white"
+        type="button"
+        (click)="toggleCollapse()"
+        aria-controls="sider-nav"
+        [attr.aria-expanded]="!isCollapsed()"
+      >
+        <nz-icon class="text-base" [nzType]="isCollapsed() ? 'menu-unfold' : 'menu-fold'" nzTheme="outline" />
+        <span class="sr-only">Toggle navigation menu</span>
+      </button>
+    }
+  </div>
+
+  <ul id="sider-nav" class="flex flex-1 flex-col gap-2" [attr.aria-hidden]="isMobile() && isCollapsed()">
+    <li>
+      <a
+        class="wcag-ring group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+        routerLink="enhance"
+        routerLinkActive="border-sky-400/20 bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [attr.title]="isCollapsed() ? 'Enhance' : null"
+        aria-label="Enhance"
+        [attr.tabindex]="isMobile() && isCollapsed() ? -1 : null"
+        (click)="collapseIfMobile()"
+      >
+        <span
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-900/60 text-sky-200"
+          aria-hidden="true"
+        >
+          <app-enhance-icon />
+        </span>
+        @if (!isCollapsed()) {
+          <span>Enhance</span>
+        }
+      </a>
+    </li>
+    <li>
+      <a
+        class="wcag-ring group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+        routerLink="compare"
+        routerLinkActive="border-sky-400/20 bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+        [attr.title]="isCollapsed() ? 'Compare' : null"
+        aria-label="Compare"
+        [attr.tabindex]="isMobile() && isCollapsed() ? -1 : null"
+        (click)="collapseIfMobile()"
+      >
+        <span
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-900/60 text-slate-200"
+          aria-hidden="true"
+        >
+          <app-compare-icon />
+        </span>
+        @if (!isCollapsed()) {
+          <span>Compare</span>
+        }
+      </a>
+    </li>
+    <li>
+      <a
+        class="wcag-ring group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+        routerLink="phrasal-verbs"
+        routerLinkActive="border-sky-400/20 bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+        [attr.title]="isCollapsed() ? 'Phrasal Verbs' : null"
+        aria-label="Phrasal Verbs"
+        [attr.tabindex]="isMobile() && isCollapsed() ? -1 : null"
+        (click)="collapseIfMobile()"
+      >
+        <span
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-900/60 text-slate-200"
+          aria-hidden="true"
+        >
+          <app-phrasal-verbs-icon />
+        </span>
+        @if (!isCollapsed()) {
+          <span>Phrasal Verbs</span>
+        }
+      </a>
+    </li>
+  </ul>
+
+  <div class="mt-auto border-t border-white/10 pt-4">
+    <button
+      class="wcag-outline flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white"
+      type="button"
+      (click)="logout()"
+    >
+      <nz-icon class="text-lg text-slate-300" nzType="logout" nzTheme="outline" />
+      @if (!isCollapsed()) {
+        <span>Logout</span>
+      } @else {
+        <span class="sr-only">Logout</span>
+      }
+    </button>
+  </div>
+</nav>

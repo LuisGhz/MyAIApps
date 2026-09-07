@@ -1,0 +1,100 @@
+<main class="block min-h-full">
+  <section
+    class="enhance-surface app-panel relative min-h-full w-full overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+    aria-labelledby="enhance-page-title"
+  >
+    <header class="mb-6">
+      <h1
+        class="m-0 text-[clamp(1.8rem,2.7vw,2.5rem)] leading-[1.1] tracking-[-0.03em] text-slate-50"
+        id="enhance-page-title"
+      >
+        Enhance your English
+      </h1>
+      <p class="mt-[0.45rem] text-[0.95rem] text-slate-400">
+        Enter the text you want to enhance below.
+      </p>
+    </header>
+
+    <form class="grid gap-4" [formGroup]="enhanceForm" (ngSubmit)="onEnhance()">
+      <div class="app-field-group">
+        <label class="app-field-label" for="text-to-enhance">Text to enhance</label>
+        <textarea
+          class="app-field-control min-h-[10.5rem] resize-y"
+          id="text-to-enhance"
+          formControlName="textToEnhance"
+          nz-input
+          placeholder="I want to see you."
+        ></textarea>
+        @if (enhanceForm.controls.textToEnhance.invalid && enhanceForm.controls.textToEnhance.touched) {
+          <p class="app-error-copy" role="alert">Enter the text you want to improve.</p>
+        }
+      </div>
+
+      <div class="app-field-group">
+        <label class="app-field-label" for="additional-context">Additional Context</label>
+        <input
+          class="app-field-control"
+          id="additional-context"
+          type="text"
+          formControlName="context"
+          nz-input
+          placeholder="I'm waiting a call from my boss"
+        />
+      </div>
+
+      <div class="flex items-center">
+        <button
+          class="app-primary-button min-w-[8.5rem]"
+          type="submit"
+          [disabled]="enhanceForm.invalid || isLoading()"
+        >
+          {{ isLoading() ? 'Enhancing...' : 'Enhance Text' }}
+        </button>
+      </div>
+    </form>
+
+    <section
+      class="app-results-shell mt-6"
+      aria-labelledby="enhanced-results-title"
+      aria-live="polite"
+    >
+      <div class="mb-3.5">
+        <h2 class="app-panel-heading" id="enhanced-results-title">Enhanced Results</h2>
+        @if (!isLoading() && resultItems().length === 0) {
+          <p class="app-muted-copy mt-1.5">Your grammar, tone, and phrasing options will appear here.</p>
+        }
+      </div>
+
+      @if (isLoading()) {
+        <div class="grid gap-[0.6rem]" aria-label="Generating enhanced results">
+          <span class="results-loading-bar"></span>
+          <span class="results-loading-bar results-loading-bar-short"></span>
+          <span class="results-loading-bar"></span>
+        </div>
+      } @else if (resultItems().length > 0) {
+        <ul class="app-results-list">
+          @for (result of resultItems(); track result.key) {
+            <li class="app-result-card">
+              <div class="flex items-start justify-between gap-4 px-4 py-4 max-[767px]:flex-col">
+                <div>
+                  <p class="app-result-label">{{ result.label }}</p>
+                  <p class="app-result-copy">{{ result.value }}</p>
+                </div>
+                <button
+                  class="app-copy-button"
+                  type="button"
+                  [class.app-copy-button-active]="copiedField() === result.key"
+                  [attr.aria-label]="'Copy ' + result.label"
+                  [attr.title]="copiedField() === result.key ? 'Copied' : 'Copy result'"
+                  (click)="copyResult(result.key, result.value)"
+                >
+                  {{ copiedField() === result.key ? 'Copied' : 'Copy' }}
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </section>
+</main>
