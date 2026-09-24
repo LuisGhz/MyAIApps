@@ -1,5 +1,5 @@
 {
-  "name": "myaichat",
+  "name": "@myaiapps/chat-web",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
