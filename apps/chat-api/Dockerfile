@@ -1,30 +1,27 @@
-FROM node:22-alpine AS build
+FROM oven/bun:1.4-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+COPY package.json ./
+RUN bun install
 COPY . .
-RUN npm run build
+RUN bun run build
 
-FROM node:22-alpine AS production
+FROM oven/bun:1.4-alpine AS production
 
 RUN addgroup -S nonroot \
     && adduser -S nonroot -G nonroot
 
-USER nonroot
-
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json ./
 
 # Install only production dependencies
-RUN npm ci --omit=dev
+RUN bun install --production
 
 # Copy built application (includes compiled migrations)
 COPY --from=build /app/dist /app/dist
 
-# Copy TypeORM CLI wrapper for running migrations with compiled JS
-COPY typeorm-cli.js ./
+USER nonroot
 
-CMD ["node", "--input-type=module", "dist/main.js"]
+CMD ["bun", "dist/main.js"]
 EXPOSE 3000

@@ -24,7 +24,7 @@ import { provideAuth0, authHttpInterceptorFn } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
 
 import { provideNzIcons } from 'ng-zorro-antd/icon';
-import { LogoutOutline } from '@ant-design/icons-angular/icons';
+import { LogoutOutline, ReadOutline } from '@ant-design/icons-angular/icons';
 registerLocaleData(en);
 
 class SuffixStorageEngine implements StorageEngine {
@@ -59,7 +59,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideNzI18n(en_US),
-    provideNzIcons([LogoutOutline]),
+    provideNzIcons([LogoutOutline, ReadOutline]),
     provideAnimationsAsync(),
     provideAuth0({
       domain: environment.auth0.domain,

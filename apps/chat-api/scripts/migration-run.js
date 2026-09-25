@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * Cross-platform migration script helper.
@@ -9,10 +9,11 @@
  *   npm run migration:<module>:create   --name=<MigrationName>
  */
 
-const { execSync } = require('node:child_process');
+const { spawnSync } = require('node:child_process');
 
-const [, , module, action] = process.argv;
-const name = process.env.npm_config_name || '';
+const [, , moduleName, action, ...arguments_] = process.argv;
+const nameArgument = arguments_.find((argument) => argument.startsWith('--name='));
+const name = nameArgument?.slice('--name='.length) || process.env.npm_config_name || '';
 
 if (!name) {
   console.error(
@@ -24,20 +25,28 @@ if (!name) {
 }
 
 const dataSource = 'src/config/db/db.datasource.ts';
-const migrationPath = `src/modules/${module}/migrations/${name}`;
+const migrationPath = `src/modules/${moduleName}/migrations/${name}`;
 
-let command;
+let commandArguments;
 if (action === 'generate') {
-  command = `npm run typeorm migration:generate -- -d ${dataSource} ${migrationPath}`;
+  commandArguments = [
+    'run',
+    'typeorm',
+    'migration:generate',
+    '-d',
+    dataSource,
+    migrationPath,
+  ];
 } else if (action === 'create') {
-  command = `npm run typeorm migration:create -- ${migrationPath}`;
+  commandArguments = ['run', 'typeorm', 'migration:create', migrationPath];
 } else {
   console.error(`Unknown action: ${action}. Use "generate" or "create".`);
   process.exit(1);
 }
 
-try {
-  execSync(command, { stdio: 'inherit' });
-} catch (e) {
-  process.exit(e.status || 1);
-}
+const result = spawnSync('bun', commandArguments, {
+  stdio: 'inherit',
+  env: process.env,
+});
+
+process.exit(result.status ?? 1);

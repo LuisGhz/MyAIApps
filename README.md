@@ -1,159 +1,211 @@
-# Turborepo starter
+# MyAI Apps
 
-This Turborepo starter is maintained by the Turborepo core team.
+MyAI Apps is a Bun workspace monorepo containing three web applications and their NestJS APIs. Turborepo runs repository tasks and caches build and test outputs. Each application can also be developed and deployed independently.
 
-## Using this example
+## Applications
 
-Run the following command:
+| Application   | Purpose and primary stack                                                               | Production port mapping |
+| ------------- | --------------------------------------------------------------------------------------- | ----------------------- |
+| `chat-api`    | NestJS, TypeORM, PostgreSQL, Redis, OpenAI, Gemini, GitHub OAuth, and S3-backed uploads | `3001:3000`             |
+| `chat-web`    | Angular 21, NGXS, and Tailwind CSS                                                      | `3051:80`               |
+| `english-api` | NestJS, TypeORM, PostgreSQL, Auth0, and OpenAI                                          | `3003:3000`             |
+| `english-web` | Angular 21, Auth0, and Tailwind CSS                                                     | `3053:80`               |
+| `imggen-api`  | NestJS, TypeORM, PostgreSQL, Auth0, OpenAI, Gemini, and AWS S3                          | `3004:3000`             |
+| `imggen-web`  | React 19, Vite, Tailwind CSS, Auth0, and Zustand                                        | `3054:80`               |
 
-```sh
-npx create-turbo@latest
+The mappings are the host ports assigned by the deployment scripts; the values after the colon are the ports inside each container. API routes use the `/api` prefix where configured by the application.
+
+## Repository Layout
+
+```text
+apps/                 Six independently buildable applications
+deploy/               Per-application remote Docker deployment scripts
+.github/workflows/    Central deployment workflow
+packages/             Shared workspace package location
+turbo.json            Turborepo task graph and output cache configuration
 ```
 
-## What's inside?
+## Requirements
 
-This Turborepo includes the following packages/apps:
+- Bun 1.4.0 or newer. The root package declares Bun 1.4.0 as its package-manager version.
+- Docker for container builds and the local Redis service.
+- PostgreSQL instances for the APIs you run. Database servers are not provisioned by the root workspace.
+- Application-specific provider credentials for features such as Auth0, OpenAI, Gemini, and AWS S3.
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Install workspace dependencies from the repository root:
 
 ```sh
-cd my-turborepo
-turbo build
+bun install
 ```
 
-Without global `turbo`, use your package manager:
+Do not commit `.env` files or credentials. The repository currently includes example configuration in `apps/english-api/.env.example` and `apps/imggen-web/.env.example`; consult the relevant app's configuration schema and README for additional settings.
+
+### Runtime version note
+
+The root package targets Bun 1.4.0, and the chat API and chat web Dockerfiles use Bun 1.4 images. The English API, English web, image-generation API, and image-generation web Dockerfiles currently pin Bun 1.3.5. Update those Dockerfile base images if Bun 1.4+ is to be enforced consistently in production as well as local development.
+
+## Development
+
+Root scripts are backed by Turborepo:
 
 ```sh
-cd my-turborepo
-npx turbo build
-bun exec turbo build
-bun exec turbo build
+bun run build
+bun run lint
+bun run check-types
+bunx turbo run test
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Build a single workspace by package name:
 
 ```sh
-turbo build --filter=docs
+bun run build --filter=@myaiapps/chat-api
+bun run build --filter=@myaiapps/chat-web
 ```
 
-Without global `turbo`:
+For watch-mode development, use the script provided by the application. NestJS APIs use `start:dev`; the Angular and Vite applications use their own `start` or `dev` scripts. For example:
 
 ```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+cd apps/chat-api
+bun run start:dev
 ```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
 
 ```sh
-cd my-turborepo
-turbo dev
+cd apps/imggen-web
+bun run dev
 ```
 
-Without global `turbo`, use your package manager:
+Configure each API's database and provider environment before starting it. The chat API's compose file starts Redis only; it does not start PostgreSQL. From `apps/chat-api`, run `docker compose up -d` to start that Redis service for local development, and set `REDIS_HOST=localhost` for an API process running on the host.
+
+Useful application-level checks include `bun run test`, `bun run test:e2e` (where provided), and `bun run test:cov` from the corresponding API directory. The web projects expose their test scripts in their respective `package.json` files.
+
+## TypeORM Migrations
+
+Run a migration against the database configured for a local API from that API's directory:
 
 ```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
+cd apps/chat-api
+bun run migration:run
 ```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
 
 ```sh
-turbo dev --filter=web
+cd apps/english-api
+bun run migration:run
 ```
-
-Without global `turbo`:
 
 ```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
+cd apps/imggen-api
+bun run migration:run
 ```
 
-### Remote Caching
+Set the matching `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, and `DB_NAME` values before running the command. Migration status and rollback scripts are also available in each API package where defined (for example, `migration:show` and `migration:revert`).
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+For a built production image, run the production command from its API directory with production database environment variables available:
 
 ```sh
-cd my-turborepo
-turbo login
+bun run build
+bun run migration:run:prod
 ```
 
-Without global `turbo`, use your package manager:
+The production script executes the compiled TypeORM CLI (`dist/typeorm-cli.js`). The deployment scripts run `bun run migration:run:prod` in a one-off container connected to the `dbs` Docker network before replacing the running API container. A failed migration stops that deployment before the new API container is started.
 
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
+## Build and Cache
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+The root `package.json` exposes `build`, `dev`, `lint`, `format`, and `check-types` scripts. Turborepo task configuration is in `turbo.json`:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- Build tasks declare `dist/**` as cacheable output.
+- Test tasks declare `coverage/**` as cacheable output.
+- Development tasks are persistent and not cached.
+- Build tasks account for `.env*` and TypeScript configuration files as inputs.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Turborepo uses its local cache by default. The deployment workflow separately uses Docker Buildx with a GitHub Actions layer cache scoped per application. The current deployment workflow builds the app-specific Dockerfiles directly and does not invoke the Turbo CLI; root workspace tasks and Docker layer caching are separate mechanisms.
 
-```sh
-turbo link
-```
+## Production Deployment
 
-Without global `turbo`:
+The centralized workflow is [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). It runs on pushes to `main` or `master`, or through `workflow_dispatch`, where an operator can select `all` or one of the six applications.
 
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
+For push events, `dorny/paths-filter` checks each `apps/<app>/**` directory and its matching `deploy/<app>.sh` script. Only matching applications are built and deployed. Each selected API or web image is built and pushed with Docker Buildx; its named GitHub Actions cache is then used for subsequent builds. The deploy job connects to the configured host over SSH and executes the app's script in `deploy/`.
 
-## Useful Links
+The current path filters do not include root files such as `package.json`, `bun.lock`, `turbo.json`, or files under `packages/`. Changes limited to those paths will not trigger an app deployment on push. Add the relevant paths to the workflow filters when shared workspace changes should deploy dependent applications.
 
-Learn more about the power of Turborepo:
+Production hosts must have Docker installed, the relevant application networks configured (`dbs` for the APIs and `redis` for chat API), database/network access, and the mapped host ports available. API deployment scripts pass runtime configuration to containers. The English and image-generation web builds receive configuration as Docker build arguments and bake it into their static bundles; chat web currently has no build arguments.
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+## GitHub Actions Configuration
+
+Create the following repository-level GitHub Secrets and Variables. The first column is the GitHub setting; the last column shows the name or purpose at the deployment/container boundary. Rows are grouped so shared settings are listed once.
+
+### GitHub Secrets
+
+| GitHub Secret                                                                                         | Used by                            | Container runtime or build-time mapping                                                               |
+| ----------------------------------------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `DOCKERHUB_TOKEN`                                                                                     | All deployments                    | Used for Docker Hub login on the build runner and remote host; not passed into application containers |
+| `SERVER_IP`                                                                                           | All deployments                    | SSH target; not an application variable                                                               |
+| `SERVER_USER`                                                                                         | All deployments                    | SSH account; not an application variable                                                              |
+| `SSH_PRIVATE_KEY`                                                                                     | All deployments                    | SSH authentication; not an application variable                                                       |
+| `SSH_PASSPHRASE`                                                                                      | All deployments                    | SSH key passphrase; not an application variable                                                       |
+| `AWS_ACCESS_KEY_ID`                                                                                   | Chat API, image-generation API     | Chat API: `S3_ACCESS_KEY`; image-generation API: `AWS_ACCESS_KEY_ID`                                  |
+| `AWS_SECRET_ACCESS_KEY`                                                                               | Chat API, image-generation API     | Chat API: `S3_SECRET_KEY`; image-generation API: `AWS_SECRET_ACCESS_KEY`                              |
+| `CHAT_DB_HOST`, `CHAT_DB_PORT`, `CHAT_DB_USERNAME`, `CHAT_DB_PASSWORD`, `CHAT_DB_NAME`                | Chat API                           | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
+| `CHAT_JWT_SECRET`                                                                                     | Chat API                           | `JWT_SECRET`                                                                                          |
+| `CHAT_OPENAI_API_KEY`                                                                                 | Chat API                           | `OPENAI_API_KEY`                                                                                      |
+| `CHAT_GEMINI_API_KEY`                                                                                 | Chat API                           | `GEMINI_API_KEY`                                                                                      |
+| `CHAT_GITHUB_CLIENT_ID`                                                                               | Chat API                           | `GITHUB_CLIENT_ID`                                                                                    |
+| `CHAT_GITHUB_CLIENT_SECRET`                                                                           | Chat API                           | `GITHUB_CLIENT_SECRET`                                                                                |
+| `CHAT_S3_BUCKET_NAME`                                                                                 | Chat API                           | `S3_BUCKET_NAME`                                                                                      |
+| `ENGLISH_DB_HOST`, `ENGLISH_DB_PORT`, `ENGLISH_DB_USERNAME`, `ENGLISH_DB_PASSWORD`, `ENGLISH_DB_NAME` | English API                        | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
+| `ENGLISH_OPENAI_API_KEY`                                                                              | English API                        | `OPENAI_API_KEY`                                                                                      |
+| `ENGLISH_AUTH0_DOMAIN`                                                                                | English API and web build          | API: `AUTH0_DOMAIN`; web Docker build arg: `NG_APP_AUTH0_DOMAIN`                                      |
+| `ENGLISH_AUTH0_AUDIENCE`                                                                              | English API and web build          | API: `AUTH0_AUDIENCE`; web Docker build arg: `NG_APP_AUTH0_AUDIENCE`                                  |
+| `ENGLISH_AUTH0_CLIENT_ID`                                                                             | English web build                  | Docker build arg: `NG_APP_AUTH0_CLIENT_ID`                                                            |
+| `IMGGEN_DB_HOST`, `IMGGEN_DB_PORT`, `IMGGEN_DB_USERNAME`, `IMGGEN_DB_PASSWORD`, `IMGGEN_DB_NAME`      | Image-generation API               | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
+| `IMGGEN_OPENAI_API_KEY`                                                                               | Image-generation API               | `OPENAI_API_KEY`                                                                                      |
+| `IMGGEN_GEMINI_API_KEY`                                                                               | Image-generation API               | `GEMINI_API_KEY`                                                                                      |
+| `IMGGEN_AUTH0_DOMAIN`                                                                                 | Image-generation API and web build | API: `AUTH0_DOMAIN`; web Docker build arg: `VITE_AUTH0_DOMAIN`                                        |
+| `IMGGEN_AUTH0_AUDIENCE`                                                                               | Image-generation API and web build | API: `AUTH0_AUDIENCE`; web Docker build arg: `VITE_AUTH0_AUDIENCE`                                    |
+| `IMGGEN_AUTH0_CLIENT_ID`                                                                              | Image-generation web build         | Docker build arg: `VITE_AUTH0_CLIENT_ID`                                                              |
+
+### GitHub Variables
+
+| GitHub Variable                                                                     | Used by                    | Container runtime or build-time mapping                                                          |
+| ----------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
+| `DOCKERHUB_USER`                                                                    | All deployments            | Docker Hub account and image namespace; forwarded to deploy scripts, not an app runtime variable |
+| `CHAT_API_PORT`                                                                     | Chat API                   | `PORT`; defaults to `3000` if unset                                                              |
+| `CHAT_JWT_EXPIRES_IN`, `CHAT_REFRESH_TOKEN_LENGTH`, `CHAT_REFRESH_TOKEN_EXPIRES_IN` | Chat API                   | Same-named container variables                                                                   |
+| `CHAT_GITHUB_CALLBACK_URL`                                                          | Chat API                   | `GITHUB_CALLBACK_URL`                                                                            |
+| `CHAT_FRONTEND_URL`                                                                 | Chat API                   | `FRONTEND_URL`                                                                                   |
+| `CHAT_MAX_SESSIONS_PER_USER`                                                        | Chat API                   | `MAX_SESSIONS_PER_USER`                                                                          |
+| `CHAT_CDN_DOMAIN`                                                                   | Chat API                   | `CDN_DOMAIN`                                                                                     |
+| `CHAT_THROTTLE_TTL`, `CHAT_THROTTLE_LIMIT`                                          | Chat API                   | Same-named container variables                                                                   |
+| `CHAT_REDIS_HOST`                                                                   | Chat API                   | `REDIS_HOST`                                                                                     |
+| `CHAT_CACHE_SHORT_TTL`, `CHAT_CACHE_TTL`, `CHAT_CACHE_LONG_TTL`                     | Chat API                   | Same-named container variables                                                                   |
+| `ENGLISH_FRONTEND_URL`                                                              | English API                | `FRONTEND_URL`                                                                                   |
+| `IMGGEN_API_PORT`                                                                   | Image-generation API       | `PORT`; defaults to `3000` if unset                                                              |
+| `IMGGEN_AWS_S3_REGION`                                                              | Image-generation API       | `AWS_S3_REGION`                                                                                  |
+| `IMGGEN_AWS_S3_BUCKET`                                                              | Image-generation API       | `AWS_S3_BUCKET`                                                                                  |
+| `IMGGEN_CDN_DOMAIN`                                                                 | Image-generation API       | `CDN_DOMAIN`                                                                                     |
+| `IMGGEN_API_URL`                                                                    | Image-generation web build | Docker build arg `VITE_API_URL`                                                                  |
+
+`NODE_ENV=production` is set by the API deployment jobs and is not a GitHub setting. The API host ports are set by the deploy scripts, not by the `*_API_PORT` variables; those variables configure the port inside the container.
+
+Auth0 domain, audience, and client ID are browser-visible configuration when included in a web build. Although the workflow currently reads these values from GitHub Secrets, they are compiled into static frontend assets and must not contain client secrets or other confidential credentials.
+
+## Deployment Scripts and Images
+
+| Application          | Image tag                                | Deployment script                                |
+| -------------------- | ---------------------------------------- | ------------------------------------------------ |
+| Chat API             | `personalwebapss:myaichat-nest`          | [`deploy/chat-api.sh`](deploy/chat-api.sh)       |
+| Chat web             | `personalwebapss:myaichat-angular`       | [`deploy/chat-web.sh`](deploy/chat-web.sh)       |
+| English API          | `personalwebapss:myaienglish-api-nestjs` | [`deploy/english-api.sh`](deploy/english-api.sh) |
+| English web          | `personalwebapss:myaienglish-angular`    | [`deploy/english-web.sh`](deploy/english-web.sh) |
+| Image-generation API | `personalwebapss:myaiimg-api`            | [`deploy/imggen-api.sh`](deploy/imggen-api.sh)   |
+| Image-generation web | `personalwebapss:myaiimg`                | [`deploy/imggen-web.sh`](deploy/imggen-web.sh)   |
+
+The `personalwebapss` image repository name is currently embedded in the deployment scripts. Keep image tags, workflow build tags, and deployment scripts aligned when changing image naming.
+
+## Application Documentation
+
+- [Chat API](apps/chat-api/README.md)
+- [Chat web](apps/chat-web/README.md)
+- [English API](apps/english-api/README.md)
+- [English web](apps/english-web/README.md)
+- [Image-generation API](apps/imggen-api/README.md)
+- [Image-generation web](apps/imggen-web/README.md)

@@ -1,0 +1,355 @@
+name: Deploy applications
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      app:
+        description: Application to deploy
+        type: choice
+        options:
+          - all
+          - chat-api
+          - chat-web
+          - english-api
+          - english-web
+          - imggen-api
+          - imggen-web
+        default: all
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      chat-api: ${{ steps.filter.outputs['chat-api'] }}
+      chat-web: ${{ steps.filter.outputs['chat-web'] }}
+      english-api: ${{ steps.filter.outputs['english-api'] }}
+      english-web: ${{ steps.filter.outputs['english-web'] }}
+      imggen-api: ${{ steps.filter.outputs['imggen-api'] }}
+      imggen-web: ${{ steps.filter.outputs['imggen-web'] }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        if: github.event_name == 'push'
+        id: filter
+        with:
+          filters: |
+            chat-api:
+              - 'apps/chat-api/**'
+              - 'deploy/chat-api.sh'
+            chat-web:
+              - 'apps/chat-web/**'
+              - 'deploy/chat-web.sh'
+            english-api:
+              - 'apps/english-api/**'
+              - 'deploy/english-api.sh'
+            english-web:
+              - 'apps/english-web/**'
+              - 'deploy/english-web.sh'
+            imggen-api:
+              - 'apps/imggen-api/**'
+              - 'deploy/imggen-api.sh'
+            imggen-web:
+              - 'apps/imggen-web/**'
+              - 'deploy/imggen-web.sh'
+
+  build-chat-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['chat-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/chat-api
+          file: ./apps/chat-api/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaichat-nest
+          cache-from: type=gha,scope=chat-api
+          cache-to: type=gha,mode=max,scope=chat-api
+
+  deploy-chat-api:
+    needs: [changes, build-chat-api]
+    if: ${{ needs.changes.outputs['chat-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          NODE_ENV: production
+          PORT: ${{ vars.CHAT_API_PORT || '3000' }}
+          DB_HOST: ${{ secrets.CHAT_DB_HOST }}
+          DB_PORT: ${{ secrets.CHAT_DB_PORT }}
+          DB_USERNAME: ${{ secrets.CHAT_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.CHAT_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.CHAT_DB_NAME }}
+          JWT_SECRET: ${{ secrets.CHAT_JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ vars.CHAT_JWT_EXPIRES_IN }}
+          REFRESH_TOKEN_LENGTH: ${{ vars.CHAT_REFRESH_TOKEN_LENGTH }}
+          REFRESH_TOKEN_EXPIRES_IN: ${{ vars.CHAT_REFRESH_TOKEN_EXPIRES_IN }}
+          OPENAI_API_KEY: ${{ secrets.CHAT_OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.CHAT_GEMINI_API_KEY }}
+          GITHUB_CLIENT_ID: ${{ secrets.CHAT_GITHUB_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET: ${{ secrets.CHAT_GITHUB_CLIENT_SECRET }}
+          GITHUB_CALLBACK_URL: ${{ vars.CHAT_GITHUB_CALLBACK_URL }}
+          FRONTEND_URL: ${{ vars.CHAT_FRONTEND_URL }}
+          MAX_SESSIONS_PER_USER: ${{ vars.CHAT_MAX_SESSIONS_PER_USER }}
+          CDN_DOMAIN: ${{ vars.CHAT_CDN_DOMAIN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET_NAME: ${{ secrets.CHAT_S3_BUCKET_NAME }}
+          THROTTLE_TTL: ${{ vars.CHAT_THROTTLE_TTL }}
+          THROTTLE_LIMIT: ${{ vars.CHAT_THROTTLE_LIMIT }}
+          REDIS_HOST: ${{ vars.CHAT_REDIS_HOST }}
+          CACHE_SHORT_TTL: ${{ vars.CHAT_CACHE_SHORT_TTL }}
+          CACHE_TTL: ${{ vars.CHAT_CACHE_TTL }}
+          CACHE_LONG_TTL: ${{ vars.CHAT_CACHE_LONG_TTL }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN,NODE_ENV,PORT,DB_HOST,DB_PORT,DB_USERNAME,DB_PASSWORD,DB_NAME,JWT_SECRET,JWT_EXPIRES_IN,REFRESH_TOKEN_LENGTH,REFRESH_TOKEN_EXPIRES_IN,OPENAI_API_KEY,GEMINI_API_KEY,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,GITHUB_CALLBACK_URL,FRONTEND_URL,MAX_SESSIONS_PER_USER,CDN_DOMAIN,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,S3_BUCKET_NAME,THROTTLE_TTL,THROTTLE_LIMIT,REDIS_HOST,CACHE_SHORT_TTL,CACHE_TTL,CACHE_LONG_TTL
+          script_path: deploy/chat-api.sh
+
+  build-chat-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['chat-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/chat-web
+          file: ./apps/chat-web/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaichat-angular
+          cache-from: type=gha,scope=chat-web
+          cache-to: type=gha,mode=max,scope=chat-web
+
+  deploy-chat-web:
+    needs: [changes, build-chat-web]
+    if: ${{ needs.changes.outputs['chat-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN
+          script_path: deploy/chat-web.sh
+
+  build-english-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['english-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/english-api
+          file: ./apps/english-api/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaienglish-api-nestjs
+          cache-from: type=gha,scope=english-api
+          cache-to: type=gha,mode=max,scope=english-api
+
+  deploy-english-api:
+    needs: [changes, build-english-api]
+    if: ${{ needs.changes.outputs['english-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          NODE_ENV: production
+          DB_HOST: ${{ secrets.ENGLISH_DB_HOST }}
+          DB_PORT: ${{ secrets.ENGLISH_DB_PORT }}
+          DB_USERNAME: ${{ secrets.ENGLISH_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.ENGLISH_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.ENGLISH_DB_NAME }}
+          OPENAI_API_KEY: ${{ secrets.ENGLISH_OPENAI_API_KEY }}
+          AUTH0_DOMAIN: ${{ secrets.ENGLISH_AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.ENGLISH_AUTH0_AUDIENCE }}
+          FRONTEND_URL: ${{ vars.ENGLISH_FRONTEND_URL }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN,NODE_ENV,DB_HOST,DB_PORT,DB_USERNAME,DB_PASSWORD,DB_NAME,OPENAI_API_KEY,AUTH0_DOMAIN,AUTH0_AUDIENCE,FRONTEND_URL
+          script_path: deploy/english-api.sh
+
+  build-english-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['english-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/english-web
+          file: ./apps/english-web/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaienglish-angular
+          cache-from: type=gha,scope=english-web
+          cache-to: type=gha,mode=max,scope=english-web
+          build-args: |
+            NG_APP_AUTH0_DOMAIN=${{ secrets.ENGLISH_AUTH0_DOMAIN }}
+            NG_APP_AUTH0_CLIENT_ID=${{ secrets.ENGLISH_AUTH0_CLIENT_ID }}
+            NG_APP_AUTH0_AUDIENCE=${{ secrets.ENGLISH_AUTH0_AUDIENCE }}
+
+  deploy-english-web:
+    needs: [changes, build-english-web]
+    if: ${{ needs.changes.outputs['english-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN
+          script_path: deploy/english-web.sh
+
+  build-imggen-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['imggen-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/imggen-api
+          file: ./apps/imggen-api/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaiimg-api
+          cache-from: type=gha,scope=imggen-api
+          cache-to: type=gha,mode=max,scope=imggen-api
+
+  deploy-imggen-api:
+    needs: [changes, build-imggen-api]
+    if: ${{ needs.changes.outputs['imggen-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          NODE_ENV: production
+          PORT: ${{ vars.IMGGEN_API_PORT || '3000' }}
+          OPENAI_API_KEY: ${{ secrets.IMGGEN_OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.IMGGEN_GEMINI_API_KEY }}
+          DB_HOST: ${{ secrets.IMGGEN_DB_HOST }}
+          DB_PORT: ${{ secrets.IMGGEN_DB_PORT }}
+          DB_USERNAME: ${{ secrets.IMGGEN_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.IMGGEN_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.IMGGEN_DB_NAME }}
+          AUTH0_DOMAIN: ${{ secrets.IMGGEN_AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.IMGGEN_AUTH0_AUDIENCE }}
+          AWS_S3_REGION: ${{ vars.IMGGEN_AWS_S3_REGION }}
+          AWS_S3_BUCKET: ${{ vars.IMGGEN_AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CDN_DOMAIN: ${{ vars.IMGGEN_CDN_DOMAIN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN,NODE_ENV,PORT,OPENAI_API_KEY,GEMINI_API_KEY,DB_HOST,DB_PORT,DB_USERNAME,DB_PASSWORD,DB_NAME,AUTH0_DOMAIN,AUTH0_AUDIENCE,AWS_S3_REGION,AWS_S3_BUCKET,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,CDN_DOMAIN
+          script_path: deploy/imggen-api.sh
+
+  build-imggen-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['imggen-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/imggen-web
+          file: ./apps/imggen-web/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaiimg
+          cache-from: type=gha,scope=imggen-web
+          cache-to: type=gha,mode=max,scope=imggen-web
+          build-args: |
+            VITE_API_URL=${{ vars.IMGGEN_API_URL }}
+            VITE_AUTH0_DOMAIN=${{ secrets.IMGGEN_AUTH0_DOMAIN }}
+            VITE_AUTH0_CLIENT_ID=${{ secrets.IMGGEN_AUTH0_CLIENT_ID }}
+            VITE_AUTH0_AUDIENCE=${{ secrets.IMGGEN_AUTH0_AUDIENCE }}
+
+  deploy-imggen-web:
+    needs: [changes, build-imggen-web]
+    if: ${{ needs.changes.outputs['imggen-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN
+          script_path: deploy/imggen-web.sh
