@@ -1,0 +1,176 @@
+name: Deploy chat applications
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      app:
+        description: Chat application to deploy
+        type: choice
+        options:
+          - all
+          - chat-api
+          - chat-web
+        default: all
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      chat-api: ${{ steps.filter.outputs['chat-api'] }}
+      chat-web: ${{ steps.filter.outputs['chat-web'] }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        if: github.event_name == 'push'
+        id: filter
+        with:
+          filters: |
+            chat-api:
+              - 'apps/chat-api/**'
+              - 'deploy/chat-api.sh'
+              - 'package.json'
+              - 'bun.lock'
+              - '.npmrc'
+              - 'turbo.json'
+              - 'packages/**'
+            chat-web:
+              - 'apps/chat-web/**'
+              - 'deploy/chat-web.sh'
+              - 'package.json'
+              - 'bun.lock'
+              - '.npmrc'
+              - 'turbo.json'
+              - 'packages/**'
+
+  build-chat-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['chat-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Build with Turborepo
+        run: bunx turbo run build --filter=@myaiapps/chat-api
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/chat-api
+          file: ./apps/chat-api/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaichat-nest
+          cache-from: type=gha,scope=chat-api
+          cache-to: type=gha,mode=max,scope=chat-api
+
+  deploy-chat-api:
+    needs: [changes, build-chat-api]
+    if: ${{ needs.changes.outputs['chat-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          NODE_ENV: production
+          PORT: ${{ vars.CHAT_API_PORT || '3000' }}
+          DB_HOST: ${{ secrets.CHAT_DB_HOST }}
+          DB_PORT: ${{ secrets.CHAT_DB_PORT }}
+          DB_USERNAME: ${{ secrets.CHAT_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.CHAT_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.CHAT_DB_NAME }}
+          JWT_SECRET: ${{ secrets.CHAT_JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ vars.CHAT_JWT_EXPIRES_IN }}
+          REFRESH_TOKEN_LENGTH: ${{ vars.CHAT_REFRESH_TOKEN_LENGTH }}
+          REFRESH_TOKEN_EXPIRES_IN: ${{ vars.CHAT_REFRESH_TOKEN_EXPIRES_IN }}
+          OPENAI_API_KEY: ${{ secrets.CHAT_OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.CHAT_GEMINI_API_KEY }}
+          GITHUB_CLIENT_ID: ${{ secrets.CHAT_GITHUB_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET: ${{ secrets.CHAT_GITHUB_CLIENT_SECRET }}
+          GITHUB_CALLBACK_URL: ${{ vars.CHAT_GITHUB_CALLBACK_URL }}
+          FRONTEND_URL: ${{ vars.CHAT_FRONTEND_URL }}
+          MAX_SESSIONS_PER_USER: ${{ vars.CHAT_MAX_SESSIONS_PER_USER }}
+          CDN_DOMAIN: ${{ vars.CHAT_CDN_DOMAIN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET_NAME: ${{ secrets.CHAT_S3_BUCKET_NAME }}
+          THROTTLE_TTL: ${{ vars.CHAT_THROTTLE_TTL }}
+          THROTTLE_LIMIT: ${{ vars.CHAT_THROTTLE_LIMIT }}
+          REDIS_HOST: ${{ vars.CHAT_REDIS_HOST }}
+          CACHE_SHORT_TTL: ${{ vars.CHAT_CACHE_SHORT_TTL }}
+          CACHE_TTL: ${{ vars.CHAT_CACHE_TTL }}
+          CACHE_LONG_TTL: ${{ vars.CHAT_CACHE_LONG_TTL }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN,NODE_ENV,PORT,DB_HOST,DB_PORT,DB_USERNAME,DB_PASSWORD,DB_NAME,JWT_SECRET,JWT_EXPIRES_IN,REFRESH_TOKEN_LENGTH,REFRESH_TOKEN_EXPIRES_IN,OPENAI_API_KEY,GEMINI_API_KEY,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,GITHUB_CALLBACK_URL,FRONTEND_URL,MAX_SESSIONS_PER_USER,CDN_DOMAIN,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,S3_BUCKET_NAME,THROTTLE_TTL,THROTTLE_LIMIT,REDIS_HOST,CACHE_SHORT_TTL,CACHE_TTL,CACHE_LONG_TTL
+          script_path: deploy/chat-api.sh
+
+  build-chat-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['chat-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Build with Turborepo
+        run: bunx turbo run build --filter=@myaiapps/chat-web
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/chat-web
+          file: ./apps/chat-web/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaichat-angular
+          cache-from: type=gha,scope=chat-web
+          cache-to: type=gha,mode=max,scope=chat-web
+
+  deploy-chat-web:
+    needs: [changes, build-chat-web]
+    if: ${{ needs.changes.outputs['chat-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN
+          script_path: deploy/chat-web.sh

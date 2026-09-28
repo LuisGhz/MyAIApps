@@ -1,0 +1,168 @@
+name: Deploy image-generation applications
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      app:
+        description: Image-generation application to deploy
+        type: choice
+        options:
+          - all
+          - imggen-api
+          - imggen-web
+        default: all
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      imggen-api: ${{ steps.filter.outputs['imggen-api'] }}
+      imggen-web: ${{ steps.filter.outputs['imggen-web'] }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        if: github.event_name == 'push'
+        id: filter
+        with:
+          filters: |
+            imggen-api:
+              - 'apps/imggen-api/**'
+              - 'deploy/imggen-api.sh'
+              - 'package.json'
+              - 'bun.lock'
+              - '.npmrc'
+              - 'turbo.json'
+              - 'packages/**'
+            imggen-web:
+              - 'apps/imggen-web/**'
+              - 'deploy/imggen-web.sh'
+              - 'package.json'
+              - 'bun.lock'
+              - '.npmrc'
+              - 'turbo.json'
+              - 'packages/**'
+
+  build-imggen-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['imggen-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Build with Turborepo
+        run: bunx turbo run build --filter=@myaiapps/imggen-api
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/imggen-api
+          file: ./apps/imggen-api/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaiimg-api
+          cache-from: type=gha,scope=imggen-api
+          cache-to: type=gha,mode=max,scope=imggen-api
+
+  deploy-imggen-api:
+    needs: [changes, build-imggen-api]
+    if: ${{ needs.changes.outputs['imggen-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          NODE_ENV: production
+          PORT: ${{ vars.IMGGEN_API_PORT || '3000' }}
+          OPENAI_API_KEY: ${{ secrets.IMGGEN_OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.IMGGEN_GEMINI_API_KEY }}
+          DB_HOST: ${{ secrets.IMGGEN_DB_HOST }}
+          DB_PORT: ${{ secrets.IMGGEN_DB_PORT }}
+          DB_USERNAME: ${{ secrets.IMGGEN_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.IMGGEN_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.IMGGEN_DB_NAME }}
+          AUTH0_DOMAIN: ${{ secrets.IMGGEN_AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.IMGGEN_AUTH0_AUDIENCE }}
+          AWS_S3_REGION: ${{ vars.IMGGEN_AWS_S3_REGION }}
+          AWS_S3_BUCKET: ${{ vars.IMGGEN_AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CDN_DOMAIN: ${{ vars.IMGGEN_CDN_DOMAIN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN,NODE_ENV,PORT,OPENAI_API_KEY,GEMINI_API_KEY,DB_HOST,DB_PORT,DB_USERNAME,DB_PASSWORD,DB_NAME,AUTH0_DOMAIN,AUTH0_AUDIENCE,AWS_S3_REGION,AWS_S3_BUCKET,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,CDN_DOMAIN
+          script_path: deploy/imggen-api.sh
+
+  build-imggen-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['imggen-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Build with Turborepo
+        run: bunx turbo run build --filter=@myaiapps/imggen-web
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+          VITE_API_URL: ${{ vars.IMGGEN_API_URL }}
+          VITE_AUTH0_DOMAIN: ${{ secrets.IMGGEN_AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.IMGGEN_AUTH0_CLIENT_ID }}
+          VITE_AUTH0_AUDIENCE: ${{ secrets.IMGGEN_AUTH0_AUDIENCE }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/imggen-web
+          file: ./apps/imggen-web/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaiimg
+          cache-from: type=gha,scope=imggen-web
+          cache-to: type=gha,mode=max,scope=imggen-web
+
+  deploy-imggen-web:
+    needs: [changes, build-imggen-web]
+    if: ${{ needs.changes.outputs['imggen-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN
+          script_path: deploy/imggen-web.sh

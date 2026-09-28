@@ -117,21 +117,25 @@ The root `package.json` exposes `build`, `dev`, `lint`, `format`, and `check-typ
 - Development tasks are persistent and not cached.
 - Build tasks account for `.env*` and TypeScript configuration files as inputs.
 
-Turborepo uses its local cache by default. The deployment workflow separately uses Docker Buildx with a GitHub Actions layer cache scoped per application. The current deployment workflow builds the app-specific Dockerfiles directly and does not invoke the Turbo CLI; root workspace tasks and Docker layer caching are separate mechanisms.
+Turborepo remote caching is enabled for CI. Configure the repository variable `TURBO_TEAM` and secret `TURBO_TOKEN` with the Vercel team slug and a Vercel access token. Each app build job installs the root Bun workspace and runs its filtered `turbo run build` task. Turbo restores or uploads the declared `dist/**` output through the remote cache; frontend build-time environment variables are included in their task hashes.
+
+Dockerfiles now package those Turbo-built outputs instead of compiling the applications again. Docker Buildx also retains its separate GitHub Actions layer cache per app, which can reuse image packaging layers. These caches accelerate builds; they do not determine whether an app needs deployment.
 
 ## Production Deployment
 
-The centralized workflow is [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). It runs on pushes to `main` or `master`, or through `workflow_dispatch`, where an operator can select `all` or one of the six applications.
+Deployment is split across three workflows: [chat](.github/workflows/deploy-chat.yml), [English](.github/workflows/deploy-english.yml), and [image generation](.github/workflows/deploy-imggen.yml). Each runs on pushes to `main` or `master` and can also be started with `workflow_dispatch`. In a manual run, `all` deploys both applications in that workflow, or select one API or web app.
 
-For push events, `dorny/paths-filter` checks each `apps/<app>/**` directory and its matching `deploy/<app>.sh` script. Only matching applications are built and deployed. Each selected API or web image is built and pushed with Docker Buildx; its named GitHub Actions cache is then used for subsequent builds. The deploy job connects to the configured host over SSH and executes the app's script in `deploy/`.
+For push events, each workflow's `dorny/paths-filter` checks its two `apps/<app>/**` directories, matching `deploy/<app>.sh` scripts, and shared build inputs (`package.json`, `bun.lock`, `.npmrc`, `turbo.json`, and `packages/**`). Only matching applications are built and deployed. A manual run intentionally bypasses change detection. Each selected API or web image is assembled from the Turbo output, pushed with Docker Buildx, and deployed over SSH by its script in `deploy/`.
 
-The current path filters do not include root files such as `package.json`, `bun.lock`, `turbo.json`, or files under `packages/`. Changes limited to those paths will not trigger an app deployment on push. Add the relevant paths to the workflow filters when shared workspace changes should deploy dependent applications.
+On pushes, unchanged applications skip both the build and deploy jobs through the per-app path filters; a shared workspace change conservatively selects all six applications. Turbo's remote cache avoids rerunning an app's build task when its inputs and build-time environment match a cached result. The cache itself is not used as a deployment gate: a cache hit can restore build output, but does not prove that the currently deployed image includes that output.
 
-Production hosts must have Docker installed, the relevant application networks configured (`dbs` for the APIs and `redis` for chat API), database/network access, and the mapped host ports available. API deployment scripts pass runtime configuration to containers. The English and image-generation web builds receive configuration as Docker build arguments and bake it into their static bundles; chat web currently has no build arguments.
+Production hosts must have Docker installed, the relevant application networks configured (`dbs` for the APIs and `redis` for chat API), database/network access, and the mapped host ports available. API deployment scripts pass runtime configuration to containers. The English and image-generation web builds receive configuration as Turbo build environment variables and bake it into their static bundles; chat web has no additional build-time environment variables.
 
 ## GitHub Actions Configuration
 
 Create the following repository-level GitHub Secrets and Variables. The first column is the GitHub setting; the last column shows the name or purpose at the deployment/container boundary. Rows are grouped so shared settings are listed once.
+
+Also configure the repository secret `TURBO_TOKEN` and variable `TURBO_TEAM` for Vercel Remote Cache access. The token is used only by the Turbo build step and is not passed into Docker builds or runtime containers.
 
 ### GitHub Secrets
 
@@ -153,15 +157,15 @@ Create the following repository-level GitHub Secrets and Variables. The first co
 | `CHAT_S3_BUCKET_NAME`                                                                                 | Chat API                           | `S3_BUCKET_NAME`                                                                                      |
 | `ENGLISH_DB_HOST`, `ENGLISH_DB_PORT`, `ENGLISH_DB_USERNAME`, `ENGLISH_DB_PASSWORD`, `ENGLISH_DB_NAME` | English API                        | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
 | `ENGLISH_OPENAI_API_KEY`                                                                              | English API                        | `OPENAI_API_KEY`                                                                                      |
-| `ENGLISH_AUTH0_DOMAIN`                                                                                | English API and web build          | API: `AUTH0_DOMAIN`; web Docker build arg: `NG_APP_AUTH0_DOMAIN`                                      |
-| `ENGLISH_AUTH0_AUDIENCE`                                                                              | English API and web build          | API: `AUTH0_AUDIENCE`; web Docker build arg: `NG_APP_AUTH0_AUDIENCE`                                  |
-| `ENGLISH_AUTH0_CLIENT_ID`                                                                             | English web build                  | Docker build arg: `NG_APP_AUTH0_CLIENT_ID`                                                            |
+| `ENGLISH_AUTH0_DOMAIN`                                                                                | English API and web build          | API: `AUTH0_DOMAIN`; web Turbo build env: `NG_APP_AUTH0_DOMAIN`                                       |
+| `ENGLISH_AUTH0_AUDIENCE`                                                                              | English API and web build          | API: `AUTH0_AUDIENCE`; web Turbo build env: `NG_APP_AUTH0_AUDIENCE`                                   |
+| `ENGLISH_AUTH0_CLIENT_ID`                                                                             | English web build                  | Turbo build env: `NG_APP_AUTH0_CLIENT_ID`                                                             |
 | `IMGGEN_DB_HOST`, `IMGGEN_DB_PORT`, `IMGGEN_DB_USERNAME`, `IMGGEN_DB_PASSWORD`, `IMGGEN_DB_NAME`      | Image-generation API               | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
 | `IMGGEN_OPENAI_API_KEY`                                                                               | Image-generation API               | `OPENAI_API_KEY`                                                                                      |
 | `IMGGEN_GEMINI_API_KEY`                                                                               | Image-generation API               | `GEMINI_API_KEY`                                                                                      |
-| `IMGGEN_AUTH0_DOMAIN`                                                                                 | Image-generation API and web build | API: `AUTH0_DOMAIN`; web Docker build arg: `VITE_AUTH0_DOMAIN`                                        |
-| `IMGGEN_AUTH0_AUDIENCE`                                                                               | Image-generation API and web build | API: `AUTH0_AUDIENCE`; web Docker build arg: `VITE_AUTH0_AUDIENCE`                                    |
-| `IMGGEN_AUTH0_CLIENT_ID`                                                                              | Image-generation web build         | Docker build arg: `VITE_AUTH0_CLIENT_ID`                                                              |
+| `IMGGEN_AUTH0_DOMAIN`                                                                                 | Image-generation API and web build | API: `AUTH0_DOMAIN`; web Turbo build env: `VITE_AUTH0_DOMAIN`                                         |
+| `IMGGEN_AUTH0_AUDIENCE`                                                                               | Image-generation API and web build | API: `AUTH0_AUDIENCE`; web Turbo build env: `VITE_AUTH0_AUDIENCE`                                     |
+| `IMGGEN_AUTH0_CLIENT_ID`                                                                              | Image-generation web build         | Turbo build env: `VITE_AUTH0_CLIENT_ID`                                                               |
 
 ### GitHub Variables
 
@@ -182,7 +186,7 @@ Create the following repository-level GitHub Secrets and Variables. The first co
 | `IMGGEN_AWS_S3_REGION`                                                              | Image-generation API       | `AWS_S3_REGION`                                                                                  |
 | `IMGGEN_AWS_S3_BUCKET`                                                              | Image-generation API       | `AWS_S3_BUCKET`                                                                                  |
 | `IMGGEN_CDN_DOMAIN`                                                                 | Image-generation API       | `CDN_DOMAIN`                                                                                     |
-| `IMGGEN_API_URL`                                                                    | Image-generation web build | Docker build arg `VITE_API_URL`                                                                  |
+| `IMGGEN_API_URL`                                                                    | Image-generation web build | Turbo build env `VITE_API_URL`                                                                   |
 
 `NODE_ENV=production` is set by the API deployment jobs and is not a GitHub setting. The API host ports are set by the deploy scripts, not by the `*_API_PORT` variables; those variables configure the port inside the container.
 

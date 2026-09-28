@@ -1,7 +1,6 @@
 .vscode
 app_cache_data
 node_modules
-dist
 .env
 *.log
 .DS_Store

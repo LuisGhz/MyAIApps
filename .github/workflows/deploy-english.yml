@@ -1,0 +1,161 @@
+name: Deploy English applications
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      app:
+        description: English application to deploy
+        type: choice
+        options:
+          - all
+          - english-api
+          - english-web
+        default: all
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      english-api: ${{ steps.filter.outputs['english-api'] }}
+      english-web: ${{ steps.filter.outputs['english-web'] }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        if: github.event_name == 'push'
+        id: filter
+        with:
+          filters: |
+            english-api:
+              - 'apps/english-api/**'
+              - 'deploy/english-api.sh'
+              - 'package.json'
+              - 'bun.lock'
+              - '.npmrc'
+              - 'turbo.json'
+              - 'packages/**'
+            english-web:
+              - 'apps/english-web/**'
+              - 'deploy/english-web.sh'
+              - 'package.json'
+              - 'bun.lock'
+              - '.npmrc'
+              - 'turbo.json'
+              - 'packages/**'
+
+  build-english-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['english-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Build with Turborepo
+        run: bunx turbo run build --filter=@myaiapps/english-api
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/english-api
+          file: ./apps/english-api/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaienglish-api-nestjs
+          cache-from: type=gha,scope=english-api
+          cache-to: type=gha,mode=max,scope=english-api
+
+  deploy-english-api:
+    needs: [changes, build-english-api]
+    if: ${{ needs.changes.outputs['english-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          NODE_ENV: production
+          DB_HOST: ${{ secrets.ENGLISH_DB_HOST }}
+          DB_PORT: ${{ secrets.ENGLISH_DB_PORT }}
+          DB_USERNAME: ${{ secrets.ENGLISH_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.ENGLISH_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.ENGLISH_DB_NAME }}
+          OPENAI_API_KEY: ${{ secrets.ENGLISH_OPENAI_API_KEY }}
+          AUTH0_DOMAIN: ${{ secrets.ENGLISH_AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.ENGLISH_AUTH0_AUDIENCE }}
+          FRONTEND_URL: ${{ vars.ENGLISH_FRONTEND_URL }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN,NODE_ENV,DB_HOST,DB_PORT,DB_USERNAME,DB_PASSWORD,DB_NAME,OPENAI_API_KEY,AUTH0_DOMAIN,AUTH0_AUDIENCE,FRONTEND_URL
+          script_path: deploy/english-api.sh
+
+  build-english-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['english-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Build with Turborepo
+        run: bunx turbo run build --filter=@myaiapps/english-web
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+          NG_APP_AUTH0_DOMAIN: ${{ secrets.ENGLISH_AUTH0_DOMAIN }}
+          NG_APP_AUTH0_CLIENT_ID: ${{ secrets.ENGLISH_AUTH0_CLIENT_ID }}
+          NG_APP_AUTH0_AUDIENCE: ${{ secrets.ENGLISH_AUTH0_AUDIENCE }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./apps/english-web
+          file: ./apps/english-web/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USER }}/personalwebapss:myaienglish-angular
+          cache-from: type=gha,scope=english-web
+          cache-to: type=gha,mode=max,scope=english-web
+
+  deploy-english-web:
+    needs: [changes, build-english-web]
+    if: ${{ needs.changes.outputs['english-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.2.1
+        env:
+          DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          envs: DOCKERHUB_USER,DOCKERHUB_TOKEN
+          script_path: deploy/english-web.sh
