@@ -4,6 +4,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:chat": "turbo run dev --filter=@myaiapps/chat-web --filter=@myaiapps/chat-api",
+    "dev:english": "turbo run dev --filter=@myaiapps/english --filter=@myaiapps/english-api",
+    "dev:imggen": "turbo run dev --filter=@myaiapps/imggen --filter=@myaiapps/imggen-api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
