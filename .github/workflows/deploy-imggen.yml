@@ -103,8 +103,8 @@ jobs:
           DB_NAME: ${{ secrets.IMGGEN_DB_NAME }}
           AUTH0_DOMAIN: ${{ secrets.IMGGEN_AUTH0_DOMAIN }}
           AUTH0_AUDIENCE: ${{ secrets.IMGGEN_AUTH0_AUDIENCE }}
-          AWS_S3_REGION: ${{ vars.IMGGEN_AWS_S3_REGION }}
-          AWS_S3_BUCKET: ${{ vars.IMGGEN_AWS_S3_BUCKET }}
+          AWS_S3_REGION: ${{ secrets.IMGGEN_AWS_S3_REGION }}
+          AWS_S3_BUCKET: ${{ secrets.IMGGEN_AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           CDN_DOMAIN: ${{ vars.IMGGEN_CDN_DOMAIN }}
