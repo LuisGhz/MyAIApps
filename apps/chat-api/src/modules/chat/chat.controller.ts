@@ -14,7 +14,6 @@ import {
   Query,
   Res,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -30,7 +29,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { CurrentUser } from '@cmn/decorators';
 import type { JwtPayload } from '@cmn/interfaces';
-import { GuestModelAccessGuard } from '@cmn/guards';
 import { S3Service } from '@s3/services';
 import { IsValidFileTypeConstraint } from '@s3/validators';
 import {
@@ -53,6 +51,7 @@ import {
   type ChatStreamEvent,
 } from './dto';
 import type { HandleStreamRequestParams } from './interfaces';
+import { GuestModelAccessInterceptor } from './guest-model-access.interceptor';
 
 @ApiTags('chat')
 @ApiBearerAuth()
@@ -78,8 +77,7 @@ export class ChatController {
   }
 
   @Post('send-message')
-  @UseGuards(GuestModelAccessGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file'), GuestModelAccessInterceptor)
   @ApiOperation({ summary: 'Send a message and get AI response (SSE stream)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: SendMessageReqDto })

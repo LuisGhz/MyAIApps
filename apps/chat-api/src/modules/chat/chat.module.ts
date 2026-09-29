@@ -13,7 +13,7 @@ import { ChatController } from './chat.controller';
 import { ModelsModule } from '@mdl/models.module';
 import { PromptsModule } from '@prompts/prompts.module';
 import { AI_PROVIDERS } from './interfaces';
-import { GuestModelAccessGuard } from '@cmn/guards';
+import { GuestModelAccessInterceptor } from './guest-model-access.interceptor';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { GuestModelAccessGuard } from '@cmn/guards';
     AIProviderRegistry,
     OpenAIService,
     GeminiService,
-    GuestModelAccessGuard,
+    GuestModelAccessInterceptor,
     {
       provide: AI_PROVIDERS,
       useFactory: (openai: OpenAIService, gemini: GeminiService) => [
