@@ -139,33 +139,34 @@ Also configure the repository secret `TURBO_TOKEN` and variable `TURBO_TEAM` for
 
 ### GitHub Secrets
 
-| GitHub Secret                                                                                         | Used by                            | Container runtime or build-time mapping                                                               |
-| ----------------------------------------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `DOCKERHUB_TOKEN`                                                                                     | All deployments                    | Used for Docker Hub login on the build runner and remote host; not passed into application containers |
-| `SERVER_IP`                                                                                           | All deployments                    | SSH target; not an application variable                                                               |
-| `SERVER_USER`                                                                                         | All deployments                    | SSH account; not an application variable                                                              |
-| `SSH_PRIVATE_KEY`                                                                                     | All deployments                    | SSH authentication; not an application variable                                                       |
-| `SSH_PASSPHRASE`                                                                                      | All deployments                    | SSH key passphrase; not an application variable                                                       |
-| `AWS_ACCESS_KEY_ID`                                                                                   | Chat API, image-generation API     | Chat API: `S3_ACCESS_KEY`; image-generation API: `AWS_ACCESS_KEY_ID`                                  |
-| `AWS_SECRET_ACCESS_KEY`                                                                               | Chat API, image-generation API     | Chat API: `S3_SECRET_KEY`; image-generation API: `AWS_SECRET_ACCESS_KEY`                              |
-| `CHAT_DB_HOST`, `CHAT_DB_PORT`, `CHAT_DB_USERNAME`, `CHAT_DB_PASSWORD`, `CHAT_DB_NAME`                | Chat API                           | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
-| `CHAT_JWT_SECRET`                                                                                     | Chat API                           | `JWT_SECRET`                                                                                          |
-| `CHAT_OPENAI_API_KEY`                                                                                 | Chat API                           | `OPENAI_API_KEY`                                                                                      |
-| `CHAT_GEMINI_API_KEY`                                                                                 | Chat API                           | `GEMINI_API_KEY`                                                                                      |
-| `CHAT_GITHUB_CLIENT_ID`                                                                               | Chat API                           | `GITHUB_CLIENT_ID`                                                                                    |
-| `CHAT_GITHUB_CLIENT_SECRET`                                                                           | Chat API                           | `GITHUB_CLIENT_SECRET`                                                                                |
-| `CHAT_S3_BUCKET_NAME`                                                                                 | Chat API                           | `S3_BUCKET_NAME`                                                                                      |
-| `ENGLISH_DB_HOST`, `ENGLISH_DB_PORT`, `ENGLISH_DB_USERNAME`, `ENGLISH_DB_PASSWORD`, `ENGLISH_DB_NAME` | English API                        | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
-| `ENGLISH_OPENAI_API_KEY`                                                                              | English API                        | `OPENAI_API_KEY`                                                                                      |
-| `ENGLISH_AUTH0_DOMAIN`                                                                                | English API and web build          | API: `AUTH0_DOMAIN`; web Turbo build env: `NG_APP_AUTH0_DOMAIN`                                       |
-| `ENGLISH_AUTH0_AUDIENCE`                                                                              | English API and web build          | API: `AUTH0_AUDIENCE`; web Turbo build env: `NG_APP_AUTH0_AUDIENCE`                                   |
-| `ENGLISH_AUTH0_CLIENT_ID`                                                                             | English web build                  | Turbo build env: `NG_APP_AUTH0_CLIENT_ID`                                                             |
-| `IMGGEN_DB_HOST`, `IMGGEN_DB_PORT`, `IMGGEN_DB_USERNAME`, `IMGGEN_DB_PASSWORD`, `IMGGEN_DB_NAME`      | Image-generation API               | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`                                         |
-| `IMGGEN_OPENAI_API_KEY`                                                                               | Image-generation API               | `OPENAI_API_KEY`                                                                                      |
-| `IMGGEN_GEMINI_API_KEY`                                                                               | Image-generation API               | `GEMINI_API_KEY`                                                                                      |
-| `IMGGEN_AUTH0_DOMAIN`                                                                                 | Image-generation API and web build | API: `AUTH0_DOMAIN`; web Turbo build env: `VITE_AUTH0_DOMAIN`                                         |
-| `IMGGEN_AUTH0_AUDIENCE`                                                                               | Image-generation API and web build | API: `AUTH0_AUDIENCE`; web Turbo build env: `VITE_AUTH0_AUDIENCE`                                     |
-| `IMGGEN_AUTH0_CLIENT_ID`                                                                              | Image-generation web build         | Turbo build env: `VITE_AUTH0_CLIENT_ID`                                                               |
+| GitHub Secret                                      | Used by                            | Container runtime or build-time mapping                                                               |
+| -------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `DOCKERHUB_TOKEN`                                  | All deployments                    | Used for Docker Hub login on the build runner and remote host; not passed into application containers |
+| `SERVER_IP`                                        | All deployments                    | SSH target; not an application variable                                                               |
+| `SERVER_USER`                                      | All deployments                    | SSH account; not an application variable                                                              |
+| `SSH_PRIVATE_KEY`                                  | All deployments                    | SSH authentication; not an application variable                                                       |
+| `SSH_PASSPHRASE`                                   | All deployments                    | SSH key passphrase; not an application variable                                                       |
+| `AWS_ACCESS_KEY_ID`                                | Chat API, image-generation API     | Chat API: `S3_ACCESS_KEY`; image-generation API: `AWS_ACCESS_KEY_ID`                                  |
+| `AWS_SECRET_ACCESS_KEY`                            | Chat API, image-generation API     | Chat API: `S3_SECRET_KEY`; image-generation API: `AWS_SECRET_ACCESS_KEY`                              |
+| `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD` | All APIs                           | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`                                                    |
+| `CHAT_DB_NAME`                                     | Chat API                           | `DB_NAME`                                                                                             |
+| `CHAT_JWT_SECRET`                                  | Chat API                           | `JWT_SECRET`                                                                                          |
+| `CHAT_OPENAI_API_KEY`                              | Chat API                           | `OPENAI_API_KEY`                                                                                      |
+| `CHAT_GEMINI_API_KEY`                              | Chat API                           | `GEMINI_API_KEY`                                                                                      |
+| `CHAT_GITHUB_CLIENT_ID`                            | Chat API                           | `GITHUB_CLIENT_ID`                                                                                    |
+| `CHAT_GITHUB_CLIENT_SECRET`                        | Chat API                           | `GITHUB_CLIENT_SECRET`                                                                                |
+| `CHAT_S3_BUCKET_NAME`                              | Chat API                           | `S3_BUCKET_NAME`                                                                                      |
+| `ENGLISH_DB_NAME`                                  | English API                        | `DB_NAME`                                                                                             |
+| `ENGLISH_OPENAI_API_KEY`                           | English API                        | `OPENAI_API_KEY`                                                                                      |
+| `ENGLISH_AUTH0_DOMAIN`                             | English API and web build          | API: `AUTH0_DOMAIN`; web Turbo build env: `NG_APP_AUTH0_DOMAIN`                                       |
+| `ENGLISH_AUTH0_AUDIENCE`                           | English API and web build          | API: `AUTH0_AUDIENCE`; web Turbo build env: `NG_APP_AUTH0_AUDIENCE`                                   |
+| `ENGLISH_AUTH0_CLIENT_ID`                          | English web build                  | Turbo build env: `NG_APP_AUTH0_CLIENT_ID`                                                             |
+| `IMGGEN_DB_NAME`                                   | Image-generation API               | `DB_NAME`                                                                                             |
+| `IMGGEN_OPENAI_API_KEY`                            | Image-generation API               | `OPENAI_API_KEY`                                                                                      |
+| `IMGGEN_GEMINI_API_KEY`                            | Image-generation API               | `GEMINI_API_KEY`                                                                                      |
+| `IMGGEN_AUTH0_DOMAIN`                              | Image-generation API and web build | API: `AUTH0_DOMAIN`; web Turbo build env: `VITE_AUTH0_DOMAIN`                                         |
+| `IMGGEN_AUTH0_AUDIENCE`                            | Image-generation API and web build | API: `AUTH0_AUDIENCE`; web Turbo build env: `VITE_AUTH0_AUDIENCE`                                     |
+| `IMGGEN_AUTH0_CLIENT_ID`                           | Image-generation web build         | Turbo build env: `VITE_AUTH0_CLIENT_ID`                                                               |
 
 ### GitHub Variables
 
