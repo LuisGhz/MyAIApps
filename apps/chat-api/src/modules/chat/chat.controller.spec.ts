@@ -8,7 +8,6 @@ import {
   TranscriptionService,
 } from './services';
 import { S3Service } from '@s3/services';
-import { GuestModelAccessGuard } from '@cmn/guards';
 import type { JwtPayload } from '@cmn/interfaces';
 import { StreamEventType } from './dto';
 import type { ChatStreamEvent } from './dto';
@@ -134,10 +133,7 @@ describe('ChatController', () => {
           useValue: s3ServiceMock,
         },
       ],
-    })
-      .overrideGuard(GuestModelAccessGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
+    }).compile();
 
     controller = module.get<ChatController>(ChatController);
   });

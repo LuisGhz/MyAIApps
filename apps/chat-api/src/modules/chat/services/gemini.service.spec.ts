@@ -645,7 +645,7 @@ describe('GeminiService', () => {
       expect(result).toBe('Understanding AI Basics');
       expect(mockGoogleGenAIClient.models.generateContent).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'gemini-2.0-flash-lite',
+          model: 'gemini-3.5-flash-lite',
           config: { temperature: 0.7, maxOutputTokens: 20 },
         }),
       );
@@ -738,7 +738,7 @@ describe('GeminiService', () => {
 
       const callArgs =
         mockGoogleGenAIClient.models.generateContent.mock.calls[0][0];
-      expect(callArgs.model).toBe('gemini-2.0-flash-lite');
+      expect(callArgs.model).toBe('gemini-3.5-flash-lite');
       expect(callArgs.contents[0].role).toBe('user');
       expect(callArgs.config.maxOutputTokens).toBe(20);
     });
