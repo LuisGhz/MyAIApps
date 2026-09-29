@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { JwtService } from './jwt.service';
+import type { JwtSign } from '@cmn/interfaces';
 
 const nestJwtServiceMock = {
   sign: jest.fn(),
@@ -10,7 +11,6 @@ const nestJwtServiceMock = {
 
 describe('JwtService', () => {
   let jwtService: JwtService;
-  let nestJwtServiceInstance: NestJwtService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -26,7 +26,6 @@ describe('JwtService', () => {
     }).compile();
 
     jwtService = module.get<JwtService>(JwtService);
-    nestJwtServiceInstance = module.get<NestJwtService>(NestJwtService);
   });
 
   it('should sign a payload and return a token', () => {
@@ -221,7 +220,7 @@ describe('JwtService', () => {
   });
 
   it('should throw error when sign fails due to invalid payload', () => {
-    const invalidPayload = null as any;
+    const invalidPayload = null as unknown as JwtSign;
     const error = new Error('Invalid payload');
     nestJwtServiceMock.sign.mockImplementation(() => {
       throw error;

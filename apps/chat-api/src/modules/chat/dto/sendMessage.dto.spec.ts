@@ -3,6 +3,19 @@ import { SendMessageReqDto, SendMessageResDto } from './sendMessage.dto';
 
 describe('SendMessageReqDto', () => {
   describe('transformation and basic validation', () => {
+    const transformations: Array<
+      [
+        Partial<Record<keyof SendMessageReqDto, unknown>>,
+        keyof SendMessageReqDto,
+        unknown,
+      ]
+    > = [
+      [{ maxTokens: '1000' }, 'maxTokens', 1000],
+      [{ temperature: '0.7' }, 'temperature', 0.7],
+      [{ isImageGeneration: 'true' }, 'isImageGeneration', true],
+      [{ isImageGeneration: 'false' }, 'isImageGeneration', false],
+      [{ isWebSearch: 'true' }, 'isWebSearch', true],
+    ];
     const basePayload = {
       message: 'Hello',
       modelId: '550e8400-e29b-41d4-a716-446655440000',
@@ -13,24 +26,32 @@ describe('SendMessageReqDto', () => {
       isWebSearch: false,
     };
 
-    it.each([
-      [{ maxTokens: '1000' }, 'maxTokens', 1000],
-      [{ temperature: '0.7' }, 'temperature', 0.7],
-      [{ isImageGeneration: 'true' }, 'isImageGeneration', true],
-      [{ isImageGeneration: 'false' }, 'isImageGeneration', false],
-      [{ isWebSearch: 'true' }, 'isWebSearch', true],
-    ])('should transform %p into %s', (override, prop, expected) => {
-      const payload = { ...basePayload, ...override };
-      const instance = plainToInstance(SendMessageReqDto, payload);
-      const value = (instance as any)[prop];
-      expect(value).toBe(expected);
-      expect(typeof value).toBe(typeof expected);
-    });
+    it.each(transformations)(
+      'should transform %p into %s',
+      (override, prop, expected) => {
+        const payload = { ...basePayload, ...override };
+        const instance = plainToInstance(SendMessageReqDto, payload);
+        const value = instance[prop];
+        expect(value).toBe(expected);
+        expect(typeof value).toBe(typeof expected);
+      },
+    );
   });
 
   describe('instance creation and property assignment', () => {
     const modelId = '550e8400-e29b-41d4-a716-446655440000';
-    const cases = [
+    type SendMessagePayload = Pick<
+      SendMessageReqDto,
+      | 'message'
+      | 'modelId'
+      | 'modelDeveloper'
+      | 'maxTokens'
+      | 'temperature'
+      | 'isImageGeneration'
+      | 'isWebSearch'
+    > &
+      Partial<Pick<SendMessageReqDto, 'chatId' | 'promptId'>>;
+    const cases: Array<[string, SendMessagePayload]> = [
       [
         'with required fields',
         {
@@ -72,7 +93,7 @@ describe('SendMessageReqDto', () => {
     ];
 
     it.each(cases)('should create instance %s', (_desc, payload) => {
-      const instance = plainToInstance(SendMessageReqDto, payload as any);
+      const instance = plainToInstance(SendMessageReqDto, payload);
 
       expect(instance.message).toBe(payload.message);
       expect(instance.modelId).toBe(payload.modelId);
@@ -81,16 +102,8 @@ describe('SendMessageReqDto', () => {
       expect(instance.temperature).toBe(payload.temperature);
       expect(instance.isImageGeneration).toBe(payload.isImageGeneration);
       expect(instance.isWebSearch).toBe(payload.isWebSearch);
-      if ('chatId' in payload) {
-        expect(instance.chatId).toBe((payload as any).chatId);
-      } else {
-        expect(instance.chatId).toBeUndefined();
-      }
-      if ('promptId' in payload) {
-        expect(instance.promptId).toBe((payload as any).promptId);
-      } else {
-        expect(instance.promptId).toBeUndefined();
-      }
+      expect(instance.chatId).toBe(payload.chatId);
+      expect(instance.promptId).toBe(payload.promptId);
     });
   });
 
@@ -124,23 +137,22 @@ describe('SendMessageReqDto', () => {
       const instance = plainToInstance(SendMessageReqDto, payload);
       expect(instance.maxTokens).toBe(16384);
     });
-    it.each([[0], [1], [0.75]])(
-      'should accept temperature value %p',
-      (temp) => {
+    [0, 1, 0.75].forEach((temperature) => {
+      it(`should accept temperature value ${temperature}`, () => {
         const payload = {
           message: 'Hello',
           modelId: '550e8400-e29b-41d4-a716-446655440000',
           modelDeveloper: 'OpenAI',
           maxTokens: 1000,
-          temperature: temp,
+          temperature,
           isImageGeneration: false,
           isWebSearch: false,
         };
 
-        const instance = plainToInstance(SendMessageReqDto, payload as any);
-        expect(instance.temperature).toBe(temp);
-      },
-    );
+        const instance = plainToInstance(SendMessageReqDto, payload);
+        expect(instance.temperature).toBe(temperature);
+      });
+    });
 
     it('should handle long messages', () => {
       const longMessage = 'A'.repeat(5000);
@@ -169,7 +181,7 @@ describe('SendMessageReqDto', () => {
       const payload = {
         message: 'Hello',
         modelId: '550e8400-e29b-41d4-a716-446655440000',
-        modelDeveloper: 'OpenAI',
+        modelDeveloper: model,
         maxTokens: 1000,
         temperature: 0.7,
         isImageGeneration: false,
@@ -178,6 +190,7 @@ describe('SendMessageReqDto', () => {
 
       const instance = plainToInstance(SendMessageReqDto, payload);
       expect(instance.modelId).toBe('550e8400-e29b-41d4-a716-446655440000');
+      expect(instance.modelDeveloper).toBe(model);
     });
   });
 });

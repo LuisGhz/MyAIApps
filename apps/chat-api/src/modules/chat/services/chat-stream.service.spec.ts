@@ -10,7 +10,11 @@ import { Chat, Message, MessageRole } from '../entities';
 import { User } from '@usr/entities';
 import { Prompt } from '@prompts/entities';
 import { StreamEventType } from '../dto';
-import type { AIProvider } from '../interfaces';
+import type {
+  AIProvider,
+  StreamResponseParams,
+  StreamResponseResult,
+} from '../interfaces';
 
 const chatServiceMock = {
   createChat: jest.fn(),
@@ -20,8 +24,14 @@ const chatServiceMock = {
 };
 
 const aiProviderRegistryMock = {
-  getProvider: jest.fn(),
-  getAvailableProviders: jest.fn(),
+  getProvider: jest.fn<
+    ReturnType<AIProviderRegistry['getProvider']>,
+    Parameters<AIProviderRegistry['getProvider']>
+  >(),
+  getAvailableProviders: jest.fn<
+    ReturnType<AIProviderRegistry['getAvailableProviders']>,
+    Parameters<AIProviderRegistry['getAvailableProviders']>
+  >(),
 };
 
 const imageUploadServiceMock = {
@@ -42,20 +52,39 @@ const modelsServiceMock = {
   findOne: jest.fn(),
 };
 
-const mockAIProvider: Partial<AIProvider> = {
+const mockAIProvider: AIProvider = {
   providerName: 'openai',
-  streamResponse: jest.fn(),
-  generateTitle: jest.fn(),
+  streamResponse: jest.fn<
+    ReturnType<AIProvider['streamResponse']>,
+    Parameters<AIProvider['streamResponse']>
+  >(),
+  generateTitle: jest.fn<
+    ReturnType<AIProvider['generateTitle']>,
+    Parameters<AIProvider['generateTitle']>
+  >(),
 };
+
+type MockStreamResponseResult = Omit<StreamResponseResult, 'content'> & {
+  content?: string;
+};
+
+const createStreamResponseMock = (
+  implementation: (
+    params: StreamResponseParams,
+    onDelta: (delta: string) => void,
+  ) => MockStreamResponseResult,
+): jest.MockedFunction<AIProvider['streamResponse']> =>
+  jest
+    .fn<
+      ReturnType<AIProvider['streamResponse']>,
+      Parameters<AIProvider['streamResponse']>
+    >()
+    .mockImplementation((params, onDelta) =>
+      Promise.resolve({ content: '', ...implementation(params, onDelta) }),
+    );
 
 describe('ChatStreamService', () => {
   let service: ChatStreamService;
-  let chatServiceInstance: ChatService;
-  let aiProviderRegistryInstance: AIProviderRegistry;
-  let imageUploadServiceInstance: ImageUploadService;
-  let envServiceInstance: EnvService;
-  let promptsServiceInstance: PromptsService;
-  let modelsServiceInstance: ModelsService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -91,14 +120,6 @@ describe('ChatStreamService', () => {
     }).compile();
 
     service = module.get<ChatStreamService>(ChatStreamService);
-    chatServiceInstance = module.get<ChatService>(ChatService);
-    aiProviderRegistryInstance =
-      module.get<AIProviderRegistry>(AIProviderRegistry);
-    imageUploadServiceInstance =
-      module.get<ImageUploadService>(ImageUploadService);
-    envServiceInstance = module.get<EnvService>(EnvService);
-    promptsServiceInstance = module.get<PromptsService>(PromptsService);
-    modelsServiceInstance = module.get<ModelsService>(ModelsService);
 
     modelsServiceMock.findOne.mockResolvedValue({
       id: 'default-model',
@@ -132,12 +153,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         onDelta('Hello ');
         onDelta('there!');
         return { inputTokens: 10, outputTokens: 20 };
@@ -216,12 +237,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.createChat.mockResolvedValue(newChat);
     const providerInstance = {
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         onDelta('AI is ');
         onDelta('amazing!');
         return { inputTokens: 15, outputTokens: 25 };
@@ -291,12 +312,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         expect(params.fileKey).toBe(fileKey);
         onDelta('Analysis complete');
         return { inputTokens: 50, outputTokens: 100 };
@@ -354,12 +375,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         expect(params.isImageGeneration).toBe(true);
         onDelta('Image generated');
         return { inputTokens: 20, outputTokens: 5, imageKey: imageBase64 };
@@ -434,20 +455,18 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
-    const streamResponseMock = jest
-      .fn()
-      .mockImplementation(async (params, onDelta) => {
-        expect(params.previousMessages).toHaveLength(3);
-        expect(params.previousMessages[0].role).toBe('system');
-        expect(params.previousMessages[0].content).toBe(
-          'You are a helpful assistant',
-        );
-        onDelta('Response');
-        return { inputTokens: 10, outputTokens: 5 };
-      });
+    const streamResponseMock = createStreamResponseMock((params, onDelta) => {
+      expect(params.previousMessages).toHaveLength(3);
+      expect(params.previousMessages[0].role).toBe('system');
+      expect(params.previousMessages[0].content).toBe(
+        'You are a helpful assistant',
+      );
+      onDelta('Response');
+      return { inputTokens: 10, outputTokens: 5 };
+    });
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
       streamResponse: streamResponseMock,
@@ -488,7 +507,7 @@ describe('ChatStreamService', () => {
       chats: [],
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Prompt;
+    };
 
     const newChat: Chat = {
       id: 'new-chat-456',
@@ -502,13 +521,13 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     promptsServiceMock.findOneForChat.mockResolvedValue(prompt);
     chatServiceMock.createChat.mockResolvedValue(newChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         expect(params.systemPrompt).toBe(prompt.content);
         onDelta('Response');
         return { inputTokens: 10, outputTokens: 5 };
@@ -562,12 +581,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.createChat.mockResolvedValue(newChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         expect(params.isWebSearch).toBe(true);
         onDelta('Search results');
         return { inputTokens: 30, outputTokens: 60 };
@@ -602,7 +621,6 @@ describe('ChatStreamService', () => {
     const userId = 'user-123';
     const chatId = 'non-existent-chat';
     const message = 'Hello';
-    const model = 'gpt-4';
     const provider = 'openai';
     const onEvent = jest.fn();
 
@@ -652,7 +670,7 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
@@ -701,12 +719,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         onDelta('Image created');
         return { inputTokens: 10, outputTokens: 5, imageKey: imageBase64 };
       }),
@@ -753,12 +771,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.createChat.mockResolvedValue(newChat);
     const providerInstance = {
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         onDelta('Response');
         return { inputTokens: 10, outputTokens: 5 };
       }),
@@ -808,12 +826,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async () => {
+      streamResponse: createStreamResponseMock(() => {
         return { inputTokens: 5, outputTokens: 0 };
       }),
     });
@@ -861,7 +879,6 @@ describe('ChatStreamService', () => {
     const userId = 'user-123';
     const promptId = 'invalid-prompt-id';
     const message = 'Test message';
-    const model = 'gpt-4';
     const provider = 'openai';
     const onEvent = jest.fn();
 
@@ -918,19 +935,17 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     modelsServiceMock.findOne.mockResolvedValue(modelData);
-    const streamResponseMock = jest
-      .fn()
-      .mockImplementation(async (params, onDelta) => {
-        expect(params.supportsTemperature).toBe(true);
-        expect(params.isReasoning).toBe(false);
-        expect(params.reasoningLevel).toBeUndefined();
-        onDelta('Response');
-        return { inputTokens: 10, outputTokens: 5 };
-      });
+    const streamResponseMock = createStreamResponseMock((params, onDelta) => {
+      expect(params.supportsTemperature).toBe(true);
+      expect(params.isReasoning).toBe(false);
+      expect(params.reasoningLevel).toBeUndefined();
+      onDelta('Response');
+      return { inputTokens: 10, outputTokens: 5 };
+    });
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
       streamResponse: streamResponseMock,
@@ -982,20 +997,18 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     modelsServiceMock.findOne.mockResolvedValue(modelData);
-    const streamResponseMock = jest
-      .fn()
-      .mockImplementation(async (params, onDelta) => {
-        expect(params.isReasoning).toBe(true);
-        expect(params.reasoningLevel).toBe('high');
-        expect(params.supportsTemperature).toBe(false);
-        onDelta('Reasoning step 1: ');
-        onDelta('Therefore, the answer is...');
-        return { inputTokens: 100, outputTokens: 200 };
-      });
+    const streamResponseMock = createStreamResponseMock((params, onDelta) => {
+      expect(params.isReasoning).toBe(true);
+      expect(params.reasoningLevel).toBe('high');
+      expect(params.supportsTemperature).toBe(false);
+      onDelta('Reasoning step 1: ');
+      onDelta('Therefore, the answer is...');
+      return { inputTokens: 100, outputTokens: 200 };
+    });
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
       streamResponse: streamResponseMock,
@@ -1042,7 +1055,7 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     modelsServiceMock.findOne.mockRejectedValue(new Error('Model not found'));
@@ -1096,18 +1109,16 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     modelsServiceMock.findOne.mockResolvedValue(modelData);
-    const streamResponseMock = jest
-      .fn()
-      .mockImplementation(async (params, onDelta) => {
-        expect(params.temperature).toBe(temperature);
-        expect(params.supportsTemperature).toBe(true);
-        onDelta('Creative response');
-        return { inputTokens: 20, outputTokens: 30 };
-      });
+    const streamResponseMock = createStreamResponseMock((params, onDelta) => {
+      expect(params.temperature).toBe(temperature);
+      expect(params.supportsTemperature).toBe(true);
+      onDelta('Creative response');
+      return { inputTokens: 20, outputTokens: 30 };
+    });
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
       streamResponse: streamResponseMock,
@@ -1151,12 +1162,12 @@ describe('ChatStreamService', () => {
       user: { id: userId } as User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Chat;
+    };
 
     chatServiceMock.findChatByIdOrFail.mockResolvedValue(existingChat);
     aiProviderRegistryMock.getProvider.mockReturnValue({
       ...mockAIProvider,
-      streamResponse: jest.fn().mockImplementation(async (params, onDelta) => {
+      streamResponse: createStreamResponseMock((params, onDelta) => {
         onDelta('Response');
         return { inputTokens: 10, outputTokens: 5 };
       }),

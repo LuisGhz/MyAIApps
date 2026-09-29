@@ -1,16 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { EnvService } from './env.service';
-import { Env } from './env.schema';
+
+type ConfigGetter = (propertyPath: string, options: { infer: true }) => unknown;
+
+type ConfigServiceMock = {
+  get: jest.MockedFunction<ConfigGetter>;
+};
 
 describe('EnvService', () => {
   let service: EnvService;
-  let configServiceMock: jest.Mocked<ConfigService<Env>>;
+  let configServiceMock: ConfigServiceMock;
 
   beforeEach(async () => {
     configServiceMock = {
-      get: jest.fn(),
-    } as unknown as jest.Mocked<ConfigService<Env>>;
+      get: jest.fn<ConfigGetter>(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -267,18 +272,16 @@ describe('EnvService', () => {
   });
 
   describe('isProduction', () => {
+    test.each(['production', 'development', 'test'])(
+      'should return true when NODE_ENV is %s',
+      (env) => {
+        configServiceMock.get.mockReturnValue(env);
 
-    test.each([
-      "production",
-      "development",
-      "test"
-    ])('should return true when NODE_ENV is %s', (env) => {
-      configServiceMock.get.mockReturnValue(env);
+        const result = service.isProduction;
 
-      const result = service.isProduction;
-
-      expect(result).toBe(env === 'production');
-    });
+        expect(result).toBe(env === 'production');
+      },
+    );
   });
 
   describe('cdnDomain', () => {

@@ -29,9 +29,13 @@ const typeormCliPath = path.join(
 
 console.log(`Running: bun ${typeormCliPath} ${command} -d ${datasourcePath}`);
 
-const result = spawnSync('bun', [typeormCliPath, command, '-d', datasourcePath], {
-  stdio: 'inherit',
-  env: process.env,
-});
+const result = spawnSync(
+  'bun',
+  [typeormCliPath, command, '-d', datasourcePath],
+  {
+    stdio: 'inherit',
+    env: process.env,
+  },
+);
 
 process.exit(result.status ?? 1);

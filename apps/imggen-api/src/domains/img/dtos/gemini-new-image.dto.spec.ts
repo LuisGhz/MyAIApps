@@ -260,7 +260,10 @@ describe('GeminiNewImageReqDto', () => {
     });
 
     it('should validate successfully with both valid model options', async () => {
-      const validModels = ['gemini-2.5-flash-image', 'gemini-3-pro-image-preview'];
+      const validModels = [
+        'gemini-2.5-flash-image',
+        'gemini-3-pro-image-preview',
+      ];
 
       for (const model of validModels) {
         const payload = {

@@ -16,6 +16,9 @@ import { Reflector } from '@nestjs/core';
 import { JwtPayload } from '@cmn/interfaces';
 
 const NEW_ACCESS_TOKEN_HEADER = 'x-new-access-token';
+type JwtRequest = Omit<Request, 'cookies'> & {
+  cookies: Record<string, string | undefined>;
+};
 
 @Injectable()
 export class JwtGuard implements CanActivate {
@@ -40,7 +43,7 @@ export class JwtGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    const request: Request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<JwtRequest>();
     const response: Response = context.switchToHttp().getResponse();
     const authHeader = request.headers['authorization'];
 
@@ -65,7 +68,7 @@ export class JwtGuard implements CanActivate {
 
   async #handleExpiredToken(
     token: string,
-    request: Request,
+    request: JwtRequest,
     response: Response,
   ): Promise<boolean> {
     const refreshToken = request.cookies[COOKIE_REFRESH_TOKEN];

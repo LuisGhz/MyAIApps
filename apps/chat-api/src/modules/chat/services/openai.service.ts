@@ -15,6 +15,14 @@ import {
   transformNewMessageToOpenAIFormat,
 } from '../helpers';
 
+type OpenAIStreamResponse = {
+  output_text: string;
+  output: Array<{ type: string; result?: string | null }>;
+  usage?: { input_tokens?: number; output_tokens?: number } | null;
+  incomplete_details?: unknown;
+  error?: unknown;
+};
+
 @Injectable()
 export class OpenAIService implements AIProvider {
   readonly providerName = 'openai';
@@ -70,7 +78,7 @@ export class OpenAIService implements AIProvider {
         }),
       });
 
-      let finalResponse;
+      let finalResponse: OpenAIStreamResponse | undefined;
       for await (const event of stream) {
         if (event.type === 'response.output_text.delta') {
           onDelta(event.delta);
@@ -95,8 +103,10 @@ export class OpenAIService implements AIProvider {
       if (isImageGeneration) {
         const imageData = response.output
           .filter((out) => out.type === 'image_generation_call')
-          .map((out) => out.result);
-        imageBase64 = imageData[0];
+          .map((out) =>
+            out.type === 'image_generation_call' ? out.result : undefined,
+          );
+        imageBase64 = imageData[0] ?? null;
         // Calculate tokens for image generation if tool was used
         const imageGenTool = tools.find(
           (tool) => tool.type === 'image_generation',

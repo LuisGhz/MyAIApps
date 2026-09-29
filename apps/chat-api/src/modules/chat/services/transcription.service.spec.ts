@@ -9,23 +9,43 @@ const envServiceMock = {
   openaiApiKey: 'test-openai-api-key',
 };
 
+type MockTranscriptionResponse = {
+  text: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+  };
+};
+
+type MockTranscriptionRequest = {
+  file: File;
+  model: string;
+  temperature: number;
+  response_format: 'json';
+};
+
+const mockFileStream = null as unknown as Express.Multer.File['stream'];
+
 const mockOpenAIClient = {
   audio: {
     transcriptions: {
-      create: jest.fn(),
+      create: jest.fn<
+        Promise<MockTranscriptionResponse>,
+        [MockTranscriptionRequest]
+      >(),
     },
   },
 };
 
 describe('TranscriptionService', () => {
   let service: TranscriptionService;
-  let envServiceInstance: EnvService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
     (OpenAI as jest.MockedClass<typeof OpenAI>).mockImplementation(
-      () => mockOpenAIClient as any,
+      () => mockOpenAIClient as unknown as OpenAI,
     );
 
     const module: TestingModule = await Test.createTestingModule({
@@ -39,7 +59,6 @@ describe('TranscriptionService', () => {
     }).compile();
 
     service = module.get<TranscriptionService>(TranscriptionService);
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   describe('transcribeAudio', () => {
@@ -54,7 +73,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-audio.mp3',
         path: 'uploads/test-audio.mp3',
-        stream: null as any,
+        stream: null as unknown as Express.Multer.File['stream'],
       };
 
       const mockResponse = {
@@ -80,14 +99,12 @@ describe('TranscriptionService', () => {
           totalTokens: 150,
         },
       });
-      expect(mockOpenAIClient.audio.transcriptions.create).toHaveBeenCalledWith(
-        {
-          file: expect.any(File),
-          model: 'gpt-4o-mini-transcribe',
-          temperature: 0,
-          response_format: 'json',
-        },
-      );
+      const request =
+        mockOpenAIClient.audio.transcriptions.create.mock.calls[0][0];
+      expect(request.file).toBeInstanceOf(File);
+      expect(request.model).toBe('gpt-4o-mini-transcribe');
+      expect(request.temperature).toBe(0);
+      expect(request.response_format).toBe('json');
       expect(
         mockOpenAIClient.audio.transcriptions.create,
       ).toHaveBeenCalledTimes(1);
@@ -104,7 +121,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-audio.wav',
         path: 'uploads/test-audio.wav',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const mockResponse = {
@@ -138,7 +155,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-audio.mp3',
         path: 'uploads/test-audio.mp3',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const mockResponse = {
@@ -173,7 +190,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-audio.mp3',
         path: 'uploads/test-audio.mp3',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const mockResponse = {
@@ -203,7 +220,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-audio.m4a',
         path: 'uploads/test-audio.m4a',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const mockResponse = {
@@ -224,8 +241,8 @@ describe('TranscriptionService', () => {
       const callArgs =
         mockOpenAIClient.audio.transcriptions.create.mock.calls[0][0];
       expect(callArgs.file).toBeInstanceOf(File);
-      expect((callArgs.file as File).name).toBe(mockFile.originalname);
-      expect((callArgs.file as File).type).toBe(mockFile.mimetype);
+      expect(callArgs.file.name).toBe(mockFile.originalname);
+      expect(callArgs.file.type).toBe(mockFile.mimetype);
     });
 
     it('should throw error when OpenAI API call fails', async () => {
@@ -239,7 +256,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-audio.mp3',
         path: 'uploads/test-audio.mp3',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const apiError = new Error('API rate limit exceeded');
@@ -263,7 +280,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'invalid-file.mp3',
         path: 'uploads/invalid-file.mp3',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const apiError = new Error('Invalid audio file');
@@ -287,7 +304,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-file.txt',
         path: 'uploads/test-file.txt',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const apiError = new Error('Unsupported file format');
@@ -311,7 +328,7 @@ describe('TranscriptionService', () => {
         destination: 'uploads',
         filename: 'test-audio.mp3',
         path: 'uploads/test-audio.mp3',
-        stream: null as any,
+        stream: mockFileStream,
       };
 
       const authError = new Error('Invalid API key');

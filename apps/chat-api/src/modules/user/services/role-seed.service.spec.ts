@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { RoleSeedService } from './role-seed.service';
 import { Role } from '../entities';
 
@@ -11,7 +10,6 @@ const roleRepositoryMock = {
 
 describe('RoleSeedService', () => {
   let service: RoleSeedService;
-  let roleRepositoryInstance: Repository<Role>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -27,9 +25,6 @@ describe('RoleSeedService', () => {
     }).compile();
 
     service = module.get<RoleSeedService>(RoleSeedService);
-    roleRepositoryInstance = module.get<Repository<Role>>(
-      getRepositoryToken(Role),
-    );
   });
 
   it('should be defined', () => {

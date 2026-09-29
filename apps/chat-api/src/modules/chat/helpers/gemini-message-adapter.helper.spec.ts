@@ -1,4 +1,3 @@
-import { Content } from '@google/genai';
 import { Message, MessageRole } from '../entities';
 import {
   setSystemMessageGemini,

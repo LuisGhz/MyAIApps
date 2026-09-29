@@ -35,7 +35,9 @@ describe('OpenAIService', () => {
       },
     } as any;
 
-    (openAIClient as unknown as jest.Mock).mockImplementation(() => openAIClientMock);
+    (openAIClient as unknown as jest.Mock).mockImplementation(
+      () => openAIClientMock,
+    );
     (base64toImage as jest.Mock).mockReturnValue(mockImageBuffer);
     (toFile as jest.Mock).mockResolvedValue({} as any);
 
@@ -70,8 +72,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-3',
       prompt: 'A beautiful sunset over mountains',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'high' as 'high',
+        size: '1024x1024' as const,
+        quality: 'high' as const,
       },
     };
 
@@ -95,8 +97,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-3',
       prompt: 'A beautiful sunset',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'high' as 'high',
+        size: '1024x1024' as const,
+        quality: 'high' as const,
       },
     };
 
@@ -118,8 +120,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-2',
       prompt: 'Edit this image to add a rainbow',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'low' as 'low',
+        size: '1024x1024' as const,
+        quality: 'low' as const,
       },
     };
 
@@ -160,8 +162,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-2',
       prompt: 'Combine these images',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'auto' as 'auto',
+        size: '1024x1024' as const,
+        quality: 'auto' as const,
       },
     };
 
@@ -207,8 +209,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-2',
       prompt: 'Add colors',
       options: {
-        size: '1536x1024' as '1536x1024',
-        quality: 'medium' as 'medium',
+        size: '1536x1024' as const,
+        quality: 'medium' as const,
       },
     };
 
@@ -242,8 +244,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-3',
       prompt: 'Generate landscape',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'high' as 'high',
+        size: '1024x1024' as const,
+        quality: 'high' as const,
       },
     };
 
@@ -262,8 +264,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-3',
       prompt: 'Create abstract art',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'low' as 'low',
+        size: '1024x1024' as const,
+        quality: 'low' as const,
       },
     };
 
@@ -281,8 +283,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-3',
       prompt: 'Generate image',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'auto' as 'auto',
+        size: '1024x1024' as const,
+        quality: 'auto' as const,
       },
     };
 
@@ -300,8 +302,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-2',
       prompt: 'Edit this image',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'high' as 'high',
+        size: '1024x1024' as const,
+        quality: 'high' as const,
       },
     };
 
@@ -331,8 +333,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-2',
       prompt: 'Enhance image',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'low' as 'low',
+        size: '1024x1024' as const,
+        quality: 'low' as const,
       },
     };
 
@@ -361,8 +363,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-3',
       prompt: 'Generate something',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'high' as 'high',
+        size: '1024x1024' as const,
+        quality: 'high' as const,
       },
     };
 
@@ -380,8 +382,8 @@ describe('OpenAIService', () => {
       model: 'dall-e-2',
       prompt: 'Edit image',
       options: {
-        size: '1024x1024' as '1024x1024',
-        quality: 'auto' as 'auto',
+        size: '1024x1024' as const,
+        quality: 'auto' as const,
       },
     };
 

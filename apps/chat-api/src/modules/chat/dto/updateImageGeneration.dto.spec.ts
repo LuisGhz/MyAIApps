@@ -32,7 +32,10 @@ describe('UpdateImageGenerationReqDto', () => {
       { isImageGeneration: [true] },
       { isImageGeneration: NaN },
     ])('should fail validation for payload %p', async (payload) => {
-      const instance = plainToInstance(UpdateImageGenerationReqDto, payload as any);
+      const instance = plainToInstance(
+        UpdateImageGenerationReqDto,
+        payload as any,
+      );
       const errors = await validate(instance);
 
       expect(errors).toHaveLength(1);

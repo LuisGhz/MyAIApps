@@ -62,7 +62,10 @@ describe('AppAuthGuard', () => {
       const context = createMockExecutionContext();
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
       jest
-        .spyOn(Object.getPrototypeOf(Object.getPrototypeOf(guard)), 'canActivate')
+        .spyOn(
+          Object.getPrototypeOf(Object.getPrototypeOf(guard)),
+          'canActivate',
+        )
         .mockResolvedValue(true);
 
       const result = await guard.canActivate(context);
@@ -74,7 +77,10 @@ describe('AppAuthGuard', () => {
       const context = createMockExecutionContext();
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
       jest
-        .spyOn(Object.getPrototypeOf(Object.getPrototypeOf(guard)), 'canActivate')
+        .spyOn(
+          Object.getPrototypeOf(Object.getPrototypeOf(guard)),
+          'canActivate',
+        )
         .mockResolvedValue(false);
 
       const result = await guard.canActivate(context);
@@ -87,7 +93,10 @@ describe('AppAuthGuard', () => {
       const error = new Error('Unauthorized');
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
       jest
-        .spyOn(Object.getPrototypeOf(Object.getPrototypeOf(guard)), 'canActivate')
+        .spyOn(
+          Object.getPrototypeOf(Object.getPrototypeOf(guard)),
+          'canActivate',
+        )
         .mockRejectedValue(error);
 
       await expect(guard.canActivate(context)).rejects.toThrow('Unauthorized');
@@ -99,7 +108,10 @@ describe('AppAuthGuard', () => {
       const context = createMockExecutionContext();
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
       jest
-        .spyOn(Object.getPrototypeOf(Object.getPrototypeOf(guard)), 'canActivate')
+        .spyOn(
+          Object.getPrototypeOf(Object.getPrototypeOf(guard)),
+          'canActivate',
+        )
         .mockResolvedValue(true);
 
       const result = await guard.canActivate(context);
@@ -127,7 +139,10 @@ describe('AppAuthGuard', () => {
       const context = createMockExecutionContext();
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
       jest
-        .spyOn(Object.getPrototypeOf(Object.getPrototypeOf(guard)), 'canActivate')
+        .spyOn(
+          Object.getPrototypeOf(Object.getPrototypeOf(guard)),
+          'canActivate',
+        )
         .mockReturnValue({ subscribe: jest.fn((callback) => callback(true)) });
 
       const result = guard.canActivate(context);

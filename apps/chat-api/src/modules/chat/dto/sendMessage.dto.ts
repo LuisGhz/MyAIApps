@@ -62,7 +62,10 @@ export class SendMessageReqDto {
     maximum: 16384,
     example: 2048,
   })
-  @Transform(({ value }) => Number.parseInt(value, 10))
+  @Transform(({ value }) => {
+    const rawValue: unknown = value;
+    return Number.parseInt(String(rawValue), 10);
+  })
   @IsInt()
   @Min(1)
   @Max(16384)

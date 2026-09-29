@@ -26,7 +26,7 @@ export class ReasoningLevelRequiredConstraint implements ValidatorConstraintInte
     return true;
   }
 
-  defaultMessage(args: ValidationArguments): string {
+  defaultMessage(): string {
     return 'Reasoning level is required';
   }
 }

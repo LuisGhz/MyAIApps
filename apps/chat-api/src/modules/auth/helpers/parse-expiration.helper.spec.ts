@@ -47,7 +47,6 @@ describe('parseExpiration', () => {
     });
   });
 
-
   describe('months', () => {
     it.each([
       ['1M', '2026-01-14T12:00:00Z'],

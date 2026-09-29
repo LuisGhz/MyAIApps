@@ -3,13 +3,25 @@ import { GuestModelAccessGuard } from './guest-model-access.guard';
 import { ModelsService } from '@mdl/services';
 import type { JwtPayload } from '@cmn/interfaces';
 
+type GuestModelAccessRequest = {
+  user?: JwtPayload | null;
+  body?: { modelId?: string | null };
+};
+
+type ModelsServiceMock = {
+  validateGuestAccessById: jest.MockedFunction<
+    ModelsService['validateGuestAccessById']
+  >;
+};
+
 describe('GuestModelAccessGuard', () => {
   let guard: GuestModelAccessGuard;
-  let modelsService: jest.Mocked<ModelsService>;
+  let modelsService: ModelsServiceMock;
+  let validateGuestAccessByIdMock: ModelsServiceMock['validateGuestAccessById'];
 
   const createMockExecutionContext = (
     overrides: {
-      request?: Record<string, any>;
+      request?: GuestModelAccessRequest;
     } = {},
   ) => {
     const mockRequest = {
@@ -19,22 +31,24 @@ describe('GuestModelAccessGuard', () => {
     };
 
     const mockContext = {
-      switchToHttp: jest.fn(),
-    } as unknown as jest.Mocked<ExecutionContext>;
-
-    (mockContext.switchToHttp as jest.Mock).mockReturnValue({
-      getRequest: () => mockRequest,
-    });
+      switchToHttp: jest.fn().mockReturnValue({
+        getRequest: () => mockRequest,
+      }),
+    } as unknown as ExecutionContext;
 
     return mockContext;
   };
 
   beforeEach(() => {
+    validateGuestAccessByIdMock =
+      jest.fn<ModelsService['validateGuestAccessById']>();
     modelsService = {
-      validateGuestAccessById: jest.fn(),
-    } as unknown as jest.Mocked<ModelsService>;
+      validateGuestAccessById: validateGuestAccessByIdMock,
+    };
 
-    guard = new GuestModelAccessGuard(modelsService);
+    guard = new GuestModelAccessGuard(
+      modelsService as unknown as ModelsService,
+    );
   });
 
   describe('canActivate', () => {
@@ -58,7 +72,7 @@ describe('GuestModelAccessGuard', () => {
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(modelsService.validateGuestAccessById).not.toHaveBeenCalled();
+      expect(validateGuestAccessByIdMock).not.toHaveBeenCalled();
     });
 
     it('should return true when user is null', async () => {
@@ -72,7 +86,7 @@ describe('GuestModelAccessGuard', () => {
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(modelsService.validateGuestAccessById).not.toHaveBeenCalled();
+      expect(validateGuestAccessByIdMock).not.toHaveBeenCalled();
     });
 
     it('should return true when request body has no model', async () => {
@@ -95,7 +109,7 @@ describe('GuestModelAccessGuard', () => {
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(modelsService.validateGuestAccessById).not.toHaveBeenCalled();
+      expect(validateGuestAccessByIdMock).not.toHaveBeenCalled();
     });
 
     it('should validate guest access when user is guest and model is provided', async () => {
@@ -115,14 +129,12 @@ describe('GuestModelAccessGuard', () => {
         },
       });
 
-      (
-        modelsService.validateGuestAccessById as jest.Mock
-      ).mockResolvedValueOnce(undefined);
+      validateGuestAccessByIdMock.mockResolvedValueOnce(undefined);
 
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(modelsService.validateGuestAccessById).toHaveBeenCalledWith(
+      expect(validateGuestAccessByIdMock).toHaveBeenCalledWith(
         'gpt-4-id',
         'guest',
       );
@@ -146,9 +158,7 @@ describe('GuestModelAccessGuard', () => {
       });
 
       const error = new Error('Guest access denied for this model');
-      (
-        modelsService.validateGuestAccessById as jest.Mock
-      ).mockRejectedValueOnce(error);
+      validateGuestAccessByIdMock.mockRejectedValueOnce(error);
 
       await expect(guard.canActivate(context)).rejects.toThrow(error);
     });
@@ -173,7 +183,7 @@ describe('GuestModelAccessGuard', () => {
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(modelsService.validateGuestAccessById).not.toHaveBeenCalled();
+      expect(validateGuestAccessByIdMock).not.toHaveBeenCalled();
     });
 
     it('should return true for guest user with empty string model', async () => {
@@ -196,7 +206,7 @@ describe('GuestModelAccessGuard', () => {
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(modelsService.validateGuestAccessById).not.toHaveBeenCalled();
+      expect(validateGuestAccessByIdMock).not.toHaveBeenCalled();
     });
 
     it('should validate guest access with different model values', async () => {
@@ -219,14 +229,12 @@ describe('GuestModelAccessGuard', () => {
           },
         });
 
-        (
-          modelsService.validateGuestAccessById as jest.Mock
-        ).mockResolvedValueOnce(undefined);
+        validateGuestAccessByIdMock.mockResolvedValueOnce(undefined);
 
         const result = await guard.canActivate(context);
 
         expect(result).toBe(true);
-        expect(modelsService.validateGuestAccessById).toHaveBeenCalledWith(
+        expect(validateGuestAccessByIdMock).toHaveBeenCalledWith(
           modelId,
           'guest',
         );

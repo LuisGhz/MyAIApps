@@ -82,7 +82,8 @@ export class AuthService {
     }
 
     // Validate state
-    const cookieState = req.cookies[COOKIE_STATE];
+    const cookies = req.cookies as Record<string, string | undefined>;
+    const cookieState = cookies[COOKIE_STATE];
     if (!this.validateState(cookieState, state)) {
       this.logger.warn('State mismatch in OAuth callback');
       clearCookies();
@@ -96,7 +97,7 @@ export class AuthService {
     }
 
     // Get code verifier
-    const codeVerifier = req.cookies[COOKIE_CODE_VERIFIER];
+    const codeVerifier = cookies[COOKIE_CODE_VERIFIER];
     if (!codeVerifier) {
       this.logger.warn('Missing code verifier in OAuth callback');
       clearCookies();

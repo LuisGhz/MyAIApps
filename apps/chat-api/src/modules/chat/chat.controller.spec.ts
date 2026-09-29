@@ -489,11 +489,9 @@ describe('ChatController', () => {
         mockTranscriptionResponse,
       );
 
-      const result = await controller.transcribeAudio(
-        mockAudioFile,
-        { temperature: 0 },
-        mockUser,
-      );
+      const result = await controller.transcribeAudio(mockAudioFile, {
+        temperature: 0,
+      });
 
       expect(result).toEqual(mockTranscriptionResponse);
       expect(transcriptionServiceMock.transcribeAudio).toHaveBeenCalledWith(
@@ -509,11 +507,9 @@ describe('ChatController', () => {
       );
 
       const temperature = 0.5;
-      const result = await controller.transcribeAudio(
-        mockAudioFile,
-        { temperature },
-        mockUser,
-      );
+      const result = await controller.transcribeAudio(mockAudioFile, {
+        temperature,
+      });
 
       expect(result).toEqual(mockTranscriptionResponse);
       expect(transcriptionServiceMock.transcribeAudio).toHaveBeenCalledWith(
@@ -524,7 +520,7 @@ describe('ChatController', () => {
 
     it('should throw BadRequestException when audio file is missing', async () => {
       await expect(
-        controller.transcribeAudio(undefined, { temperature: 0 }, mockUser),
+        controller.transcribeAudio(undefined, { temperature: 0 }),
       ).rejects.toThrow(BadRequestException);
 
       expect(transcriptionServiceMock.transcribeAudio).not.toHaveBeenCalled();
@@ -537,11 +533,7 @@ describe('ChatController', () => {
       };
 
       await expect(
-        controller.transcribeAudio(
-          invalidAudioFile,
-          { temperature: 0 },
-          mockUser,
-        ),
+        controller.transcribeAudio(invalidAudioFile, { temperature: 0 }),
       ).rejects.toThrow(BadRequestException);
 
       expect(transcriptionServiceMock.transcribeAudio).not.toHaveBeenCalled();
@@ -554,7 +546,7 @@ describe('ChatController', () => {
       );
 
       await expect(
-        controller.transcribeAudio(mockAudioFile, { temperature: 0 }, mockUser),
+        controller.transcribeAudio(mockAudioFile, { temperature: 0 }),
       ).rejects.toThrow('API rate limit exceeded');
 
       expect(transcriptionServiceMock.transcribeAudio).toHaveBeenCalledTimes(1);

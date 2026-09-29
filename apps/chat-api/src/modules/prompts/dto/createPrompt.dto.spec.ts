@@ -1,10 +1,6 @@
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import {
-  CreatePromptReqDto,
-  CreatePromptMessageDto,
-  CreatePromptResDto,
-} from './createPrompt.dto';
+import { CreatePromptReqDto, CreatePromptMessageDto } from './createPrompt.dto';
 import { PromptMessageRole } from '../entities';
 
 describe('CreatePromptMessageDto', () => {

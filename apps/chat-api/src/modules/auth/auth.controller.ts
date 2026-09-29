@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Query,
-  Req,
-  Res,
-  Logger,
-} from '@nestjs/common';
+import { Controller, Get, Post, Query, Req, Res, Logger } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -107,7 +99,9 @@ export class AuthController {
       res,
     );
 
-    const codeVerifier = req.cookies[COOKIE_CODE_VERIFIER];
+    const cookies = req.cookies as Record<string, string | undefined>;
+    const codeVerifier = cookies[COOKIE_CODE_VERIFIER];
+    if (!codeVerifier) return;
 
     try {
       const agentInfo = req.headers['user-agent'] || 'Unknown';
@@ -157,7 +151,8 @@ export class AuthController {
     },
   })
   async logout(@Req() req: Request, @Res() res: Response): Promise<void> {
-    const refreshToken = req.cookies[COOKIE_REFRESH_TOKEN];
+    const cookies = req.cookies as Record<string, string | undefined>;
+    const refreshToken = cookies[COOKIE_REFRESH_TOKEN];
 
     if (refreshToken) {
       await this.authService.logout(refreshToken);

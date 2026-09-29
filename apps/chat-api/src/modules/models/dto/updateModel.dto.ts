@@ -171,7 +171,7 @@ export class UpdateModelReqDto {
     example: 'low',
   })
   @ValidateIf(
-    (o) =>
+    (o: { isReasoning?: boolean; reasoningLevel?: string | null }) =>
       o.isReasoning === true ||
       (o.reasoningLevel !== undefined && o.reasoningLevel !== null),
   )

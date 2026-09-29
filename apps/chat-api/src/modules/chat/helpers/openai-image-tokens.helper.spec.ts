@@ -74,13 +74,13 @@ describe('openai-image-tokens.helper', () => {
     });
 
     it('should handle null size by using default', () => {
-      const result = getImageGenerationTokens(null as any, 'medium');
+      const result = getImageGenerationTokens(null, 'medium');
 
       expect(result).toBe(1056);
     });
 
     it('should handle null quality by using default', () => {
-      const result = getImageGenerationTokens('1024x1024', null as any);
+      const result = getImageGenerationTokens('1024x1024', null);
 
       expect(result).toBe(1056);
     });
@@ -127,7 +127,7 @@ describe('openai-image-tokens.helper', () => {
       const toolConfig: ImageGenerationToolConfig = {
         type: 'image_generation',
         size: '1024x1024',
-        quality: undefined as any,
+        quality: undefined,
       };
 
       const result = calculateImageGenerationTokens(toolConfig);

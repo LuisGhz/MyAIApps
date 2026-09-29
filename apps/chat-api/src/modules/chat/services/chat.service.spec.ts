@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Chat, Message, MessageRole } from '../entities';
@@ -41,10 +40,6 @@ const s3ServiceMock = {
 
 describe('ChatService', () => {
   let service: ChatService;
-  let chatRepositoryInstance: Repository<Chat>;
-  let messageRepositoryInstance: Repository<Message>;
-  let envServiceInstance: EnvService;
-  let s3ServiceInstance: S3Service;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -72,14 +67,6 @@ describe('ChatService', () => {
     }).compile();
 
     service = module.get<ChatService>(ChatService);
-    chatRepositoryInstance = module.get<Repository<Chat>>(
-      getRepositoryToken(Chat),
-    );
-    messageRepositoryInstance = module.get<Repository<Message>>(
-      getRepositoryToken(Message),
-    );
-    envServiceInstance = module.get<EnvService>(EnvService);
-    s3ServiceInstance = module.get<S3Service>(S3Service);
   });
 
   describe('createChat', () => {

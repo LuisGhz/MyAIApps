@@ -14,10 +14,14 @@ describe('HealthController', () => {
   beforeEach(async () => {
     const healthCheckServiceMock = {
       check: jest.fn(),
-    } as Partial<jest.Mocked<HealthCheckService>> as jest.Mocked<HealthCheckService>;
+    } as Partial<
+      jest.Mocked<HealthCheckService>
+    > as jest.Mocked<HealthCheckService>;
     const typeOrmHealthIndicatorMock = {
       pingCheck: jest.fn(),
-    } as Partial<jest.Mocked<TypeOrmHealthIndicator>> as jest.Mocked<TypeOrmHealthIndicator>;
+    } as Partial<
+      jest.Mocked<TypeOrmHealthIndicator>
+    > as jest.Mocked<TypeOrmHealthIndicator>;
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
@@ -58,8 +62,7 @@ describe('HealthController', () => {
     await expect(controller.check()).resolves.toEqual(result);
     expect(healthCheckService.check).toHaveBeenCalledTimes(1);
 
-    const indicators =
-      healthCheckService.check.mock.calls[0][0] as HealthIndicatorFunction[];
+    const indicators = healthCheckService.check.mock.calls[0][0];
     await indicators[0]();
 
     expect(typeOrmHealthIndicator.pingCheck).toHaveBeenCalledWith('database');

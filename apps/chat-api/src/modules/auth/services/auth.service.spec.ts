@@ -10,6 +10,11 @@ import { RefreshToken } from '../entities';
 import { UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { COOKIE_CODE_VERIFIER, COOKIE_STATE } from '../const/cookies.const';
+import type { GithubCallback } from '../interfaces';
+
+type RequestWithCookies = Omit<Request, 'cookies'> & {
+  cookies: Record<string, string | undefined>;
+};
 
 const jwtServiceMock = {
   sign: jest.fn(),
@@ -77,11 +82,9 @@ describe('AuthService', () => {
     it('should generate PKCE data with state, code verifier, and code challenge', async () => {
       const result = await authService.generatePkceData();
 
-      expect(result).toMatchObject({
-        state: expect.any(String),
-        codeVerifier: expect.any(String),
-        codeChallenge: expect.any(String),
-      });
+      expect(typeof result.state).toBe('string');
+      expect(typeof result.codeVerifier).toBe('string');
+      expect(typeof result.codeChallenge).toBe('string');
       expect(result.state.length).toBeGreaterThan(0);
     });
   });
@@ -90,7 +93,8 @@ describe('AuthService', () => {
     it('should return GitHub authorize URL', () => {
       const state = 'test-state';
       const codeChallenge = 'test-challenge';
-      const expectedUrl = 'https://github.com/login/oauth/authorize?params=test';
+      const expectedUrl =
+        'https://github.com/login/oauth/authorize?params=test';
       githubOauthServiceMock.buildAuthorizeUrl.mockReturnValue(expectedUrl);
 
       const result = authService.getGithubAuthorizeUrl(state, codeChallenge);
@@ -104,8 +108,8 @@ describe('AuthService', () => {
   });
 
   describe('validateCallbackParams', () => {
-    let mockReq: Partial<Request>;
-    let mockRes: Partial<Response>;
+    let mockReq: { cookies: Record<string, string | undefined> };
+    let mockRes: { redirect: jest.Mock };
     let clearCookies: jest.Mock;
 
     beforeEach(() => {
@@ -115,13 +119,19 @@ describe('AuthService', () => {
     });
 
     it('should redirect if GitHub returns an error and use error as message if description is missing', () => {
-      const callback = {
+      const callback: GithubCallback = {
         error: 'access_denied',
+        code: '',
+        state: '',
         errorDescription: '',
         clearCookies,
-      } as any;
+      };
 
-      authService.validateCallbackParams(callback, mockReq as Request, mockRes as Response);
+      authService.validateCallbackParams(
+        callback,
+        mockReq as unknown as RequestWithCookies,
+        mockRes as unknown as Response,
+      );
 
       expect(mockRes.redirect).toHaveBeenCalledWith(
         expect.stringContaining('errorMessage=access_denied'),
@@ -129,21 +139,43 @@ describe('AuthService', () => {
     });
 
     it('should redirect if code or state is missing', () => {
-      const callback = { code: '', state: 'state', clearCookies } as any;
+      const callback: GithubCallback = {
+        error: '',
+        code: '',
+        state: 'state',
+        errorDescription: '',
+        clearCookies,
+      };
 
-      authService.validateCallbackParams(callback, mockReq as Request, mockRes as Response);
+      authService.validateCallbackParams(
+        callback,
+        mockReq as unknown as RequestWithCookies,
+        mockRes as unknown as Response,
+      );
 
       expect(clearCookies).toHaveBeenCalled();
       expect(mockRes.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('errorMessage=Missing%20authorization%20code%20or%20state'),
+        expect.stringContaining(
+          'errorMessage=Missing%20authorization%20code%20or%20state',
+        ),
       );
     });
 
     it('should redirect if state mismatch', () => {
-      const callback = { code: 'code', state: 'wrong-state', clearCookies } as any;
+      const callback: GithubCallback = {
+        error: '',
+        code: 'code',
+        state: 'wrong-state',
+        errorDescription: '',
+        clearCookies,
+      };
       mockReq.cookies[COOKIE_STATE] = 'correct-state';
 
-      authService.validateCallbackParams(callback, mockReq as Request, mockRes as Response);
+      authService.validateCallbackParams(
+        callback,
+        mockReq as unknown as RequestWithCookies,
+        mockRes as unknown as Response,
+      );
 
       expect(clearCookies).toHaveBeenCalled();
       expect(mockRes.redirect).toHaveBeenCalledWith(
@@ -152,10 +184,20 @@ describe('AuthService', () => {
     });
 
     it('should redirect if code verifier is missing', () => {
-      const callback = { code: 'code', state: 'state', clearCookies } as any;
+      const callback: GithubCallback = {
+        error: '',
+        code: 'code',
+        state: 'state',
+        errorDescription: '',
+        clearCookies,
+      };
       mockReq.cookies[COOKIE_STATE] = 'state';
 
-      authService.validateCallbackParams(callback, mockReq as Request, mockRes as Response);
+      authService.validateCallbackParams(
+        callback,
+        mockReq as unknown as RequestWithCookies,
+        mockRes as unknown as Response,
+      );
 
       expect(clearCookies).toHaveBeenCalled();
       expect(mockRes.redirect).toHaveBeenCalledWith(
@@ -164,11 +206,21 @@ describe('AuthService', () => {
     });
 
     it('should not redirect if all params are valid', () => {
-      const callback = { code: 'code', state: 'state', clearCookies } as any;
+      const callback: GithubCallback = {
+        error: '',
+        code: 'code',
+        state: 'state',
+        errorDescription: '',
+        clearCookies,
+      };
       mockReq.cookies[COOKIE_STATE] = 'state';
       mockReq.cookies[COOKIE_CODE_VERIFIER] = 'verifier';
 
-      authService.validateCallbackParams(callback, mockReq as Request, mockRes as Response);
+      authService.validateCallbackParams(
+        callback,
+        mockReq as unknown as RequestWithCookies,
+        mockRes as unknown as Response,
+      );
 
       expect(mockRes.redirect).not.toHaveBeenCalled();
       expect(clearCookies).not.toHaveBeenCalled();
@@ -189,14 +241,20 @@ describe('AuthService', () => {
         email: 'test@example.com',
       };
 
-      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(mockTokenResponse);
+      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(
+        mockTokenResponse,
+      );
       githubOauthServiceMock.fetchGithubUser.mockResolvedValue(mockGithubUser);
       userServiceMock.findOrCreate.mockResolvedValue(mockUser);
       refreshTokenServiceMock.countActiveSessions.mockResolvedValue(2);
       refreshTokenServiceMock.create.mockResolvedValue(mockRefreshToken);
       jwtServiceMock.sign.mockReturnValue('jwt-access-token');
 
-      const result = await authService.handleCallback(code, codeVerifier, agentInfo);
+      const result = await authService.handleCallback(
+        code,
+        codeVerifier,
+        agentInfo,
+      );
 
       expect(result).toEqual({
         accessToken: 'jwt-access-token',
@@ -219,9 +277,13 @@ describe('AuthService', () => {
         email: null,
       };
 
-      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(mockTokenResponse);
+      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(
+        mockTokenResponse,
+      );
       githubOauthServiceMock.fetchGithubUser.mockResolvedValue(mockGithubUser);
-      githubOauthServiceMock.fetchPrimaryEmail.mockResolvedValue('primary@email.com');
+      githubOauthServiceMock.fetchPrimaryEmail.mockResolvedValue(
+        'primary@email.com',
+      );
       userServiceMock.findOrCreate.mockResolvedValue(mockUser);
       refreshTokenServiceMock.countActiveSessions.mockResolvedValue(0);
       refreshTokenServiceMock.create.mockResolvedValue(mockRefreshToken);
@@ -229,11 +291,15 @@ describe('AuthService', () => {
 
       await authService.handleCallback(code, codeVerifier, agentInfo);
 
-      expect(githubOauthServiceMock.fetchPrimaryEmail).toHaveBeenCalledWith(mockTokenResponse.access_token);
-      expect(userServiceMock.findOrCreate).toHaveBeenCalledWith(expect.objectContaining({
-        email: 'primary@email.com',
-        name: 'testuser', // fallback to login
-      }));
+      expect(githubOauthServiceMock.fetchPrimaryEmail).toHaveBeenCalledWith(
+        mockTokenResponse.access_token,
+      );
+      expect(userServiceMock.findOrCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'primary@email.com',
+          name: 'testuser', // fallback to login
+        }),
+      );
     });
 
     it('should use undefined if email is completely missing', async () => {
@@ -244,7 +310,9 @@ describe('AuthService', () => {
         email: null,
       };
 
-      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(mockTokenResponse);
+      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(
+        mockTokenResponse,
+      );
       githubOauthServiceMock.fetchGithubUser.mockResolvedValue(mockGithubUser);
       githubOauthServiceMock.fetchPrimaryEmail.mockResolvedValue(null);
       userServiceMock.findOrCreate.mockResolvedValue(mockUser);
@@ -254,14 +322,20 @@ describe('AuthService', () => {
 
       await authService.handleCallback(code, codeVerifier, agentInfo);
 
-      expect(userServiceMock.findOrCreate).toHaveBeenCalledWith(expect.objectContaining({
-        email: undefined,
-      }));
+      expect(userServiceMock.findOrCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: undefined,
+        }),
+      );
     });
 
     it('should throw UnauthorizedException if max sessions reached', async () => {
-      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(mockTokenResponse);
-      githubOauthServiceMock.fetchGithubUser.mockResolvedValue({ email: 'test@test.com' });
+      githubOauthServiceMock.exchangeCodeForToken.mockResolvedValue(
+        mockTokenResponse,
+      );
+      githubOauthServiceMock.fetchGithubUser.mockResolvedValue({
+        email: 'test@test.com',
+      });
       userServiceMock.findOrCreate.mockResolvedValue(mockUser);
       refreshTokenServiceMock.countActiveSessions.mockResolvedValue(5);
 
@@ -280,9 +354,11 @@ describe('AuthService', () => {
       const result = authService.generateAccessToken(userWithoutName);
 
       expect(result).toBe(expectedToken);
-      expect(jwtServiceMock.sign).toHaveBeenCalledWith(expect.objectContaining({
-        name: userWithoutName.ghLogin,
-      }));
+      expect(jwtServiceMock.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: userWithoutName.ghLogin,
+        }),
+      );
     });
   });
 
@@ -309,7 +385,9 @@ describe('AuthService', () => {
   describe('refreshAccessToken', () => {
     it('should return new access token for valid refresh token', async () => {
       const token = 'valid-token';
-      refreshTokenServiceMock.findValidByToken.mockResolvedValue(mockRefreshToken);
+      refreshTokenServiceMock.findValidByToken.mockResolvedValue(
+        mockRefreshToken,
+      );
       jwtServiceMock.sign.mockReturnValue('new-token');
 
       const result = await authService.refreshAccessToken(token);
@@ -321,7 +399,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for invalid token', async () => {
       refreshTokenServiceMock.findValidByToken.mockResolvedValue(null);
 
-      await expect(authService.refreshAccessToken('invalid')).rejects.toThrow(UnauthorizedException);
+      await expect(authService.refreshAccessToken('invalid')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -340,4 +420,3 @@ describe('AuthService', () => {
     });
   });
 });
-

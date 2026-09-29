@@ -51,7 +51,9 @@ describe('ImageService', () => {
     }).compile();
 
     service = module.get<ImageService>(ImageService);
-    imageRepositoryInstance = module.get<Repository<Image>>(getRepositoryToken(Image));
+    imageRepositoryInstance = module.get<Repository<Image>>(
+      getRepositoryToken(Image),
+    );
     envServiceInstance = module.get<EnvService>(EnvService);
   });
 
@@ -214,7 +216,9 @@ describe('ImageService', () => {
     imageRepositoryMock.create.mockReturnValue(mockImage);
     imageRepositoryMock.save.mockRejectedValue(dbError);
 
-    await expect(service.create(params)).rejects.toThrow('Database connection error');
+    await expect(service.create(params)).rejects.toThrow(
+      'Database connection error',
+    );
     expect(imageRepositoryMock.create).toHaveBeenCalledTimes(1);
     expect(imageRepositoryMock.save).toHaveBeenCalledTimes(1);
   });
@@ -225,7 +229,9 @@ describe('ImageService', () => {
 
     imageRepositoryMock.find.mockRejectedValue(dbError);
 
-    await expect(service.findAllByUserId(userId)).rejects.toThrow('Query timeout');
+    await expect(service.findAllByUserId(userId)).rejects.toThrow(
+      'Query timeout',
+    );
     expect(imageRepositoryMock.find).toHaveBeenCalledTimes(1);
   });
 
@@ -240,7 +246,9 @@ describe('ImageService', () => {
     imageRepositoryMock.findOne.mockResolvedValue(mockImage);
     imageRepositoryMock.save.mockRejectedValue(dbError);
 
-    await expect(service.softDelete(params)).rejects.toThrow('Write operation failed');
+    await expect(service.softDelete(params)).rejects.toThrow(
+      'Write operation failed',
+    );
     expect(imageRepositoryMock.findOne).toHaveBeenCalledTimes(1);
     expect(imageRepositoryMock.save).toHaveBeenCalledTimes(1);
   });

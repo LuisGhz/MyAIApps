@@ -1,7 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UserService } from './user.service';
 import { User, Role } from '../entities';
 
@@ -23,8 +21,6 @@ const roleRepositoryMock = {
 
 describe('UserService', () => {
   let service: UserService;
-  let userRepositoryInstance: Repository<User>;
-  let roleRepositoryInstance: Repository<Role>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -44,12 +40,6 @@ describe('UserService', () => {
     }).compile();
 
     service = module.get<UserService>(UserService);
-    userRepositoryInstance = module.get<Repository<User>>(
-      getRepositoryToken(User),
-    );
-    roleRepositoryInstance = module.get<Repository<Role>>(
-      getRepositoryToken(Role),
-    );
   });
 
   it('should be defined', () => {
@@ -249,7 +239,7 @@ describe('UserService', () => {
       role: { id: '1', name: 'user' },
     } as User;
     const newRole = { id: roleId, name: 'admin' } as Role;
-    const updatedUser = { ...mockUser, role: newRole } as User;
+    const updatedUser = { ...mockUser, role: newRole };
 
     userRepositoryMock.findOne.mockResolvedValue(mockUser);
     roleRepositoryMock.findOne.mockResolvedValue(newRole);

@@ -14,8 +14,8 @@ describe('Public', () => {
   });
 
   it('stores public-route metadata on a method', () => {
-    expect(Reflect.getMetadata(IS_PUBLIC_KEY, PublicClass.prototype.getHealth)).toBe(
-      true,
-    );
+    expect(
+      Reflect.getMetadata(IS_PUBLIC_KEY, PublicClass.prototype.getHealth),
+    ).toBe(true);
   });
 });

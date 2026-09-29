@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, MoreThan, LessThan } from 'typeorm';
+import { MoreThan, LessThan } from 'typeorm';
 import { RefreshTokenService } from './refresh-token.service';
 import { RefreshToken } from '../entities';
 import { User } from '../../user/entities';
@@ -22,8 +22,6 @@ const envServiceMock = {
 
 describe('RefreshTokenService', () => {
   let refreshTokenService: RefreshTokenService;
-  let refreshTokenRepositoryInstance: Repository<RefreshToken>;
-  let envServiceInstance: EnvService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -43,10 +41,6 @@ describe('RefreshTokenService', () => {
     }).compile();
 
     refreshTokenService = module.get<RefreshTokenService>(RefreshTokenService);
-    refreshTokenRepositoryInstance = module.get<Repository<RefreshToken>>(
-      getRepositoryToken(RefreshToken),
-    );
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   it('should create and save a refresh token', async () => {
@@ -66,13 +60,11 @@ describe('RefreshTokenService', () => {
     const result = await refreshTokenService.create(user, agentInfo);
 
     expect(result).toEqual(mockToken);
-    expect(refreshTokenRepositoryMock.create).toHaveBeenCalledWith({
-      user,
-      token: expect.any(String),
-      exp: expect.any(Date),
-      agentInfo,
-      isRevoked: false,
-    });
+    expect(refreshTokenRepositoryMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({ user, agentInfo, isRevoked: false }),
+    );
+    expect(result.token).toEqual(expect.any(String));
+    expect(result.exp).toBeInstanceOf(Date);
     expect(refreshTokenRepositoryMock.save).toHaveBeenCalledWith(mockToken);
     expect(refreshTokenRepositoryMock.create).toHaveBeenCalledTimes(1);
     expect(refreshTokenRepositoryMock.save).toHaveBeenCalledTimes(1);

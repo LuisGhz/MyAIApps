@@ -72,7 +72,6 @@ export class GeminiService implements AIProvider {
     const configObject: GenerateContentConfig = {
       tools,
       thinkingConfig: {
-
         thinkingLevel: reasoningLevel
           ? (reasoningLevel.toUpperCase() as ThinkingLevel)
           : ('HIGH' as ThinkingLevel),

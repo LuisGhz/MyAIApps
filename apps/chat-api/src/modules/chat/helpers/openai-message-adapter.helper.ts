@@ -3,14 +3,15 @@ import {
   ResponseInputText,
   ResponseInputImage,
 } from 'openai/resources/responses/responses.js';
-import type { Message } from '../entities/message.entity';
+import { MessageRole, type Message } from '../entities/message.entity';
 
 export const setSystemMessage = (
   systemPrompt = 'You are a helpful assistant.',
 ): ResponseInput => {
-  const prompt = typeof systemPrompt === 'string' && systemPrompt.trim()
-    ? systemPrompt
-    : 'You are a helpful assistant.';
+  const prompt =
+    typeof systemPrompt === 'string' && systemPrompt.trim()
+      ? systemPrompt
+      : 'You are a helpful assistant.';
 
   return [
     {
@@ -26,7 +27,7 @@ export const transformMessagesToOpenAIFormat = (
 ): ResponseInput => {
   return messages.map((msg, index) => {
     // Handle user messages
-    if (msg.role === 'user') {
+    if (msg.role === MessageRole.USER) {
       const content: Array<ResponseInputText | ResponseInputImage> = [];
 
       // Add text content
@@ -95,7 +96,7 @@ const handlePrevMessageWithImage = (
 ): Array<ResponseInputText | ResponseInputImage> => {
   const content: Array<ResponseInputText | ResponseInputImage> = [];
   if (
-    prevMessage?.role === 'assistant' &&
+    prevMessage?.role === MessageRole.ASSISTANT &&
     prevMessage?.fileKey &&
     isImage(prevMessage.fileKey)
   ) {

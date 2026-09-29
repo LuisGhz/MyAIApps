@@ -1,7 +1,12 @@
 import { StreamableFile } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ImgController } from './img.controller';
-import { GeminiService, ImageService, OpenAIService, S3Service } from './services';
+import {
+  GeminiService,
+  ImageService,
+  OpenAIService,
+  S3Service,
+} from './services';
 import { GeminiNewImageReqDto, OpenAINewImageReqDto } from './dtos';
 import type { JwtPayload } from '@core/strategies/interfaces';
 import type { Response } from 'express';
@@ -78,7 +83,10 @@ describe('ImgController', () => {
       expect(openAIServiceMock.genImage).toHaveBeenCalledTimes(1);
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledTimes(1);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(imageServiceMock.create).toHaveBeenCalledTimes(1);
       expect(result).toEqual({
         image: buffer.toString('base64'),
@@ -111,11 +119,16 @@ describe('ImgController', () => {
 
       const result = await controller.getOpenAIImage(body, user, files);
 
-      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [imageFile]);
+      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [
+        imageFile,
+      ]);
       expect(openAIServiceMock.editImage).toHaveBeenCalledTimes(1);
       expect(openAIServiceMock.genImage).not.toHaveBeenCalled();
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(result).toEqual({
         image: buffer.toString('base64'),
         key,
@@ -147,11 +160,16 @@ describe('ImgController', () => {
 
       const result = await controller.getOpenAIImage(body, user, files);
 
-      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [lastGeneratedImageFile]);
+      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [
+        lastGeneratedImageFile,
+      ]);
       expect(openAIServiceMock.editImage).toHaveBeenCalledTimes(1);
       expect(openAIServiceMock.genImage).not.toHaveBeenCalled();
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(result).toEqual({
         image: buffer.toString('base64'),
         key,
@@ -181,7 +199,10 @@ describe('ImgController', () => {
         buffer: Buffer.from('last-generated-image'),
         size: 2048,
       } as Express.Multer.File;
-      const files = { image: [imageFile], lastGeneratedImage: [lastGeneratedImageFile] };
+      const files = {
+        image: [imageFile],
+        lastGeneratedImage: [lastGeneratedImageFile],
+      };
       const buffer = Buffer.from('edited-image-data');
       const key = 'user-111/edited-image-key.png';
 
@@ -191,11 +212,17 @@ describe('ImgController', () => {
 
       const result = await controller.getOpenAIImage(body, user, files);
 
-      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [imageFile, lastGeneratedImageFile]);
+      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [
+        imageFile,
+        lastGeneratedImageFile,
+      ]);
       expect(openAIServiceMock.editImage).toHaveBeenCalledTimes(1);
       expect(openAIServiceMock.genImage).not.toHaveBeenCalled();
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(result).toEqual({
         image: buffer.toString('base64'),
         key,
@@ -224,7 +251,10 @@ describe('ImgController', () => {
       expect(geminiServiceMock.genImage).toHaveBeenCalledTimes(1);
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledTimes(1);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(imageServiceMock.create).toHaveBeenCalledTimes(1);
       expect(result).toEqual({
         image: buffer.toString('base64'),
@@ -257,11 +287,16 @@ describe('ImgController', () => {
 
       const result = await controller.getGeminiImage(body, user, files);
 
-      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [imageFile]);
+      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [
+        imageFile,
+      ]);
       expect(geminiServiceMock.editImage).toHaveBeenCalledTimes(1);
       expect(geminiServiceMock.genImage).not.toHaveBeenCalled();
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(result).toEqual({
         image: buffer.toString('base64'),
         key,
@@ -293,11 +328,16 @@ describe('ImgController', () => {
 
       const result = await controller.getGeminiImage(body, user, files);
 
-      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [lastGeneratedImageFile]);
+      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [
+        lastGeneratedImageFile,
+      ]);
       expect(geminiServiceMock.editImage).toHaveBeenCalledTimes(1);
       expect(geminiServiceMock.genImage).not.toHaveBeenCalled();
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(result).toEqual({
         image: buffer.toString('base64'),
         key,
@@ -327,7 +367,10 @@ describe('ImgController', () => {
         buffer: Buffer.from('last-gemini-image'),
         size: 2048,
       } as Express.Multer.File;
-      const files = { image: [imageFile], lastGeneratedImage: [lastGeneratedImageFile] };
+      const files = {
+        image: [imageFile],
+        lastGeneratedImage: [lastGeneratedImageFile],
+      };
       const buffer = Buffer.from('gemini-edited-image-data');
       const key = 'user-555/gemini-edited-image-key.png';
 
@@ -337,11 +380,17 @@ describe('ImgController', () => {
 
       const result = await controller.getGeminiImage(body, user, files);
 
-      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [imageFile, lastGeneratedImageFile]);
+      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [
+        imageFile,
+        lastGeneratedImageFile,
+      ]);
       expect(geminiServiceMock.editImage).toHaveBeenCalledTimes(1);
       expect(geminiServiceMock.genImage).not.toHaveBeenCalled();
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
       expect(result).toEqual({
         image: buffer.toString('base64'),
         key,
@@ -384,7 +433,9 @@ describe('ImgController', () => {
 
       imageServiceMock.findAllByUserId.mockRejectedValue(error);
 
-      await expect(controller.getUserImages(user)).rejects.toThrow('Database connection error');
+      await expect(controller.getUserImages(user)).rejects.toThrow(
+        'Database connection error',
+      );
       expect(imageServiceMock.findAllByUserId).toHaveBeenCalledWith(user.sub);
     });
   });
@@ -401,7 +452,9 @@ describe('ImgController', () => {
 
       openAIServiceMock.genImage.mockRejectedValue(error);
 
-      await expect(controller.getOpenAIImage(body, user)).rejects.toThrow('OpenAI API rate limit exceeded');
+      await expect(controller.getOpenAIImage(body, user)).rejects.toThrow(
+        'OpenAI API rate limit exceeded',
+      );
       expect(openAIServiceMock.genImage).toHaveBeenCalledWith(body);
       expect(s3ServiceMock.uploadImage).not.toHaveBeenCalled();
       expect(imageServiceMock.create).not.toHaveBeenCalled();
@@ -420,7 +473,9 @@ describe('ImgController', () => {
       openAIServiceMock.genImage.mockResolvedValue(buffer);
       s3ServiceMock.uploadImage.mockRejectedValue(error);
 
-      await expect(controller.getOpenAIImage(body, user)).rejects.toThrow('S3 upload failed');
+      await expect(controller.getOpenAIImage(body, user)).rejects.toThrow(
+        'S3 upload failed',
+      );
       expect(openAIServiceMock.genImage).toHaveBeenCalledWith(body);
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
       expect(imageServiceMock.create).not.toHaveBeenCalled();
@@ -441,10 +496,15 @@ describe('ImgController', () => {
       s3ServiceMock.uploadImage.mockResolvedValue(key);
       imageServiceMock.create.mockRejectedValue(error);
 
-      await expect(controller.getOpenAIImage(body, user)).rejects.toThrow('Database save failed');
+      await expect(controller.getOpenAIImage(body, user)).rejects.toThrow(
+        'Database save failed',
+      );
       expect(openAIServiceMock.genImage).toHaveBeenCalledWith(body);
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
-      expect(imageServiceMock.create).toHaveBeenCalledWith({ key, userId: user.sub });
+      expect(imageServiceMock.create).toHaveBeenCalledWith({
+        key,
+        userId: user.sub,
+      });
     });
 
     it('should throw an error when OpenAI service fails during image editing', async () => {
@@ -467,8 +527,12 @@ describe('ImgController', () => {
 
       openAIServiceMock.editImage.mockRejectedValue(error);
 
-      await expect(controller.getOpenAIImage(body, user, files)).rejects.toThrow('Invalid image format');
-      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [imageFile]);
+      await expect(
+        controller.getOpenAIImage(body, user, files),
+      ).rejects.toThrow('Invalid image format');
+      expect(openAIServiceMock.editImage).toHaveBeenCalledWith(body, [
+        imageFile,
+      ]);
       expect(s3ServiceMock.uploadImage).not.toHaveBeenCalled();
       expect(imageServiceMock.create).not.toHaveBeenCalled();
     });
@@ -486,7 +550,9 @@ describe('ImgController', () => {
 
       geminiServiceMock.genImage.mockRejectedValue(error);
 
-      await expect(controller.getGeminiImage(body, user)).rejects.toThrow('Gemini API authentication failed');
+      await expect(controller.getGeminiImage(body, user)).rejects.toThrow(
+        'Gemini API authentication failed',
+      );
       expect(geminiServiceMock.genImage).toHaveBeenCalledWith(body);
       expect(s3ServiceMock.uploadImage).not.toHaveBeenCalled();
       expect(imageServiceMock.create).not.toHaveBeenCalled();
@@ -512,8 +578,12 @@ describe('ImgController', () => {
 
       geminiServiceMock.editImage.mockRejectedValue(error);
 
-      await expect(controller.getGeminiImage(body, user, files)).rejects.toThrow('Image processing timeout');
-      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [imageFile]);
+      await expect(
+        controller.getGeminiImage(body, user, files),
+      ).rejects.toThrow('Image processing timeout');
+      expect(geminiServiceMock.editImage).toHaveBeenCalledWith(body, [
+        imageFile,
+      ]);
       expect(s3ServiceMock.uploadImage).not.toHaveBeenCalled();
       expect(imageServiceMock.create).not.toHaveBeenCalled();
     });
@@ -531,7 +601,9 @@ describe('ImgController', () => {
       geminiServiceMock.genImage.mockResolvedValue(buffer);
       s3ServiceMock.uploadImage.mockRejectedValue(error);
 
-      await expect(controller.getGeminiImage(body, user)).rejects.toThrow('S3 bucket not accessible');
+      await expect(controller.getGeminiImage(body, user)).rejects.toThrow(
+        'S3 bucket not accessible',
+      );
       expect(geminiServiceMock.genImage).toHaveBeenCalledWith(body);
       expect(s3ServiceMock.uploadImage).toHaveBeenCalledWith(buffer, user.sub);
       expect(imageServiceMock.create).not.toHaveBeenCalled();
@@ -549,7 +621,9 @@ describe('ImgController', () => {
 
       const result = await controller.downloadImage(src, user, res);
 
-      expect(s3ServiceMock.downloadImage).toHaveBeenCalledWith('myaiimg/user-123/image.png');
+      expect(s3ServiceMock.downloadImage).toHaveBeenCalledWith(
+        'myaiimg/user-123/image.png',
+      );
       expect(s3ServiceMock.downloadImage).toHaveBeenCalledTimes(1);
       expect(res.set).toHaveBeenCalledWith({
         'Content-Type': 'image/png',
@@ -569,11 +643,14 @@ describe('ImgController', () => {
 
       await controller.downloadImage(src, user, res);
 
-      expect(s3ServiceMock.downloadImage).toHaveBeenCalledWith('myaiimg/auth0-user-abc123/photo.png');
+      expect(s3ServiceMock.downloadImage).toHaveBeenCalledWith(
+        'myaiimg/auth0-user-abc123/photo.png',
+      );
     });
 
     it('should extract filename correctly from a deeply nested src path', async () => {
-      const src = 'https://s3.amazonaws.com/bucket/myaiimg/user-123/nested/deep/filename.png';
+      const src =
+        'https://s3.amazonaws.com/bucket/myaiimg/user-123/nested/deep/filename.png';
       const user = { sub: 'user-123' } as JwtPayload;
       const buffer = Buffer.from('image-data');
       const res = { set: jest.fn() } as unknown as Response;
@@ -597,8 +674,12 @@ describe('ImgController', () => {
 
       s3ServiceMock.downloadImage.mockRejectedValue(error);
 
-      await expect(controller.downloadImage(src, user, res)).rejects.toThrow('S3 object not found');
-      expect(s3ServiceMock.downloadImage).toHaveBeenCalledWith('myaiimg/user-123/image.png');
+      await expect(controller.downloadImage(src, user, res)).rejects.toThrow(
+        'S3 object not found',
+      );
+      expect(s3ServiceMock.downloadImage).toHaveBeenCalledWith(
+        'myaiimg/user-123/image.png',
+      );
       expect(res.set).not.toHaveBeenCalled();
     });
   });

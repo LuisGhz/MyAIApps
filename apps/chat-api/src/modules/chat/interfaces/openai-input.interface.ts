@@ -46,10 +46,7 @@ export interface OpenAIInputAudio {
 
 /** Union type for all content types within a message */
 export type OpenAIMessageContent =
-  | OpenAIInputText
-  | OpenAIInputImage
-  | OpenAIInputFile
-  | OpenAIInputAudio;
+  OpenAIInputText | OpenAIInputImage | OpenAIInputFile | OpenAIInputAudio;
 
 /** Content list for multi-modal messages */
 export type OpenAIMessageContentList = OpenAIMessageContent[];

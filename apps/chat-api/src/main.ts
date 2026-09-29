@@ -3,15 +3,18 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import type { RequestHandler } from 'express';
 import { AppModule } from './app.module';
 import { EnvService } from '@cfg/schema/env.service';
+
+const createCookieParser = cookieParser as () => RequestHandler;
 
 async function bootstrap() {
   const logger = new Logger('Main');
   const app = await NestFactory.create(AppModule);
   const envService = app.get(EnvService);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-  app.use(cookieParser());
+  app.use(createCookieParser());
   app.enableCors({
     origin: envService.frontendUrl,
     credentials: true,
@@ -46,4 +49,4 @@ async function bootstrap() {
     `Swagger documentation available at: http://localhost:${envService.port}/api/docs`,
   );
 }
-bootstrap();
+void bootstrap();

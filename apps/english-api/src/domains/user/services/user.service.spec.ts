@@ -13,7 +13,9 @@ describe('UserService', () => {
       create: jest.fn(),
       findOneBy: jest.fn(),
       save: jest.fn(),
-    } as Partial<jest.Mocked<Repository<User>>> as jest.Mocked<Repository<User>>;
+    } as Partial<jest.Mocked<Repository<User>>> as jest.Mocked<
+      Repository<User>
+    >;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -44,7 +46,9 @@ describe('UserService', () => {
     userRepository.findOneBy.mockResolvedValue(user);
 
     await expect(service.findByEmail(user.email)).resolves.toEqual(user);
-    expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: user.email });
+    expect(userRepository.findOneBy).toHaveBeenCalledWith({
+      email: user.email,
+    });
   });
 
   it('finds a user by id', async () => {

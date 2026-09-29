@@ -27,22 +27,47 @@ const envServiceMock = {
   cdnDomain: 'https://cdn.example.com/',
 };
 
+type MockGeminiChunk = {
+  text?: string;
+  data?: string;
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+  };
+};
+
+type MockGeminiRequest = {
+  model: string;
+  contents: Array<{
+    role?: string;
+    parts?: Array<{ text?: string }>;
+  }>;
+  config?: {
+    maxOutputTokens?: number;
+    temperature?: number;
+    thinkingConfig?: { thinkingLevel?: string };
+    tools?: unknown[];
+  };
+};
+
 const mockGoogleGenAIClient = {
   models: {
-    generateContentStream: jest.fn(),
-    generateContent: jest.fn(),
+    generateContentStream: jest.fn<
+      Promise<Iterable<MockGeminiChunk>>,
+      [MockGeminiRequest]
+    >(),
+    generateContent: jest.fn<Promise<{ text?: string }>, [MockGeminiRequest]>(),
   },
 };
 
 describe('GeminiService', () => {
   let service: GeminiService;
-  let envServiceInstance: EnvService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
     (GoogleGenAI as jest.MockedClass<typeof GoogleGenAI>).mockImplementation(
-      () => mockGoogleGenAIClient as any,
+      () => mockGoogleGenAIClient as unknown as GoogleGenAI,
     );
 
     const module: TestingModule = await Test.createTestingModule({
@@ -56,7 +81,6 @@ describe('GeminiService', () => {
     }).compile();
 
     service = module.get<GeminiService>(GeminiService);
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   describe('streamResponse', () => {

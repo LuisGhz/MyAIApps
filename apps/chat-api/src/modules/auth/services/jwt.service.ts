@@ -2,6 +2,8 @@ import { JwtPayload, JwtSign } from '@cmn/interfaces';
 import { Injectable } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 
+type DecodedJwtPayload = JwtPayload & Record<string, unknown>;
+
 @Injectable()
 export class JwtService {
   constructor(private readonly jwtService: NestJwtService) {}
@@ -10,9 +12,18 @@ export class JwtService {
     return this.jwtService.sign(payload);
   }
 
-  signWithPreviousToken(token: string) {
-    const { exp, iat, ...rest } = this.jwtService.decode(token);
-    return this.jwtService.sign(rest);
+  signWithPreviousToken(token: string): string {
+    const decodedPayload = this.jwtService.decode<DecodedJwtPayload | null>(
+      token,
+    );
+    if (!decodedPayload || typeof decodedPayload !== 'object') {
+      throw new Error('Unable to decode JWT payload');
+    }
+
+    const { exp, iat, ...payload } = decodedPayload;
+    void exp;
+    void iat;
+    return this.jwtService.sign(payload);
   }
 
   verify(token: string): JwtPayload {

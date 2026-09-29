@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { S3Service } from './s3.service';
 import { EnvService } from '@config/env';
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
 import { EventEmitter } from 'events';
 import { randomBytes } from 'crypto';
 
@@ -79,7 +83,9 @@ describe('S3Service', () => {
 
     expect(randomBytes).toHaveBeenCalledWith(5);
     expect(s3ClientMock.send).toHaveBeenCalledTimes(1);
-    expect(s3ClientMock.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
+    expect(s3ClientMock.send).toHaveBeenCalledWith(
+      expect.any(PutObjectCommand),
+    );
     expect(result).toMatch(
       /^myaiimg\/auth0-user123\/72616e646f6d686578-\d{4}-\d{2}-\d{2}\.png$/,
     );
@@ -210,7 +216,9 @@ describe('S3Service', () => {
     const result = await service.downloadImage(key);
 
     expect(s3ClientMock.send).toHaveBeenCalledTimes(1);
-    expect(s3ClientMock.send).toHaveBeenCalledWith(expect.any(GetObjectCommand));
+    expect(s3ClientMock.send).toHaveBeenCalledWith(
+      expect.any(GetObjectCommand),
+    );
     expect(result).toEqual(Buffer.concat(chunks));
   });
 
@@ -230,7 +238,11 @@ describe('S3Service', () => {
 
   it('should concatenate multiple stream chunks into a single Buffer', async () => {
     const key = 'myaiimg/user/multi-chunk.png';
-    const chunks = [Buffer.from('part1'), Buffer.from('part2'), Buffer.from('part3')];
+    const chunks = [
+      Buffer.from('part1'),
+      Buffer.from('part2'),
+      Buffer.from('part3'),
+    ];
     const mockStream = createMockStream(chunks);
 
     (s3ClientMock.send as jest.Mock).mockResolvedValue({ Body: mockStream });
@@ -249,7 +261,9 @@ describe('S3Service', () => {
 
     const loggerErrorSpy = jest.spyOn(Logger.prototype, 'error');
 
-    await expect(service.downloadImage(key)).rejects.toThrow('S3 download failed');
+    await expect(service.downloadImage(key)).rejects.toThrow(
+      'S3 download failed',
+    );
     expect(loggerErrorSpy).toHaveBeenCalledWith(
       `Failed to download image from S3: ${key}`,
       s3Error,
@@ -263,6 +277,8 @@ describe('S3Service', () => {
 
     (s3ClientMock.send as jest.Mock).mockResolvedValue({ Body: mockStream });
 
-    await expect(service.downloadImage(key)).rejects.toThrow('Stream read failure');
+    await expect(service.downloadImage(key)).rejects.toThrow(
+      'Stream read failure',
+    );
   });
 });

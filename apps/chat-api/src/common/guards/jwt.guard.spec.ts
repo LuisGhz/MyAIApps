@@ -8,7 +8,6 @@ import { TokenExpiredError } from '@nestjs/jwt';
 import { JwtGuard } from './jwt.guard';
 import { JwtService } from '@auth/services';
 import { RefreshTokenService } from '@auth/services/refresh-token.service';
-import { PUBLIC_KEY, ADMIN_ROLE_KEY } from '@cmn/decorators';
 import { COOKIE_REFRESH_TOKEN } from '@auth/const/cookies.const';
 import { JwtPayload } from '@cmn/interfaces';
 
@@ -99,7 +98,7 @@ describe('JwtGuard', () => {
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(jwtService.verify).not.toHaveBeenCalled();
+      expect(jwtService.verify.mock.calls).toHaveLength(0);
     });
 
     it('should return true with valid token', async () => {

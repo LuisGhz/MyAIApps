@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CACHE_MANAGER, type Cache } from '@nestjs/cache-manager';
 import { AppCacheService } from './app-cache.service';
 import { EnvService } from '@cfg/schema/env.service';
 
 describe('AppCacheService', () => {
   let appCacheServiceInstance: AppCacheService;
-  let cacheManagerMock: jest.Mocked<any>;
+  let cacheManagerMock: Pick<jest.Mocked<Cache>, 'get' | 'set' | 'del'>;
   let envServiceMock: jest.Mocked<EnvService>;
 
   beforeEach(async () => {

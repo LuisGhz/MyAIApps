@@ -25,7 +25,6 @@ const promptsServiceMock = {
 
 describe('PromptsController', () => {
   let controller: PromptsController;
-  let promptsServiceInstance: PromptsService;
 
   const mockUser: JwtPayload = {
     sub: 'user-123',
@@ -53,7 +52,6 @@ describe('PromptsController', () => {
     }).compile();
 
     controller = module.get<PromptsController>(PromptsController);
-    promptsServiceInstance = module.get<PromptsService>(PromptsService);
   });
 
   it('should be defined', () => {

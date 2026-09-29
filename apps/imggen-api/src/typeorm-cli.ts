@@ -39,10 +39,14 @@ const typeormCliPath = path.join(
 console.log(`Running: bun ${typeormCliPath} ${command} -d ${datasourcePath}`);
 
 // Execute the command using bun
-const result = spawnSync('bun', [typeormCliPath, command, '-d', datasourcePath], {
-  stdio: 'inherit',
-  env: process.env,
-});
+const result = spawnSync(
+  'bun',
+  [typeormCliPath, command, '-d', datasourcePath],
+  {
+    stdio: 'inherit',
+    env: process.env,
+  },
+);
 
 // Exit with the same code as the child process
 process.exit(result.status ?? 1);

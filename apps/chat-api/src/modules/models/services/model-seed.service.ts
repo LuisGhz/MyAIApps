@@ -107,7 +107,7 @@ export class ModelSeedService implements OnModuleInit {
 
   private async checkTableExists(tableName: string): Promise<boolean> {
     try {
-      const result = await this.dataSource.query(
+      const result = await this.dataSource.query<{ exists?: boolean }[]>(
         `SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_schema = 'public' 

@@ -24,8 +24,10 @@ export const fetchImageAsBase64 = async (
 
     return { mimeType, dataBase64 };
   } catch (error) {
-    logger.warn(`Failed to fetch image: ${url}`, error instanceof Error ? error.message : error);
+    logger.warn(
+      `Failed to fetch image: ${url}`,
+      error instanceof Error ? error.message : error,
+    );
     return undefined;
   }
 };
-

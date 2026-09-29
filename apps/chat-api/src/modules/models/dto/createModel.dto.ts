@@ -155,7 +155,6 @@ export class CreateModelReqDto {
   @IsBoolean()
   supportsTemperature: boolean;
 
-
   @ApiPropertyOptional({
     description: 'Update reasoning capability',
     example: true,
@@ -169,7 +168,7 @@ export class CreateModelReqDto {
     example: 'low',
   })
   @ValidateIf(
-    (o) =>
+    (o: { isReasoning?: boolean; reasoningLevel?: string | null }) =>
       o.isReasoning === true ||
       (o.reasoningLevel !== undefined && o.reasoningLevel !== null),
   )
@@ -244,7 +243,7 @@ export class CreateModelResDto {
 
   @ApiProperty({ description: 'Reasoning level', nullable: true })
   @ValidateIf(
-    (o) =>
+    (o: { isReasoning?: boolean; reasoningLevel?: string | null }) =>
       o.isReasoning === true ||
       (o.reasoningLevel !== undefined && o.reasoningLevel !== null),
   )

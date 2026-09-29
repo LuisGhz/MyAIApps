@@ -24,8 +24,8 @@ const IMAGE_TOKENS_MAPPING: Record<string, Record<string, number>> = {
 };
 
 export function getImageGenerationTokens(
-  size: string = '1024x1024',
-  quality: string = 'medium',
+  size: string | null = '1024x1024',
+  quality: string | null = 'medium',
 ): number {
   const normalizedSize = size || '1024x1024';
   const normalizedQuality = quality || 'medium';

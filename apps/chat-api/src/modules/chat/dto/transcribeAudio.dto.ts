@@ -11,7 +11,10 @@ export class TranscribeAudioReqDto {
     example: 0,
   })
   @IsOptional()
-  @Transform(({ value }) => Number.parseFloat(value))
+  @Transform(({ value }) => {
+    const rawValue: unknown = value;
+    return Number.parseFloat(String(rawValue));
+  })
   @IsNumber()
   @Min(0)
   @Max(1)

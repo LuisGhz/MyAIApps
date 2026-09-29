@@ -26,7 +26,9 @@ describe('GeminiService', () => {
   beforeEach(async () => {
     geminiClientMock = {
       models: {
-        generateContent: jest.fn().mockResolvedValue(mockGenerateContentResponse),
+        generateContent: jest
+          .fn()
+          .mockResolvedValue(mockGenerateContentResponse),
       },
     } as any;
 
@@ -406,7 +408,9 @@ describe('GeminiService', () => {
     };
 
     const apiError = new Error('Gemini API is unavailable');
-    (geminiClientMock.models.generateContent as any).mockRejectedValue(apiError);
+    (geminiClientMock.models.generateContent as any).mockRejectedValue(
+      apiError,
+    );
 
     await expect(service.genImage(dto)).rejects.toThrow(
       'Gemini API is unavailable',
@@ -436,7 +440,9 @@ describe('GeminiService', () => {
     ];
 
     const apiError = new Error('Rate limit exceeded');
-    (geminiClientMock.models.generateContent as any).mockRejectedValue(apiError);
+    (geminiClientMock.models.generateContent as any).mockRejectedValue(
+      apiError,
+    );
 
     await expect(service.editImage(dto, mockFiles)).rejects.toThrow(
       'Rate limit exceeded',

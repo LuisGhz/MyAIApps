@@ -11,15 +11,17 @@ import { ALLOWED_AUDIO_TYPES, ALLOWED_AUDIO_EXTENSIONS } from '../consts';
 @Injectable()
 @ValidatorConstraint({ name: 'isValidAudioType', async: false })
 export class IsValidAudioTypeConstraint implements ValidatorConstraintInterface {
-  validate(file: Express.Multer.File): boolean {
+  validate(file: Express.Multer.File | null | undefined): boolean {
     if (!file) return true;
 
     const mimeType = file.mimetype;
     const extension = path.extname(file.originalname).toLowerCase();
 
-    const isValidMimeType = ALLOWED_AUDIO_TYPES.includes(mimeType as any);
-    const isValidExtension = ALLOWED_AUDIO_EXTENSIONS.includes(
-      extension as any,
+    const isValidMimeType = ALLOWED_AUDIO_TYPES.some(
+      (allowedType) => allowedType === mimeType,
+    );
+    const isValidExtension = ALLOWED_AUDIO_EXTENSIONS.some(
+      (allowedExtension) => allowedExtension === extension,
     );
 
     return isValidMimeType && isValidExtension;

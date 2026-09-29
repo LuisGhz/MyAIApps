@@ -18,7 +18,6 @@ const userServiceMock = {
 
 describe('UserController', () => {
   let controller: UserController;
-  let userServiceInstance: UserService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -34,7 +33,6 @@ describe('UserController', () => {
     }).compile();
 
     controller = module.get<UserController>(UserController);
-    userServiceInstance = module.get<UserService>(UserService);
   });
 
   it('should be defined', () => {
@@ -71,8 +69,8 @@ describe('UserController', () => {
       const result: GetAllUsersResDto = await controller.getAllUsers();
 
       expect(result).toEqual({ users: mockUsers });
-      expect(userServiceInstance.findAll).toHaveBeenCalledTimes(1);
-      expect(userServiceInstance.findAll).toHaveBeenCalledWith();
+      expect(userServiceMock.findAll).toHaveBeenCalledTimes(1);
+      expect(userServiceMock.findAll).toHaveBeenCalledWith();
     });
   });
 
@@ -88,8 +86,8 @@ describe('UserController', () => {
       const result: GetAllRolesResDto = await controller.getAllRoles();
 
       expect(result).toEqual({ roles: mockRoles });
-      expect(userServiceInstance.findAllRoles).toHaveBeenCalledTimes(1);
-      expect(userServiceInstance.findAllRoles).toHaveBeenCalledWith();
+      expect(userServiceMock.findAllRoles).toHaveBeenCalledTimes(1);
+      expect(userServiceMock.findAllRoles).toHaveBeenCalledWith();
     });
   });
 
@@ -122,8 +120,8 @@ describe('UserController', () => {
       );
 
       expect(result).toEqual({ message: 'User role updated successfully' });
-      expect(userServiceInstance.updateUserRole).toHaveBeenCalledTimes(1);
-      expect(userServiceInstance.updateUserRole).toHaveBeenCalledWith(
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledTimes(1);
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledWith(
         userId,
         dto.roleId,
       );
@@ -137,7 +135,7 @@ describe('UserController', () => {
       const result: GetAllUsersResDto = await controller.getAllUsers();
 
       expect(result).toEqual({ users: [] });
-      expect(userServiceInstance.findAll).toHaveBeenCalledTimes(1);
+      expect(userServiceMock.findAll).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -148,7 +146,7 @@ describe('UserController', () => {
       const result: GetAllRolesResDto = await controller.getAllRoles();
 
       expect(result).toEqual({ roles: [] });
-      expect(userServiceInstance.findAllRoles).toHaveBeenCalledTimes(1);
+      expect(userServiceMock.findAllRoles).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -173,7 +171,7 @@ describe('UserController', () => {
       await expect(
         controller.updateUserRole(userId, dto, currentUser),
       ).rejects.toThrow("You can't update your own role");
-      expect(userServiceInstance.updateUserRole).not.toHaveBeenCalled();
+      expect(userServiceMock.updateUserRole).not.toHaveBeenCalled();
     });
 
     it('should propagate NotFoundException when user not found', async () => {
@@ -196,7 +194,7 @@ describe('UserController', () => {
       await expect(
         controller.updateUserRole(userId, dto, currentUser),
       ).rejects.toThrow(notFoundError);
-      expect(userServiceInstance.updateUserRole).toHaveBeenCalledTimes(1);
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledTimes(1);
     });
 
     it('should propagate NotFoundException when role not found', async () => {
@@ -219,8 +217,8 @@ describe('UserController', () => {
       await expect(
         controller.updateUserRole(userId, dto, currentUser),
       ).rejects.toThrow(notFoundError);
-      expect(userServiceInstance.updateUserRole).toHaveBeenCalledTimes(1);
-      expect(userServiceInstance.updateUserRole).toHaveBeenCalledWith(
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledTimes(1);
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledWith(
         userId,
         dto.roleId,
       );

@@ -1,19 +1,41 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { ModelsService } from './models.service';
 import { Model, ModelDeveloper } from '../entities';
 import { AppCacheService } from '@cmn/services/app-cache.service';
 import { CACHE_KEYS } from '@cmn/consts/cache.const';
 
+type ModelRepositoryMock = {
+  findOne: jest.MockedFunction<Repository<Model>['findOne']>;
+  find: jest.MockedFunction<Repository<Model>['find']>;
+  count: jest.MockedFunction<Repository<Model>['count']>;
+  create: jest.MockedFunction<Repository<Model>['create']>;
+  save: jest.MockedFunction<Repository<Model>['save']>;
+  remove: jest.MockedFunction<Repository<Model>['remove']>;
+};
+
+type DeveloperRepositoryMock = {
+  findOne: jest.MockedFunction<Repository<ModelDeveloper>['findOne']>;
+  find: jest.MockedFunction<Repository<ModelDeveloper>['find']>;
+  create: jest.MockedFunction<Repository<ModelDeveloper>['create']>;
+  save: jest.MockedFunction<Repository<ModelDeveloper>['save']>;
+};
+
+type AppCacheServiceMock = {
+  get: jest.MockedFunction<AppCacheService['get']>;
+  setLong: jest.MockedFunction<AppCacheService['setLong']>;
+  del: jest.MockedFunction<AppCacheService['del']>;
+};
+
 describe('ModelsService', () => {
   let service: ModelsService;
-  let modelRepositoryMock: jest.Mocked<Repository<Model>>;
-  let developerRepositoryMock: jest.Mocked<Repository<ModelDeveloper>>;
-  let appCacheServiceMock: jest.Mocked<AppCacheService>;
+  let modelRepositoryMock: ModelRepositoryMock;
+  let developerRepositoryMock: DeveloperRepositoryMock;
+  let appCacheServiceMock: AppCacheServiceMock;
 
-  const mockModel: Model = {
+  const createMockModel = (): Model => ({
     id: '1',
     name: 'Test Model',
     shortName: 'TM',
@@ -39,7 +61,9 @@ describe('ModelsService', () => {
     },
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  });
+
+  let mockModel: Model;
 
   const mockDeveloper: ModelDeveloper = {
     id: 'dev-1',
@@ -52,6 +76,8 @@ describe('ModelsService', () => {
   };
 
   beforeEach(async () => {
+    mockModel = createMockModel();
+
     modelRepositoryMock = {
       findOne: jest.fn(),
       find: jest.fn(),
@@ -59,20 +85,20 @@ describe('ModelsService', () => {
       create: jest.fn(),
       save: jest.fn(),
       remove: jest.fn(),
-    } as unknown as jest.Mocked<Repository<Model>>;
+    };
 
     developerRepositoryMock = {
       findOne: jest.fn(),
       find: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
-    } as unknown as jest.Mocked<Repository<ModelDeveloper>>;
+    };
 
     appCacheServiceMock = {
       get: jest.fn(),
       setLong: jest.fn(),
       del: jest.fn(),
-    } as unknown as jest.Mocked<AppCacheService>;
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -125,11 +151,11 @@ describe('ModelsService', () => {
 
       modelRepositoryMock.findOne.mockResolvedValue(null);
       developerRepositoryMock.findOne.mockResolvedValue(mockDeveloper);
-      modelRepositoryMock.create.mockReturnValue(createdModel as any);
-      modelRepositoryMock.save.mockResolvedValue(createdModel as any);
+      modelRepositoryMock.create.mockReturnValue(createdModel);
+      modelRepositoryMock.save.mockResolvedValue(createdModel);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.create(createDto as any);
+      const result = await service.create(createDto);
 
       expect(developerRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { id: 'dev-1' },
@@ -182,13 +208,13 @@ describe('ModelsService', () => {
 
       modelRepositoryMock.findOne.mockResolvedValue(null);
       developerRepositoryMock.findOne.mockResolvedValue(null);
-      developerRepositoryMock.create.mockReturnValue(newDeveloper as any);
-      developerRepositoryMock.save.mockResolvedValue(newDeveloper as any);
-      modelRepositoryMock.create.mockReturnValue(createdModel as any);
-      modelRepositoryMock.save.mockResolvedValue(createdModel as any);
+      developerRepositoryMock.create.mockReturnValue(newDeveloper);
+      developerRepositoryMock.save.mockResolvedValue(newDeveloper);
+      modelRepositoryMock.create.mockReturnValue(createdModel);
+      modelRepositoryMock.save.mockResolvedValue(createdModel);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.create(createDto as any);
+      const result = await service.create(createDto);
 
       expect(developerRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { name: 'Anthropic' },
@@ -239,14 +265,12 @@ describe('ModelsService', () => {
       };
 
       modelRepositoryMock.findOne.mockResolvedValue(null);
-      developerRepositoryMock.findOne.mockResolvedValue(
-        existingDeveloper as any,
-      );
-      modelRepositoryMock.create.mockReturnValue(createdModel as any);
-      modelRepositoryMock.save.mockResolvedValue(createdModel as any);
+      developerRepositoryMock.findOne.mockResolvedValue(existingDeveloper);
+      modelRepositoryMock.create.mockReturnValue(createdModel);
+      modelRepositoryMock.save.mockResolvedValue(createdModel);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.create(createDto as any);
+      const result = await service.create(createDto);
 
       expect(developerRepositoryMock.create).not.toHaveBeenCalled();
       expect(developerRepositoryMock.save).not.toHaveBeenCalled();
@@ -278,12 +302,12 @@ describe('ModelsService', () => {
       };
 
       modelRepositoryMock.findOne.mockResolvedValue(null);
-      developerRepositoryMock.findOne.mockResolvedValue(mockDeveloper as any);
-      modelRepositoryMock.create.mockReturnValue(createdModel as any);
-      modelRepositoryMock.save.mockResolvedValue(createdModel as any);
+      developerRepositoryMock.findOne.mockResolvedValue(mockDeveloper);
+      modelRepositoryMock.create.mockReturnValue(createdModel);
+      modelRepositoryMock.save.mockResolvedValue(createdModel);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.create(createDto as any);
+      const result = await service.create(createDto);
 
       expect(result.guestAccess).toBe(false);
     });
@@ -320,7 +344,7 @@ describe('ModelsService', () => {
       const models = [mockModel];
 
       appCacheServiceMock.get.mockResolvedValue(null);
-      modelRepositoryMock.find.mockResolvedValue(models as any);
+      modelRepositoryMock.find.mockResolvedValue(models);
 
       const result = await service.findAll();
 
@@ -343,7 +367,7 @@ describe('ModelsService', () => {
       ];
 
       appCacheServiceMock.get.mockResolvedValue(null);
-      modelRepositoryMock.find.mockResolvedValue(models as any);
+      modelRepositoryMock.find.mockResolvedValue(models);
 
       await service.findAll();
 
@@ -357,7 +381,7 @@ describe('ModelsService', () => {
       const models = [mockModel];
 
       appCacheServiceMock.get.mockResolvedValue(null);
-      modelRepositoryMock.find.mockResolvedValue(models as any);
+      modelRepositoryMock.find.mockResolvedValue(models);
 
       const result = await service.findAll();
 
@@ -374,7 +398,7 @@ describe('ModelsService', () => {
 
   describe('findOne', () => {
     it('should return model by id', async () => {
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
 
       const result = await service.findOne('1');
 
@@ -388,7 +412,7 @@ describe('ModelsService', () => {
     });
 
     it('should map model to response DTO', async () => {
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
 
       const result = await service.findOne('1');
 
@@ -416,7 +440,7 @@ describe('ModelsService', () => {
       };
 
       modelRepositoryMock.findOne.mockResolvedValue(
-        modelWithStringPrice as any,
+        modelWithStringPrice as unknown as Model,
       );
 
       const result = await service.findOne('1');
@@ -466,7 +490,7 @@ describe('ModelsService', () => {
 
     it('should fetch model from database and cache it', async () => {
       appCacheServiceMock.get.mockResolvedValue(null);
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
 
       const result = await service.findByValue('test-model');
 
@@ -484,7 +508,7 @@ describe('ModelsService', () => {
 
     it('should map model to response DTO', async () => {
       appCacheServiceMock.get.mockResolvedValue(null);
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
 
       const result = await service.findByValue('test-model');
 
@@ -516,12 +540,12 @@ describe('ModelsService', () => {
 
       const updatedModel = { ...mockModel, ...updateDto };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(modelRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { id: '1' },
@@ -542,12 +566,12 @@ describe('ModelsService', () => {
 
       const updatedModel = { ...mockModel, name: 'New Name' };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(result.name).toBe('New Name');
       expect(modelRepositoryMock.save).toHaveBeenCalled();
@@ -563,12 +587,12 @@ describe('ModelsService', () => {
         priceInput: 0.002,
       };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(result.price.input).toBe(0.002);
       expect(modelRepositoryMock.save).toHaveBeenCalled();
@@ -586,12 +610,12 @@ describe('ModelsService', () => {
         contextWindow: 8192,
       };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(result.metadata.contextWindow).toBe(8192);
       expect(modelRepositoryMock.save).toHaveBeenCalled();
@@ -614,13 +638,13 @@ describe('ModelsService', () => {
 
       const updatedModel = { ...mockModel, developer: newDeveloper };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      developerRepositoryMock.findOne.mockResolvedValue(newDeveloper as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      developerRepositoryMock.findOne.mockResolvedValue(newDeveloper);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(developerRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { id: 'dev-2' },
@@ -637,17 +661,18 @@ describe('ModelsService', () => {
       const mockModelForTest = { ...mockModel, value: 'specific-test-model' };
       const updatedModel = { ...mockModelForTest, name: 'Updated' };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModelForTest as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
-      appCacheServiceMock.get.mockImplementation(async (key) => {
-        if (key === `${CACHE_KEYS.GET_BY_VALUE}:specific-test-model`) {
-          return { id: '1', value: 'specific-test-model' };
-        }
-        return null;
-      });
+      modelRepositoryMock.findOne.mockResolvedValue(mockModelForTest);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
+      appCacheServiceMock.get.mockImplementation((key) =>
+        Promise.resolve(
+          key === `${CACHE_KEYS.GET_BY_VALUE}:specific-test-model`
+            ? { id: '1', value: 'specific-test-model' }
+            : undefined,
+        ),
+      );
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      await service.update('1', updateDto as any);
+      await service.update('1', updateDto);
 
       expect(appCacheServiceMock.get).toHaveBeenCalledWith(
         `${CACHE_KEYS.GET_BY_VALUE}:specific-test-model`,
@@ -659,12 +684,12 @@ describe('ModelsService', () => {
       const updateDto = { supportsTemperature: false };
       const updatedModel = { ...mockModel, supportsTemperature: false };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(result.supportsTemperature).toBe(false);
       expect(modelRepositoryMock.save).toHaveBeenCalled();
@@ -678,12 +703,12 @@ describe('ModelsService', () => {
         reasoningLevel: 'high',
       };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(result.isReasoning).toBe(true);
       expect(result.reasoningLevel).toBe('high');
@@ -703,12 +728,12 @@ describe('ModelsService', () => {
         reasoningLevel: null,
       };
 
-      modelRepositoryMock.findOne.mockResolvedValue(reasoningModel as any);
-      modelRepositoryMock.save.mockResolvedValue(updatedModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(reasoningModel);
+      modelRepositoryMock.save.mockResolvedValue(updatedModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
-      const result = await service.update('1', updateDto as any);
+      const result = await service.update('1', updateDto);
 
       expect(result.isReasoning).toBe(false);
       expect(result.reasoningLevel).toBeNull();
@@ -718,8 +743,8 @@ describe('ModelsService', () => {
 
   describe('remove', () => {
     it('should remove model by id', async () => {
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.remove.mockResolvedValue(mockModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.remove.mockResolvedValue(mockModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
@@ -741,14 +766,15 @@ describe('ModelsService', () => {
         value: 'specific-model-to-remove',
       };
 
-      modelRepositoryMock.findOne.mockResolvedValue(mockModelForTest as any);
-      modelRepositoryMock.remove.mockResolvedValue(mockModelForTest as any);
-      appCacheServiceMock.get.mockImplementation(async (key) => {
-        if (key === `${CACHE_KEYS.GET_BY_VALUE}:specific-model-to-remove`) {
-          return { id: '1', value: 'specific-model-to-remove' };
-        }
-        return null;
-      });
+      modelRepositoryMock.findOne.mockResolvedValue(mockModelForTest);
+      modelRepositoryMock.remove.mockResolvedValue(mockModelForTest);
+      appCacheServiceMock.get.mockImplementation((key) =>
+        Promise.resolve(
+          key === `${CACHE_KEYS.GET_BY_VALUE}:specific-model-to-remove`
+            ? { id: '1', value: 'specific-model-to-remove' }
+            : undefined,
+        ),
+      );
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
       await service.remove('1');
@@ -760,8 +786,8 @@ describe('ModelsService', () => {
     });
 
     it('should invalidate findAll cache after removing model', async () => {
-      modelRepositoryMock.findOne.mockResolvedValue(mockModel as any);
-      modelRepositoryMock.remove.mockResolvedValue(mockModel as any);
+      modelRepositoryMock.findOne.mockResolvedValue(mockModel);
+      modelRepositoryMock.remove.mockResolvedValue(mockModel);
       appCacheServiceMock.get.mockResolvedValue(null);
       appCacheServiceMock.del.mockResolvedValue(undefined);
 
@@ -788,7 +814,7 @@ describe('ModelsService', () => {
         },
       ];
 
-      developerRepositoryMock.find.mockResolvedValue(developers as any);
+      developerRepositoryMock.find.mockResolvedValue(developers);
 
       const result = await service.getDevelopers();
 
@@ -888,10 +914,9 @@ describe('ModelsService', () => {
     it('should validate guest access from database and cache it', async () => {
       appCacheServiceMock.get.mockResolvedValue(null);
       modelRepositoryMock.findOne.mockResolvedValue({
-        id: '1',
-        name: 'Test Model',
+        ...mockModel,
         guestAccess: true,
-      } as any);
+      });
 
       await expect(
         service.validateGuestAccess('test-model', 'guest'),
@@ -907,10 +932,9 @@ describe('ModelsService', () => {
     it('should cache guest access check result', async () => {
       appCacheServiceMock.get.mockResolvedValue(null);
       modelRepositoryMock.findOne.mockResolvedValue({
-        id: '1',
-        name: 'Test Model',
+        ...mockModel,
         guestAccess: true,
-      } as any);
+      });
 
       await service.validateGuestAccess('test-model', 'guest');
 
@@ -975,10 +999,9 @@ describe('ModelsService', () => {
     it('should fetch model from database and cache it when not in cache', async () => {
       appCacheServiceMock.get.mockResolvedValue(null);
       modelRepositoryMock.findOne.mockResolvedValue({
-        id: '1',
-        name: 'Test Model',
+        ...mockModel,
         guestAccess: true,
-      } as any);
+      });
 
       await expect(
         service.validateGuestAccessById('1', 'guest'),
@@ -994,10 +1017,9 @@ describe('ModelsService', () => {
     it('should cache guest access by id check result', async () => {
       appCacheServiceMock.get.mockResolvedValue(null);
       modelRepositoryMock.findOne.mockResolvedValue({
-        id: '1',
-        name: 'Test Model',
+        ...mockModel,
         guestAccess: true,
-      } as any);
+      });
 
       await service.validateGuestAccessById('1', 'guest');
 
@@ -1032,10 +1054,10 @@ describe('ModelsService', () => {
     it('should throw when model from database has guestAccess false', async () => {
       appCacheServiceMock.get.mockResolvedValue(null);
       modelRepositoryMock.findOne.mockResolvedValue({
-        id: '1',
+        ...mockModel,
         name: 'Restricted Model',
         guestAccess: false,
-      } as any);
+      });
 
       await expect(
         service.validateGuestAccessById('1', 'guest'),

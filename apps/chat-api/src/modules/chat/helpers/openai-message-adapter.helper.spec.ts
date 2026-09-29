@@ -256,9 +256,13 @@ describe('openai-message-adapter.helper', () => {
       const result = transformMessagesToOpenAIFormat(messages, cdnDomain);
 
       expect(result).toHaveLength(3);
-      expect((result[0] as any).role).toBe('user');
-      expect((result[1] as any).role).toBe('assistant');
-      expect((result[2] as any).role).toBe('user');
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ role: 'user' }),
+          expect.objectContaining({ role: 'assistant' }),
+          expect.objectContaining({ role: 'user' }),
+        ]),
+      );
     });
 
     it('should handle empty messages array', () => {
@@ -357,21 +361,24 @@ describe('openai-message-adapter.helper', () => {
         fileKey,
       );
 
-      expect((result[0] as any).content).toHaveLength(3);
-      expect((result[0] as any).content[0]).toEqual({
-        type: 'input_text',
-        text: 'Combine these',
-      });
-      expect((result[0] as any).content[1]).toEqual({
-        type: 'input_image',
-        image_url: 'https://cdn.example.com/images/user.png',
-        detail: 'high',
-      });
-      expect((result[0] as any).content[2]).toEqual({
-        type: 'input_image',
-        image_url: 'https://cdn.example.com/images/assistant.jpg',
-        detail: 'high',
-      });
+      expect(result).toEqual([
+        {
+          role: 'user',
+          content: [
+            { type: 'input_text', text: 'Combine these' },
+            {
+              type: 'input_image',
+              image_url: 'https://cdn.example.com/images/user.png',
+              detail: 'high',
+            },
+            {
+              type: 'input_image',
+              image_url: 'https://cdn.example.com/images/assistant.jpg',
+              detail: 'high',
+            },
+          ],
+        },
+      ]);
     });
 
     it('should not include previous message if it is not from assistant', () => {

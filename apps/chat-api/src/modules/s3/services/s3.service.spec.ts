@@ -1,12 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
 import { S3Service } from './s3.service';
 import { EnvService } from '@cfg/schema/env.service';
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectsCommand,
-} from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 
 jest.mock('@aws-sdk/client-s3');
 
@@ -18,14 +13,13 @@ const envServiceMock: Partial<EnvService> = {
 
 describe('S3Service', () => {
   let service: S3Service;
-  let envServiceInstance: EnvService;
-  let s3ClientMock: any;
+  let s3ClientMock: { send: jest.Mock<Promise<unknown>, [unknown]> };
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
     s3ClientMock = {
-      send: jest.fn(),
+      send: jest.fn<Promise<unknown>, [unknown]>(),
     };
 
     (S3Client as jest.Mock).mockImplementation(() => s3ClientMock);
@@ -41,7 +35,6 @@ describe('S3Service', () => {
     }).compile();
 
     service = module.get<S3Service>(S3Service);
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   it('should be defined', () => {
@@ -57,7 +50,7 @@ describe('S3Service', () => {
       buffer: Buffer.from('test-image-data'),
       size: 1024,
     } as Express.Multer.File;
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     const result = await service.uploadFile(mockFile);
 
@@ -74,7 +67,7 @@ describe('S3Service', () => {
       buffer: Buffer.from('test-image-data'),
       size: 2048,
     } as Express.Multer.File;
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     const result = await service.uploadFile(mockFile);
 
@@ -84,7 +77,7 @@ describe('S3Service', () => {
 
   it('should delete files successfully', async () => {
     const keys = ['myaichat/file1.png', 'myaichat/file2.jpg'];
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     await service.deleteFiles(keys);
 
@@ -97,7 +90,7 @@ describe('S3Service', () => {
       'myaichat/test2.jpg',
       'myaichat/test3.jpeg',
     ];
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     await service.deleteFiles(keys);
 
@@ -119,7 +112,7 @@ describe('S3Service', () => {
       buffer: Buffer.from('test-image-data'),
       size: 1024,
     } as Express.Multer.File;
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     await service.uploadFile(mockFile);
 

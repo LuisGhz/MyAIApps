@@ -11,7 +11,6 @@ const envServiceMock = {
 
 describe('GithubOauthService', () => {
   let githubOauthService: GithubOauthService;
-  let envServiceInstance: EnvService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -28,7 +27,6 @@ describe('GithubOauthService', () => {
     }).compile();
 
     githubOauthService = module.get<GithubOauthService>(GithubOauthService);
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   it('should build GitHub authorization URL with correct parameters', () => {

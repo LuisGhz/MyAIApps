@@ -10,6 +10,10 @@ import {
   COOKIE_REFRESH_TOKEN,
 } from './const/cookies.const';
 
+type RequestWithCookies = Omit<Request, 'cookies'> & {
+  cookies: Record<string, string | undefined>;
+};
+
 const authServiceMock = {
   generatePkceData: jest.fn(),
   getGithubAuthorizeUrl: jest.fn(),
@@ -25,8 +29,6 @@ const envServiceMock = {
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authServiceInstance: AuthService;
-  let envServiceInstance: EnvService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -46,8 +48,6 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    authServiceInstance = module.get<AuthService>(AuthService);
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   it('should be defined', () => {
@@ -69,12 +69,12 @@ describe('AuthController', () => {
       const res = {
         cookie: jest.fn(),
         redirect: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.login(res);
+      await controller.login(res as unknown as Response);
 
-      expect(authServiceInstance.generatePkceData).toHaveBeenCalledTimes(1);
-      expect(authServiceInstance.getGithubAuthorizeUrl).toHaveBeenCalledWith(
+      expect(authServiceMock.generatePkceData).toHaveBeenCalledTimes(1);
+      expect(authServiceMock.getGithubAuthorizeUrl).toHaveBeenCalledWith(
         pkceData.state,
         pkceData.codeChallenge,
       );
@@ -110,9 +110,9 @@ describe('AuthController', () => {
       const res = {
         cookie: jest.fn(),
         redirect: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.login(res);
+      await controller.login(res as unknown as Response);
 
       expect(res.cookie).toHaveBeenCalledWith(COOKIE_STATE, pkceData.state, {
         httpOnly: true,
@@ -155,6 +155,8 @@ describe('AuthController', () => {
         refreshToken,
         user: mockUser,
       };
+      const anyFunction = expect.any(Function) as () => void;
+      const anyNumber = expect.any(Number) as number;
 
       authServiceMock.handleCallback.mockResolvedValue(result);
 
@@ -165,28 +167,35 @@ describe('AuthController', () => {
         headers: {
           'user-agent': agentInfo,
         },
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         cookie: jest.fn(),
         clearCookie: jest.fn(),
         redirect: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.callback(code, state, '', '', req, res);
+      await controller.callback(
+        code,
+        state,
+        '',
+        '',
+        req,
+        res as unknown as Response,
+      );
 
-      expect(authServiceInstance.validateCallbackParams).toHaveBeenCalledWith(
+      expect(authServiceMock.validateCallbackParams).toHaveBeenCalledWith(
         {
           error: '',
           code,
           state,
           errorDescription: '',
-          clearCookies: expect.any(Function),
+          clearCookies: anyFunction,
         },
         req,
         res,
       );
-      expect(authServiceInstance.handleCallback).toHaveBeenCalledWith(
+      expect(authServiceMock.handleCallback).toHaveBeenCalledWith(
         code,
         codeVerifier,
         agentInfo,
@@ -199,7 +208,7 @@ describe('AuthController', () => {
         {
           httpOnly: true,
           secure: false,
-          maxAge: expect.any(Number),
+          maxAge: anyNumber,
         },
       );
       expect(res.redirect).toHaveBeenCalledWith(
@@ -224,15 +233,22 @@ describe('AuthController', () => {
         headers: {
           'user-agent': 'Mozilla/5.0',
         },
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         cookie: jest.fn(),
         clearCookie: jest.fn(),
         redirect: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.callback(code, state, '', '', req, res);
+      await controller.callback(
+        code,
+        state,
+        '',
+        '',
+        req,
+        res as unknown as Response,
+      );
 
       expect(res.clearCookie).toHaveBeenCalledWith(COOKIE_STATE);
       expect(res.clearCookie).toHaveBeenCalledWith(COOKIE_CODE_VERIFIER);
@@ -256,15 +272,22 @@ describe('AuthController', () => {
         headers: {
           'user-agent': 'Mozilla/5.0',
         },
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         cookie: jest.fn(),
         clearCookie: jest.fn(),
         redirect: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.callback(code, state, '', '', req, res);
+      await controller.callback(
+        code,
+        state,
+        '',
+        '',
+        req,
+        res as unknown as Response,
+      );
 
       expect(res.clearCookie).toHaveBeenCalledWith(COOKIE_STATE);
       expect(res.clearCookie).toHaveBeenCalledWith(COOKIE_CODE_VERIFIER);
@@ -287,15 +310,22 @@ describe('AuthController', () => {
         headers: {
           'user-agent': 'Mozilla/5.0',
         },
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         cookie: jest.fn(),
         clearCookie: jest.fn(),
         redirect: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.callback(code, state, '', '', req, res);
+      await controller.callback(
+        code,
+        state,
+        '',
+        '',
+        req,
+        res as unknown as Response,
+      );
 
       expect(res.redirect).toHaveBeenCalledWith(
         `${envServiceMock.frontendUrl}/auth/login?errorMessage=${encodeURIComponent('Authentication failed. Please try again.')}`,
@@ -330,17 +360,24 @@ describe('AuthController', () => {
           [COOKIE_CODE_VERIFIER]: codeVerifier,
         },
         headers: {},
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         cookie: jest.fn(),
         clearCookie: jest.fn(),
         redirect: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.callback(code, state, '', '', req, res);
+      await controller.callback(
+        code,
+        state,
+        '',
+        '',
+        req,
+        res as unknown as Response,
+      );
 
-      expect(authServiceInstance.handleCallback).toHaveBeenCalledWith(
+      expect(authServiceMock.handleCallback).toHaveBeenCalledWith(
         code,
         codeVerifier,
         'Unknown',
@@ -356,16 +393,16 @@ describe('AuthController', () => {
         cookies: {
           [COOKIE_REFRESH_TOKEN]: refreshToken,
         },
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         clearCookie: jest.fn(),
         json: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.logout(req, res);
+      await controller.logout(req, res as unknown as Response);
 
-      expect(authServiceInstance.logout).toHaveBeenCalledWith(refreshToken);
+      expect(authServiceMock.logout).toHaveBeenCalledWith(refreshToken);
       expect(res.clearCookie).toHaveBeenCalledWith(COOKIE_REFRESH_TOKEN);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Logged out successfully',
@@ -375,16 +412,16 @@ describe('AuthController', () => {
     it('should clear cookie even when refresh token is missing', async () => {
       const req = {
         cookies: {},
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         clearCookie: jest.fn(),
         json: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await controller.logout(req, res);
+      await controller.logout(req, res as unknown as Response);
 
-      expect(authServiceInstance.logout).not.toHaveBeenCalled();
+      expect(authServiceMock.logout).not.toHaveBeenCalled();
       expect(res.clearCookie).toHaveBeenCalledWith(COOKIE_REFRESH_TOKEN);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Logged out successfully',
@@ -400,17 +437,17 @@ describe('AuthController', () => {
         cookies: {
           [COOKIE_REFRESH_TOKEN]: refreshToken,
         },
-      } as unknown as Request;
+      } as unknown as RequestWithCookies;
 
       const res = {
         clearCookie: jest.fn(),
         json: jest.fn(),
-      } as unknown as Response;
+      };
 
-      await expect(controller.logout(req, res)).rejects.toThrow(
-        'Database error',
-      );
-      expect(authServiceInstance.logout).toHaveBeenCalledWith(refreshToken);
+      await expect(
+        controller.logout(req, res as unknown as Response),
+      ).rejects.toThrow('Database error');
+      expect(authServiceMock.logout).toHaveBeenCalledWith(refreshToken);
     });
   });
 });

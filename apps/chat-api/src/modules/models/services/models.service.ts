@@ -110,7 +110,7 @@ export class ModelsService {
       },
     }));
 
-    this.appCacheService.setLong(CACHE_KEYS.MODELS_FIND_ALL, data);
+    await this.appCacheService.setLong(CACHE_KEYS.MODELS_FIND_ALL, data);
 
     return data;
   }
@@ -137,7 +137,7 @@ export class ModelsService {
 
     const responseDto = this.mapToResponseDto(model);
 
-    this.appCacheService.setLong(
+    await this.appCacheService.setLong(
       `${CACHE_KEYS.GET_BY_VALUE}:${value}`,
       responseDto,
     );
@@ -208,7 +208,6 @@ export class ModelsService {
   }
 
   async remove(id: string): Promise<void> {
-
     const model = await this.findByIdOrFail(id);
     const modelValue = model.value;
     await this.deleteCacheByValueIfApplicable(modelValue);
@@ -268,7 +267,7 @@ export class ModelsService {
         `Access denied. Model "${model.name}" is not available for guest users.`,
       );
 
-    this.appCacheService.setLong(
+    await this.appCacheService.setLong(
       `${CACHE_KEYS.GET_BY_VALUE_FOR_GUEST}:${modelValue}`,
       {
         id: model.id,
@@ -309,7 +308,7 @@ export class ModelsService {
         `Access denied. Model "${model.name}" is not available for guest users.`,
       );
 
-    this.appCacheService.setLong(
+    await this.appCacheService.setLong(
       `${CACHE_KEYS.GET_BY_ID_FOR_GUEST}:${modelId}`,
       {
         id: model.id,
@@ -320,7 +319,6 @@ export class ModelsService {
 
     return;
   }
-
 
   private async findByIdOrFail(id: string): Promise<Model> {
     const model = await this.modelRepository.findOne({
@@ -368,7 +366,7 @@ export class ModelsService {
 
   async deleteCacheByValueIfApplicable(value: string): Promise<void> {
     if (await this.appCacheService.get(`${CACHE_KEYS.GET_BY_VALUE}:${value}`))
-      this.appCacheService.del(`${CACHE_KEYS.GET_BY_VALUE}:${value}`);
+      await this.appCacheService.del(`${CACHE_KEYS.GET_BY_VALUE}:${value}`);
   }
 
   async #invalidateFindAllCache(): Promise<void> {

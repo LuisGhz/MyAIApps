@@ -42,9 +42,9 @@ describe('CurrentUser', () => {
       }),
     } as ExecutionContext;
 
-    expect(currentUserMetadata.factory(currentUserMetadata.data, context)).toEqual(
-      user,
-    );
+    expect(
+      currentUserMetadata.factory(currentUserMetadata.data, context),
+    ).toEqual(user);
   });
 
   it('returns undefined when the request does not contain a user', () => {

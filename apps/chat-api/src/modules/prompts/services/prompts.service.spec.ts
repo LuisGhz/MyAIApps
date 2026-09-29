@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { PromptsService } from './prompts.service';
 import { Prompt, PromptMessage, PromptMessageRole } from '../entities';
 import { Chat } from '@chat/entities';
@@ -28,9 +27,6 @@ const chatRepositoryMock = {
 
 describe('PromptsService', () => {
   let service: PromptsService;
-  let promptRepositoryInstance: Repository<Prompt>;
-  let promptMessageRepositoryInstance: Repository<PromptMessage>;
-  let chatRepositoryInstance: Repository<Chat>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -54,15 +50,6 @@ describe('PromptsService', () => {
     }).compile();
 
     service = module.get<PromptsService>(PromptsService);
-    promptRepositoryInstance = module.get<Repository<Prompt>>(
-      getRepositoryToken(Prompt),
-    );
-    promptMessageRepositoryInstance = module.get<Repository<PromptMessage>>(
-      getRepositoryToken(PromptMessage),
-    );
-    chatRepositoryInstance = module.get<Repository<Chat>>(
-      getRepositoryToken(Chat),
-    );
   });
 
   it('should be defined', () => {
@@ -147,7 +134,6 @@ describe('PromptsService', () => {
         updatedAt: new Date(),
       };
 
-      promptMessageRepositoryMock.create.mockImplementation((msg) => msg);
       promptRepositoryMock.create.mockReturnValue(createdPrompt);
       promptRepositoryMock.save.mockResolvedValue(createdPrompt);
 

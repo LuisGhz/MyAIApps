@@ -746,24 +746,22 @@ describe('UpdateModel DTOs', () => {
       expect(errors).toHaveLength(0);
     });
 
-    it.each([
-      ['minimal'],
-      ['low'],
-      ['medium'],
-      ['high'],
-    ])('should validate successfully with %s reasoningLevel when isReasoning is true', async (level) => {
-      const payload = {
-        isReasoning: true,
-        reasoningLevel: level,
-      };
+    it.each([['minimal'], ['low'], ['medium'], ['high']])(
+      'should validate successfully with %s reasoningLevel when isReasoning is true',
+      async (level) => {
+        const payload = {
+          isReasoning: true,
+          reasoningLevel: level,
+        };
 
-      const instance = plainToInstance(UpdateModelReqDto, payload);
-      const errors = await validate(instance);
+        const instance = plainToInstance(UpdateModelReqDto, payload);
+        const errors = await validate(instance);
 
-      expect(errors).toHaveLength(0);
-      expect(instance.isReasoning).toBe(true);
-      expect(instance.reasoningLevel).toBe(level);
-    });
+        expect(errors).toHaveLength(0);
+        expect(instance.isReasoning).toBe(true);
+        expect(instance.reasoningLevel).toBe(level);
+      },
+    );
 
     it('should validate successfully with isReasoning and reasoningLevel together', async () => {
       const payload = {

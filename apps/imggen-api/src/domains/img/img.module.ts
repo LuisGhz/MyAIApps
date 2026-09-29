@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GeminiService, ImageService, OpenAIService, S3Service } from './services';
+import {
+  GeminiService,
+  ImageService,
+  OpenAIService,
+  S3Service,
+} from './services';
 import { ImgController } from './img.controller';
 import { Image } from './entities/image.entity';
 

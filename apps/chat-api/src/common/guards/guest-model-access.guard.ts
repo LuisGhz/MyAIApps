@@ -7,11 +7,13 @@ export class GuestModelAccessGuard implements CanActivate {
   constructor(private readonly modelsService: ModelsService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const user: JwtPayload = request.user;
-    const body = request.body;
+    const request = context.switchToHttp().getRequest<{
+      user?: JwtPayload | null;
+      body?: { modelId?: string | null };
+    }>();
 
-    const modelId = body.modelId;
+    const modelId = request.body?.modelId;
+    const user = request.user;
     if (user?.role !== 'guest' || !modelId) return true;
 
     await this.modelsService.validateGuestAccessById(modelId, user.role);

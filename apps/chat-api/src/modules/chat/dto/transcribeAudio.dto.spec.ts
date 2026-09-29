@@ -12,13 +12,16 @@ describe('TranscribeAudioReqDto', () => {
       [{ temperature: 0 }, 0],
       [{ temperature: 1 }, 1],
       [{ temperature: 0.5 }, 0.5],
-    ])('should create a valid instance with payload %p', async (payload, expected) => {
-      const instance = plainToInstance(TranscribeAudioReqDto, payload);
-      const errors = await validate(instance);
+    ])(
+      'should create a valid instance with payload %p',
+      async (payload, expected) => {
+        const instance = plainToInstance(TranscribeAudioReqDto, payload);
+        const errors = await validate(instance);
 
-      expect(errors).toHaveLength(0);
-      expect(instance.temperature).toBe(expected);
-    });
+        expect(errors).toHaveLength(0);
+        expect(instance.temperature).toBe(expected);
+      },
+    );
   });
 
   describe('temperature field (optional)', () => {

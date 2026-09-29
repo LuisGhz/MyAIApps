@@ -71,8 +71,12 @@ export class S3Service {
     const mimeType = file.mimetype;
     const extension = path.extname(file.originalname).toLowerCase();
 
-    const isValidMimeType = ALLOWED_FILE_TYPES.includes(mimeType as any);
-    const isValidExtension = ALLOWED_FILE_EXTENSIONS.includes(extension as any);
+    const isValidMimeType = ALLOWED_FILE_TYPES.some(
+      (allowedMimeType) => allowedMimeType === mimeType,
+    );
+    const isValidExtension = ALLOWED_FILE_EXTENSIONS.some(
+      (allowedExtension) => allowedExtension === extension,
+    );
 
     if (!isValidMimeType || !isValidExtension)
       throw new BadRequestException(

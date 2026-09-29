@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OpenAIService } from './openai.service';
 import { EnvService } from '@cfg/schema/env.service';
 import OpenAI from 'openai';
-import { StreamResponseParams, StreamResponseResult } from '../interfaces';
+import { StreamResponseParams } from '../interfaces';
 
 jest.mock('openai');
 
@@ -11,33 +11,55 @@ const envServiceMock = {
   cdnDomain: 'https://cdn.example.com/',
 };
 
+type MockOpenAIResponse = {
+  output_text: string;
+  usage?: { input_tokens?: number; output_tokens?: number } | null;
+  output?: Array<{ type: string; result?: string }>;
+  incomplete_details?: { reason?: string } | null;
+  error?: { message?: string; type?: string } | null;
+};
+
+type MockOpenAIEvent = {
+  type: string;
+  delta?: string;
+  response?: MockOpenAIResponse;
+};
+
+type MockOpenAIRequest = {
+  model: string;
+  input?: unknown;
+  instructions?: string;
+  max_output_tokens?: number;
+  temperature?: number;
+  tools?: unknown[];
+  reasoning?: { effort?: string };
+};
+
+type MockOpenAIStream = Iterable<MockOpenAIEvent> & {
+  on: jest.Mock;
+  finalResponse: jest.Mock<Promise<MockOpenAIResponse>, []>;
+};
+
 const mockStreamResponse = {
   on: jest.fn(),
-  finalResponse: jest.fn(),
-  [Symbol.asyncIterator]: jest.fn(),
+  finalResponse: jest.fn<Promise<MockOpenAIResponse>, []>(),
 };
 
 const mockOpenAIClient = {
   responses: {
-    stream: jest.fn(),
-    create: jest.fn(),
-  },
-  audio: {
-    transcriptions: {
-      create: jest.fn(),
-    },
+    stream: jest.fn<MockOpenAIStream, [MockOpenAIRequest]>(),
+    create: jest.fn<Promise<MockOpenAIResponse>, [MockOpenAIRequest]>(),
   },
 };
 
 describe('OpenAIService', () => {
   let service: OpenAIService;
-  let envServiceInstance: EnvService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
     (OpenAI as jest.MockedClass<typeof OpenAI>).mockImplementation(
-      () => mockOpenAIClient as any,
+      () => mockOpenAIClient as unknown as OpenAI,
     );
 
     const module: TestingModule = await Test.createTestingModule({
@@ -51,7 +73,6 @@ describe('OpenAIService', () => {
     }).compile();
 
     service = module.get<OpenAIService>(OpenAIService);
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   describe('streamResponse', () => {
@@ -76,10 +97,10 @@ describe('OpenAIService', () => {
     };
 
     const setupStreamMock = (
-      response: any = mockFinalResponse,
+      response: MockOpenAIResponse = mockFinalResponse,
       includesDeltaEvent = true,
-    ) => {
-      const eventsToReturn: any[] = [];
+    ): MockOpenAIStream => {
+      const eventsToReturn: MockOpenAIEvent[] = [];
 
       if (includesDeltaEvent) {
         eventsToReturn.push({
@@ -93,8 +114,8 @@ describe('OpenAIService', () => {
         response,
       });
 
-      const asyncIterator = {
-        [Symbol.asyncIterator]: async function* () {
+      const iterator = {
+        [Symbol.iterator]: function* () {
           for (const event of eventsToReturn) {
             yield event;
           }
@@ -103,7 +124,7 @@ describe('OpenAIService', () => {
 
       return {
         ...mockStreamResponse,
-        [Symbol.asyncIterator]: asyncIterator[Symbol.asyncIterator],
+        ...iterator,
       };
     };
 
@@ -140,11 +161,9 @@ describe('OpenAIService', () => {
 
       await service.streamResponse(paramsNoTemp, onDeltaMock);
 
-      expect(mockOpenAIClient.responses.stream).toHaveBeenCalledWith(
-        expect.not.objectContaining({
-          temperature: expect.anything(),
-        }),
-      );
+      expect(
+        mockOpenAIClient.responses.stream.mock.calls[0][0].temperature,
+      ).toBeUndefined();
     });
 
     it('should include fileKey in message transformation when provided', async () => {
@@ -219,8 +238,8 @@ describe('OpenAIService', () => {
         },
       };
 
-      const asyncIterator = {
-        [Symbol.asyncIterator]: async function* () {
+      const iterator = {
+        [Symbol.iterator]: function* () {
           yield {
             type: 'response.output_text.delta',
             delta: 'Hello',
@@ -234,7 +253,7 @@ describe('OpenAIService', () => {
 
       const streamMock = {
         ...mockStreamResponse,
-        [Symbol.asyncIterator]: asyncIterator[Symbol.asyncIterator],
+        ...iterator,
       };
       mockOpenAIClient.responses.stream.mockReturnValue(streamMock);
 
@@ -259,8 +278,8 @@ describe('OpenAIService', () => {
         },
       };
 
-      const asyncIterator = {
-        [Symbol.asyncIterator]: async function* () {
+      const iterator = {
+        [Symbol.iterator]: function* () {
           yield {
             type: 'response.failed',
             response: failedResponse,
@@ -270,7 +289,7 @@ describe('OpenAIService', () => {
 
       const streamMock = {
         ...mockStreamResponse,
-        [Symbol.asyncIterator]: asyncIterator[Symbol.asyncIterator],
+        ...iterator,
       };
       mockOpenAIClient.responses.stream.mockReturnValue(streamMock);
 
@@ -331,11 +350,9 @@ describe('OpenAIService', () => {
 
       await service.streamResponse(paramsWithWebSearch, onDeltaMock);
 
-      expect(mockOpenAIClient.responses.stream).toHaveBeenCalledWith(
-        expect.objectContaining({
-          tools: expect.any(Array),
-        }),
-      );
+      expect(
+        Array.isArray(mockOpenAIClient.responses.stream.mock.calls[0][0].tools),
+      ).toBe(true);
     });
 
     it('should handle custom system prompt', async () => {
@@ -379,12 +396,14 @@ describe('OpenAIService', () => {
       const error = new Error('OpenAI API Error');
 
       mockOpenAIClient.responses.stream.mockImplementation(() => {
-        const asyncIterator = {
-          [Symbol.asyncIterator]: async function* () {
-            throw error;
-          },
+        const iterator = {
+          [Symbol.iterator]: () => ({
+            next: () => {
+              throw error;
+            },
+          }),
         };
-        return asyncIterator;
+        return { ...mockStreamResponse, ...iterator };
       });
 
       await expect(
@@ -397,12 +416,14 @@ describe('OpenAIService', () => {
       const timeoutError = new Error('Request timeout');
 
       mockOpenAIClient.responses.stream.mockImplementation(() => {
-        const asyncIterator = {
-          [Symbol.asyncIterator]: async function* () {
-            throw timeoutError;
-          },
+        const iterator = {
+          [Symbol.iterator]: () => ({
+            next: () => {
+              throw timeoutError;
+            },
+          }),
         };
-        return asyncIterator;
+        return { ...mockStreamResponse, ...iterator };
       });
 
       await expect(
@@ -501,11 +522,9 @@ describe('OpenAIService', () => {
 
       await service.streamResponse(paramsNoReasoning, onDeltaMock);
 
-      expect(mockOpenAIClient.responses.stream).toHaveBeenCalledWith(
-        expect.not.objectContaining({
-          reasoning: expect.anything(),
-        }),
-      );
+      expect(
+        mockOpenAIClient.responses.stream.mock.calls[0][0].reasoning,
+      ).toBeUndefined();
     });
 
     it('should combine image generation and reasoning features', async () => {
@@ -551,8 +570,8 @@ describe('OpenAIService', () => {
         { type: 'response.output_text.delta', delta: 'World' },
       ];
 
-      const asyncIterator = {
-        [Symbol.asyncIterator]: async function* () {
+      const iterator = {
+        [Symbol.iterator]: function* () {
           for (const event of deltaEvents) {
             yield event;
           }
@@ -565,7 +584,7 @@ describe('OpenAIService', () => {
 
       mockOpenAIClient.responses.stream.mockReturnValue({
         ...mockStreamResponse,
-        [Symbol.asyncIterator]: asyncIterator[Symbol.asyncIterator],
+        ...iterator,
       });
 
       await service.streamResponse(baseParams, onDeltaMock);

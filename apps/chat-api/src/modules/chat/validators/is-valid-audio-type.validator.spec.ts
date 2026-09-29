@@ -12,8 +12,8 @@ describe('IsValidAudioTypeConstraint', () => {
   });
 
   it('should return true when no file is provided', () => {
-    expect(constraint.validate(undefined as any)).toBe(true);
-    expect(constraint.validate(null as any)).toBe(true);
+    expect(constraint.validate(undefined)).toBe(true);
+    expect(constraint.validate(null)).toBe(true);
   });
 
   it('should return true for a valid mime type and extension', () => {

@@ -6,6 +6,14 @@ import type {
   GithubEmail,
 } from '../interfaces';
 
+interface GithubTokenExchangeResponse {
+  access_token?: string;
+  token_type?: string;
+  scope?: string;
+  error?: string;
+  error_description?: string;
+}
+
 @Injectable()
 export class GithubOauthService {
   private readonly logger = new Logger(GithubOauthService.name);
@@ -52,7 +60,7 @@ export class GithubOauthService {
       }),
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as GithubTokenExchangeResponse;
 
     if (data.error) {
       this.logger.error(
@@ -61,7 +69,19 @@ export class GithubOauthService {
       throw new UnauthorizedException(data.error_description || data.error);
     }
 
-    return data as GithubTokenResponse;
+    if (!data.access_token) {
+      throw new UnauthorizedException(
+        'GitHub token response is missing an access token',
+      );
+    }
+
+    const tokenResponse: GithubTokenResponse = {
+      access_token: data.access_token,
+      token_type: data.token_type ?? '',
+      scope: data.scope ?? '',
+    };
+
+    return tokenResponse;
   }
 
   async fetchGithubUser(accessToken: string): Promise<GithubUser> {

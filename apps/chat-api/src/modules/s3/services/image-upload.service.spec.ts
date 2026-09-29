@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ImageUploadService } from './image-upload.service';
 import { EnvService } from '@cfg/schema/env.service';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 
 jest.mock('@aws-sdk/client-s3');
 
@@ -13,14 +13,13 @@ const envServiceMock: Partial<EnvService> = {
 
 describe('ImageUploadService', () => {
   let service: ImageUploadService;
-  let envServiceInstance: EnvService;
-  let s3ClientMock: any;
+  let s3ClientMock: { send: jest.Mock<Promise<unknown>, [unknown]> };
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
     s3ClientMock = {
-      send: jest.fn(),
+      send: jest.fn<Promise<unknown>, [unknown]>(),
     };
 
     (S3Client as jest.Mock).mockImplementation(() => s3ClientMock);
@@ -36,7 +35,6 @@ describe('ImageUploadService', () => {
     }).compile();
 
     service = module.get<ImageUploadService>(ImageUploadService);
-    envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   it('should be defined', () => {
@@ -46,7 +44,7 @@ describe('ImageUploadService', () => {
   it('should upload a base64 image successfully', async () => {
     const base64Data =
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     const result = await service.uploadBase64Image(base64Data);
 
@@ -57,7 +55,7 @@ describe('ImageUploadService', () => {
   it('should create S3Client with correct configuration', async () => {
     const base64Data =
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     await service.uploadBase64Image(base64Data);
 
@@ -73,7 +71,7 @@ describe('ImageUploadService', () => {
   it('should return valid S3 key format', async () => {
     const base64Data =
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-    s3ClientMock.send.mockResolvedValue({} as any);
+    s3ClientMock.send.mockResolvedValue({});
 
     const result1 = await service.uploadBase64Image(base64Data);
     const result2 = await service.uploadBase64Image(base64Data);

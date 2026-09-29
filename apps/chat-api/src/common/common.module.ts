@@ -13,7 +13,7 @@ import { AppCacheService } from './services/app-cache.service';
     AuthModule,
     CacheModule.registerAsync({
       inject: [EnvService],
-      useFactory: async (envService: EnvService) => ({
+      useFactory: (envService: EnvService) => ({
         ttl: envService.cacheTTL,
         store: createKeyv(envService.redisHost),
       }),

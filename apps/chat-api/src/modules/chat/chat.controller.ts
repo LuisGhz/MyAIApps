@@ -234,7 +234,6 @@ export class ChatController {
   async transcribeAudio(
     @UploadedFile() audio: Express.Multer.File | undefined,
     @Body() dto: TranscribeAudioReqDto,
-    @CurrentUser() _user: JwtPayload,
   ): Promise<TranscribeAudioResDto> {
     if (!audio) throw new BadRequestException('Audio file is required');
 

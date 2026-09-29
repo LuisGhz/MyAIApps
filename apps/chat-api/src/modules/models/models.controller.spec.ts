@@ -11,19 +11,49 @@ import {
   DeveloperListItemResDto,
 } from './dto';
 
-const modelsServiceMock = {
-  create: jest.fn(),
-  findAll: jest.fn(),
-  getDevelopers: jest.fn(),
-  findByValue: jest.fn(),
-  findOne: jest.fn(),
-  update: jest.fn(),
-  remove: jest.fn(),
+type ModelsServiceMock = {
+  create: jest.MockedFunction<ModelsController['create']>;
+  findAll: jest.MockedFunction<ModelsController['findAll']>;
+  getDevelopers: jest.MockedFunction<ModelsController['getDevelopers']>;
+  findByValue: jest.MockedFunction<ModelsController['findByValue']>;
+  findOne: jest.MockedFunction<ModelsController['findOne']>;
+  update: jest.MockedFunction<ModelsController['update']>;
+  remove: jest.MockedFunction<ModelsController['remove']>;
+};
+
+const modelsServiceMock: ModelsServiceMock = {
+  create: jest.fn<
+    ReturnType<ModelsController['create']>,
+    Parameters<ModelsController['create']>
+  >(),
+  findAll: jest.fn<
+    ReturnType<ModelsController['findAll']>,
+    Parameters<ModelsController['findAll']>
+  >(),
+  getDevelopers: jest.fn<
+    ReturnType<ModelsController['getDevelopers']>,
+    Parameters<ModelsController['getDevelopers']>
+  >(),
+  findByValue: jest.fn<
+    ReturnType<ModelsController['findByValue']>,
+    Parameters<ModelsController['findByValue']>
+  >(),
+  findOne: jest.fn<
+    ReturnType<ModelsController['findOne']>,
+    Parameters<ModelsController['findOne']>
+  >(),
+  update: jest.fn<
+    ReturnType<ModelsController['update']>,
+    Parameters<ModelsController['update']>
+  >(),
+  remove: jest.fn<
+    ReturnType<ModelsController['remove']>,
+    Parameters<ModelsController['remove']>
+  >(),
 };
 
 describe('ModelsController', () => {
   let controller: ModelsController;
-  let modelsServiceInstance: ModelsService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -39,7 +69,6 @@ describe('ModelsController', () => {
     }).compile();
 
     controller = module.get<ModelsController>(ModelsController);
-    modelsServiceInstance = module.get<ModelsService>(ModelsService);
   });
 
   it('should be defined', () => {
@@ -54,6 +83,7 @@ describe('ModelsController', () => {
         value: 'gpt-4-turbo',
         link: 'https://openai.com',
         guestAccess: true,
+        supportsTemperature: true,
         developerId: 'dev-id-123',
         price: {
           input: 0.01,
@@ -73,6 +103,9 @@ describe('ModelsController', () => {
         value: 'gpt-4-turbo',
         link: 'https://openai.com',
         guestAccess: true,
+        supportsTemperature: true,
+        isReasoning: false,
+        reasoningLevel: null,
         price: {
           input: 0.01,
           output: 0.03,
@@ -97,8 +130,8 @@ describe('ModelsController', () => {
       const result = await controller.create(createDto);
 
       expect(result).toEqual(expectedResult);
-      expect(modelsServiceInstance.create).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.create).toHaveBeenCalledWith(createDto);
+      expect(modelsServiceMock.create).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.create).toHaveBeenCalledWith(createDto);
     });
   });
 
@@ -134,8 +167,8 @@ describe('ModelsController', () => {
       const result = await controller.findAll();
 
       expect(result).toEqual(expectedResult);
-      expect(modelsServiceInstance.findAll).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.findAll).toHaveBeenCalledWith();
+      expect(modelsServiceMock.findAll).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.findAll).toHaveBeenCalledWith();
     });
   });
 
@@ -161,8 +194,8 @@ describe('ModelsController', () => {
       const result = await controller.getDevelopers();
 
       expect(result).toEqual(expectedResult);
-      expect(modelsServiceInstance.getDevelopers).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.getDevelopers).toHaveBeenCalledWith();
+      expect(modelsServiceMock.getDevelopers).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.getDevelopers).toHaveBeenCalledWith();
     });
   });
 
@@ -176,6 +209,9 @@ describe('ModelsController', () => {
         value: 'gpt-4-turbo',
         link: 'https://openai.com',
         guestAccess: true,
+        supportsTemperature: true,
+        isReasoning: false,
+        reasoningLevel: null,
         price: {
           input: 0.01,
           output: 0.03,
@@ -200,8 +236,8 @@ describe('ModelsController', () => {
       const result = await controller.findByValue(value);
 
       expect(result).toEqual(expectedResult);
-      expect(modelsServiceInstance.findByValue).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.findByValue).toHaveBeenCalledWith(value);
+      expect(modelsServiceMock.findByValue).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.findByValue).toHaveBeenCalledWith(value);
     });
   });
 
@@ -215,6 +251,9 @@ describe('ModelsController', () => {
         value: 'gpt-4-turbo',
         link: 'https://openai.com',
         guestAccess: true,
+        supportsTemperature: true,
+        isReasoning: false,
+        reasoningLevel: null,
         price: {
           input: 0.01,
           output: 0.03,
@@ -239,8 +278,8 @@ describe('ModelsController', () => {
       const result = await controller.findOne(id);
 
       expect(result).toEqual(expectedResult);
-      expect(modelsServiceInstance.findOne).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.findOne).toHaveBeenCalledWith(id);
+      expect(modelsServiceMock.findOne).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.findOne).toHaveBeenCalledWith(id);
     });
   });
 
@@ -264,6 +303,9 @@ describe('ModelsController', () => {
         value: 'gpt-4-turbo',
         link: 'https://openai.com',
         guestAccess: false,
+        supportsTemperature: true,
+        isReasoning: false,
+        reasoningLevel: null,
         price: {
           input: 0.02,
           output: 0.04,
@@ -288,8 +330,8 @@ describe('ModelsController', () => {
       const result = await controller.update(id, updateDto);
 
       expect(result).toEqual(expectedResult);
-      expect(modelsServiceInstance.update).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.update).toHaveBeenCalledWith(id, updateDto);
+      expect(modelsServiceMock.update).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.update).toHaveBeenCalledWith(id, updateDto);
     });
   });
 
@@ -302,8 +344,8 @@ describe('ModelsController', () => {
       const result = await controller.remove(id);
 
       expect(result).toBeUndefined();
-      expect(modelsServiceInstance.remove).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.remove).toHaveBeenCalledWith(id);
+      expect(modelsServiceMock.remove).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.remove).toHaveBeenCalledWith(id);
     });
   });
 
@@ -314,7 +356,7 @@ describe('ModelsController', () => {
       const result = await controller.findAll();
 
       expect(result).toEqual([]);
-      expect(modelsServiceInstance.findAll).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.findAll).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -325,7 +367,7 @@ describe('ModelsController', () => {
       const result = await controller.getDevelopers();
 
       expect(result).toEqual([]);
-      expect(modelsServiceInstance.getDevelopers).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.getDevelopers).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -337,6 +379,7 @@ describe('ModelsController', () => {
         value: 'gpt-4-turbo',
         link: 'https://openai.com',
         guestAccess: true,
+        supportsTemperature: true,
         developerId: 'invalid-dev-id',
         price: {
           input: 0.01,
@@ -356,8 +399,8 @@ describe('ModelsController', () => {
       await expect(controller.create(createDto)).rejects.toThrow(
         'Developer not found',
       );
-      expect(modelsServiceInstance.create).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.create).toHaveBeenCalledWith(createDto);
+      expect(modelsServiceMock.create).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.create).toHaveBeenCalledWith(createDto);
     });
   });
 
@@ -372,8 +415,8 @@ describe('ModelsController', () => {
       await expect(controller.findByValue(value)).rejects.toThrow(
         'Model not found',
       );
-      expect(modelsServiceInstance.findByValue).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.findByValue).toHaveBeenCalledWith(value);
+      expect(modelsServiceMock.findByValue).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.findByValue).toHaveBeenCalledWith(value);
     });
   });
 
@@ -384,8 +427,8 @@ describe('ModelsController', () => {
       modelsServiceMock.findOne.mockRejectedValue(new Error('Model not found'));
 
       await expect(controller.findOne(id)).rejects.toThrow('Model not found');
-      expect(modelsServiceInstance.findOne).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.findOne).toHaveBeenCalledWith(id);
+      expect(modelsServiceMock.findOne).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.findOne).toHaveBeenCalledWith(id);
     });
   });
 
@@ -401,8 +444,8 @@ describe('ModelsController', () => {
       await expect(controller.update(id, updateDto)).rejects.toThrow(
         'Model not found',
       );
-      expect(modelsServiceInstance.update).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.update).toHaveBeenCalledWith(id, updateDto);
+      expect(modelsServiceMock.update).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.update).toHaveBeenCalledWith(id, updateDto);
     });
 
     it('should handle service errors when updating with duplicate value', async () => {
@@ -418,7 +461,7 @@ describe('ModelsController', () => {
       await expect(controller.update(id, updateDto)).rejects.toThrow(
         'Model with this value already exists',
       );
-      expect(modelsServiceInstance.update).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.update).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -429,8 +472,8 @@ describe('ModelsController', () => {
       modelsServiceMock.remove.mockRejectedValue(new Error('Model not found'));
 
       await expect(controller.remove(id)).rejects.toThrow('Model not found');
-      expect(modelsServiceInstance.remove).toHaveBeenCalledTimes(1);
-      expect(modelsServiceInstance.remove).toHaveBeenCalledWith(id);
+      expect(modelsServiceMock.remove).toHaveBeenCalledTimes(1);
+      expect(modelsServiceMock.remove).toHaveBeenCalledWith(id);
     });
   });
 });
