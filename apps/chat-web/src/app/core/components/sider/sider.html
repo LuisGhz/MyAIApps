@@ -81,23 +81,31 @@
       }
     } @else {
       @for (chat of filteredChats(); track chat.id) {
-        <a
-          class="group relative flex items-center px-2 py-2 rounded-lg cursor-pointer hover:bg-gray-400 dark:hover:bg-dark-input app-text trans-c-200"
-          [routerLink]="['/chat', chat.id]"
+        <div
+          class="group relative flex items-center px-2 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-dark-input app-text trans-c-200"
           [class.hidden]="sidebarCollapsed()"
-          (click)="collapseIfMobileAndNotCollapsed()"
         >
-          @if (!sidebarCollapsed()) {
-            @if (chat.title) {
-              <span class="truncate text-sm flex-1">{{ chat.title }}</span>
+          <a
+            class="flex min-w-0 flex-1 items-center cursor-pointer"
+            [routerLink]="['/chat', chat.id]"
+            (click)="collapseIfMobileAndNotCollapsed()"
+          >
+            @if (!sidebarCollapsed()) {
+              @if (chat.title) {
+                <span class="truncate app-text text-sm flex-1">{{ chat.title }}</span>
+              } @else {
+                <nz-skeleton
+                  class="flex-1"
+                  [nzActive]="true"
+                  [nzParagraph]="{ rows: 1, width: '80%' }"
+                  [nzTitle]="false"
+                ></nz-skeleton>
+              }
             } @else {
-              <nz-skeleton
-                class="flex-1"
-                [nzActive]="true"
-                [nzParagraph]="{ rows: 1, width: '80%' }"
-                [nzTitle]="false"
-              ></nz-skeleton>
+              <span nz-icon nzType="message" nzTheme="outline" class="text-gray-400"></span>
             }
+          </a>
+          @if (!sidebarCollapsed()) {
             <app-more
               (deleteChat)="onDeleteChatConfirmed(chat.id)"
               (renameChat)="onRenameChat(chat.id)"
@@ -108,10 +116,8 @@
               (saveRename)="onSaveRename($event)"
               (cancelRename)="onCancelRename()"
             />
-          } @else {
-            <span nz-icon nzType="message" nzTheme="outline" class="text-gray-400"></span>
           }
-        </a>
+        </div>
       }
     }
   </div>

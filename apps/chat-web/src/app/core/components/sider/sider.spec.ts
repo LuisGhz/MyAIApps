@@ -29,7 +29,7 @@ import type { UserChatsModel } from '@chat/models/chat.model';
 // Mock More component
 @Component({
   selector: 'app-more',
-  template: '<div>Mock More</div>',
+  template: '<button type="button">More</button>',
 })
 class MockMore {}
 
@@ -176,6 +176,19 @@ describe('Sider', () => {
     expect(screen.getByText('Chat 1')).toBeInTheDocument();
     expect(screen.queryByText('Chat 2')).not.toBeInTheDocument();
     expect(screen.queryByText('Chat 3')).not.toBeInTheDocument();
+  });
+
+  it('should not navigate to a chat when clicking its more options button', async () => {
+    const { router } = await renderComponent({ chats: mockChats });
+    const user = userEvent.setup();
+
+    await waitFor(() => {
+      expect(screen.getByText('Chat 1')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getAllByRole('button', { name: 'More' })[0]);
+
+    expect(router.url).toBe('/');
   });
 
   it('should toggle sidebar when clicking menu fold button', async () => {
