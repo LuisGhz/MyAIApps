@@ -148,6 +148,8 @@ Also configure the repository secret `TURBO_TOKEN` and variable `TURBO_TEAM` for
 | `SSH_PASSPHRASE`                                   | All deployments                    | SSH key passphrase; not an application variable                                                       |
 | `AWS_ACCESS_KEY_ID`                                | Chat API, image-generation API     | Chat API: `S3_ACCESS_KEY`; image-generation API: `AWS_ACCESS_KEY_ID`                                  |
 | `AWS_SECRET_ACCESS_KEY`                            | Chat API, image-generation API     | Chat API: `S3_SECRET_KEY`; image-generation API: `AWS_SECRET_ACCESS_KEY`                              |
+| `IMGGEN_AWS_S3_REGION`                             | Image-generation API               | `AWS_S3_REGION`                                                                                       |
+| `IMGGEN_AWS_S3_BUCKET`                             | Image-generation API               | `AWS_S3_BUCKET`                                                                                       |
 | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD` | All APIs                           | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`                                                    |
 | `CHAT_DB_NAME`                                     | Chat API                           | `DB_NAME`                                                                                             |
 | `CHAT_JWT_SECRET`                                  | Chat API                           | `JWT_SECRET`                                                                                          |
@@ -184,8 +186,6 @@ Also configure the repository secret `TURBO_TOKEN` and variable `TURBO_TEAM` for
 | `CHAT_CACHE_SHORT_TTL`, `CHAT_CACHE_TTL`, `CHAT_CACHE_LONG_TTL`                     | Chat API                   | Same-named container variables                                                                   |
 | `ENGLISH_FRONTEND_URL`                                                              | English API                | `FRONTEND_URL`                                                                                   |
 | `IMGGEN_API_PORT`                                                                   | Image-generation API       | `PORT`; defaults to `3000` if unset                                                              |
-| `IMGGEN_AWS_S3_REGION`                                                              | Image-generation API       | `AWS_S3_REGION`                                                                                  |
-| `IMGGEN_AWS_S3_BUCKET`                                                              | Image-generation API       | `AWS_S3_BUCKET`                                                                                  |
 | `IMGGEN_CDN_DOMAIN`                                                                 | Image-generation API       | `CDN_DOMAIN`                                                                                     |
 | `IMGGEN_API_URL`                                                                    | Image-generation web build | Turbo build env `VITE_API_URL`                                                                   |
 
