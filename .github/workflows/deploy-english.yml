@@ -53,8 +53,11 @@ jobs:
               - 'turbo.json'
               - 'packages/**'
 
+  validate:
+    uses: ./.github/workflows/ci.yml
+
   build-english-api:
-    needs: changes
+    needs: [changes, validate]
     if: ${{ needs.changes.outputs['english-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-api' }}
     runs-on: ubuntu-latest
     steps:
@@ -111,7 +114,7 @@ jobs:
           script_path: deploy/english-api.sh
 
   build-english-web:
-    needs: changes
+    needs: [changes, validate]
     if: ${{ needs.changes.outputs['english-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'english-web' }}
     runs-on: ubuntu-latest
     steps:

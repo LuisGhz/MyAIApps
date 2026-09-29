@@ -53,8 +53,11 @@ jobs:
               - 'turbo.json'
               - 'packages/**'
 
+  validate:
+    uses: ./.github/workflows/ci.yml
+
   build-imggen-api:
-    needs: changes
+    needs: [changes, validate]
     if: ${{ needs.changes.outputs['imggen-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-api' }}
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +120,7 @@ jobs:
           script_path: deploy/imggen-api.sh
 
   build-imggen-web:
-    needs: changes
+    needs: [changes, validate]
     if: ${{ needs.changes.outputs['imggen-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-web' }}
     runs-on: ubuntu-latest
     steps:

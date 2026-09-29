@@ -53,8 +53,11 @@ jobs:
               - 'turbo.json'
               - 'packages/**'
 
+  validate:
+    uses: ./.github/workflows/ci.yml
+
   build-chat-api:
-    needs: changes
+    needs: [changes, validate]
     if: ${{ needs.changes.outputs['chat-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-api' }}
     runs-on: ubuntu-latest
     steps:
@@ -129,7 +132,7 @@ jobs:
           script_path: deploy/chat-api.sh
 
   build-chat-web:
-    needs: changes
+    needs: [changes, validate]
     if: ${{ needs.changes.outputs['chat-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-web' }}
     runs-on: ubuntu-latest
     steps:
