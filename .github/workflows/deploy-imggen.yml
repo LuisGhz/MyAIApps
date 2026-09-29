@@ -96,10 +96,10 @@ jobs:
           PORT: ${{ vars.IMGGEN_API_PORT || '3000' }}
           OPENAI_API_KEY: ${{ secrets.IMGGEN_OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.IMGGEN_GEMINI_API_KEY }}
-          DB_HOST: ${{ secrets.IMGGEN_DB_HOST }}
-          DB_PORT: ${{ secrets.IMGGEN_DB_PORT }}
-          DB_USERNAME: ${{ secrets.IMGGEN_DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.IMGGEN_DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.IMGGEN_DB_NAME }}
           AUTH0_DOMAIN: ${{ secrets.IMGGEN_AUTH0_DOMAIN }}
           AUTH0_AUDIENCE: ${{ secrets.IMGGEN_AUTH0_AUDIENCE }}

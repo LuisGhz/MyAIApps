@@ -93,10 +93,10 @@ jobs:
           DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           NODE_ENV: production
-          DB_HOST: ${{ secrets.ENGLISH_DB_HOST }}
-          DB_PORT: ${{ secrets.ENGLISH_DB_PORT }}
-          DB_USERNAME: ${{ secrets.ENGLISH_DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.ENGLISH_DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.ENGLISH_DB_NAME }}
           OPENAI_API_KEY: ${{ secrets.ENGLISH_OPENAI_API_KEY }}
           AUTH0_DOMAIN: ${{ secrets.ENGLISH_AUTH0_DOMAIN }}

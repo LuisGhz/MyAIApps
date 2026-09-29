@@ -94,10 +94,10 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           NODE_ENV: production
           PORT: ${{ vars.CHAT_API_PORT || '3000' }}
-          DB_HOST: ${{ secrets.CHAT_DB_HOST }}
-          DB_PORT: ${{ secrets.CHAT_DB_PORT }}
-          DB_USERNAME: ${{ secrets.CHAT_DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.CHAT_DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.CHAT_DB_NAME }}
           JWT_SECRET: ${{ secrets.CHAT_JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ vars.CHAT_JWT_EXPIRES_IN }}
