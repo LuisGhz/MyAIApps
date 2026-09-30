@@ -1,15 +1,20 @@
 {
-  "name": "@myaiapps/eslint-config-apis",
+  "name": "@myaiapps/eslint-config",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./nestjs.mjs"
+    ".": "./nestjs.mjs",
+    "./angular": "./angular.mjs"
   },
   "dependencies": {
     "@eslint/js": "^9.18.0",
+    "angular-eslint": "22.5.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
     "typescript-eslint": "^8.71.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0 || ^10.0.0"
   }
 }

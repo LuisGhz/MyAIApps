@@ -45,7 +45,7 @@
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.18.0",
         "@liively/swc-jest-coverage-nestjs-plugin": "^0.4.1",
-        "@myaiapps/eslint-config-apis": "workspace:*",
+        "@myaiapps/eslint-config": "workspace:*",
         "@nestjs/cli": "12.0.0",
         "@nestjs/schematics": "12.0.0",
         "@nestjs/testing": "^11.0.1",
@@ -110,6 +110,7 @@
         "@angular/cli": "22.2.0",
         "@angular/compiler-cli": "22.2.0",
         "@eslint/js": "^10.0.1",
+        "@myaiapps/eslint-config": "workspace:*",
         "@testing-library/angular": "18.1.1",
         "@testing-library/dom": "10.4.1",
         "@testing-library/jest-dom": "6.9.1",
@@ -154,7 +155,7 @@
       "devDependencies": {
         "@eslint/eslintrc": "3.2.0",
         "@eslint/js": "9.18.0",
-        "@myaiapps/eslint-config-apis": "workspace:*",
+        "@myaiapps/eslint-config": "workspace:*",
         "@nestjs/cli": "12.0.0",
         "@nestjs/schematics": "12.0.0",
         "@nestjs/testing": "11.0.1",
@@ -218,6 +219,7 @@
         "@angular/cli": "22.2.0",
         "@angular/compiler-cli": "22.2.0",
         "@eslint/js": "^10.0.1",
+        "@myaiapps/eslint-config": "workspace:*",
         "@ngx-env/builder": "21.0.1",
         "@testing-library/angular": "19.2.1",
         "@testing-library/dom": "10.4.1",
@@ -265,7 +267,7 @@
       "devDependencies": {
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.18.0",
-        "@myaiapps/eslint-config-apis": "workspace:*",
+        "@myaiapps/eslint-config": "workspace:*",
         "@nestjs/cli": "12.0.0",
         "@nestjs/schematics": "12.0.0",
         "@nestjs/testing": "^11.0.1",
@@ -335,14 +337,18 @@
         "workbox-window": "^7.4.0",
       },
     },
-    "packages/eslint-config-apis": {
-      "name": "@myaiapps/eslint-config-apis",
+    "packages/eslint-config": {
+      "name": "@myaiapps/eslint-config",
       "dependencies": {
         "@eslint/js": "^9.18.0",
+        "angular-eslint": "22.5.0",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-prettier": "^5.2.2",
         "globals": "^16.0.0",
         "typescript-eslint": "^8.71.0",
+      },
+      "peerDependencies": {
+        "eslint": "^9.0.0 || ^10.0.0",
       },
     },
   },
@@ -967,7 +973,7 @@
 
     "@myaiapps/english-web": ["@myaiapps/english-web@workspace:apps/english-web"],
 
-    "@myaiapps/eslint-config-apis": ["@myaiapps/eslint-config-apis@workspace:packages/eslint-config-apis"],
+    "@myaiapps/eslint-config": ["@myaiapps/eslint-config@workspace:packages/eslint-config"],
 
     "@myaiapps/imggen-api": ["@myaiapps/imggen-api@workspace:apps/imggen-api"],
 
@@ -3151,7 +3157,7 @@
 
     "possible-typed-array-names": ["possible-typed-array-names@1.1.0", "", {}, "sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg=="],
 
-    "postcss": ["postcss@8.5.6", "", { "dependencies": { "nanoid": "^3.3.11", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg=="],
+    "postcss": ["postcss@8.5.28", "", { "dependencies": { "nanoid": "^3.3.18", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A=="],
 
     "postcss-import": ["postcss-import@15.1.0", "", { "dependencies": { "postcss-value-parser": "^4.0.0", "read-cache": "^1.0.0", "resolve": "^1.1.7" }, "peerDependencies": { "postcss": "^8.0.0" } }, "sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew=="],
 
@@ -4245,6 +4251,8 @@
 
     "@myaiapps/english-web/marked": ["marked@17.0.6", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-gB0gkNafnonOw0obSTEGZTT86IuhILt2Wfx0mWH/1Au83kybTayroZ/V6nS25mN7u8ASy+5fMhgB3XPNrOZdmA=="],
 
+    "@myaiapps/english-web/postcss": ["postcss@8.5.6", "", { "dependencies": { "nanoid": "^3.3.11", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg=="],
+
     "@myaiapps/english-web/tailwindcss": ["tailwindcss@3.4.18", "", { "dependencies": { "@alloc/quick-lru": "^5.2.0", "arg": "^5.0.2", "chokidar": "^3.6.0", "didyoumean": "^1.2.2", "dlv": "^1.1.3", "fast-glob": "^3.3.2", "glob-parent": "^6.0.2", "is-glob": "^4.0.3", "jiti": "^1.21.7", "lilconfig": "^3.1.3", "micromatch": "^4.0.8", "normalize-path": "^3.0.0", "object-hash": "^3.0.0", "picocolors": "^1.1.1", "postcss": "^8.4.47", "postcss-import": "^15.1.0", "postcss-js": "^4.0.1", "postcss-load-config": "^4.0.2 || ^5.0 || ^6.0", "postcss-nested": "^6.2.0", "postcss-selector-parser": "^6.1.2", "resolve": "^1.22.8", "sucrase": "^3.35.0" }, "bin": { "tailwind": "lib/cli.js", "tailwindcss": "lib/cli.js" } }, "sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ=="],
 
     "@myaiapps/english-web/typescript-eslint": ["typescript-eslint@8.69.0", "", { "dependencies": { "@typescript-eslint/eslint-plugin": "8.69.0", "@typescript-eslint/parser": "8.69.0", "@typescript-eslint/typescript-estree": "8.69.0", "@typescript-eslint/utils": "8.69.0" }, "peerDependencies": { "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0", "typescript": ">=4.8.4 <6.1.0" } }, "sha512-B3MltX0VqjUBNEe3b3sSuiRbfa6XrfHFtBiPamjT5AsW/dfq+y+bc0wyuS9DxAS1LyzCxRp2+rxzpLUvqM2BvA=="],
@@ -4704,8 +4712,6 @@
     "@angular-eslint/schematics/@angular-devkit/core/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
 
     "@angular-eslint/schematics/@angular-devkit/core/source-map": ["source-map@0.8.0", "", {}, "sha512-d8EqvL+k/SOXCreS/SUzg2ciyHqBBLcN/yuRjFsbvVhHTE2pgei7oAhmPM7kWFbkX6OSMQfUq4KbkF3au9lhYQ=="],
-
-    "@angular/build/vite/postcss": ["postcss@8.5.28", "", { "dependencies": { "nanoid": "^3.3.18", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A=="],
 
     "@angular/cdk/parse5/entities": ["entities@8.1.0", "", {}, "sha512-kxL7msIffSuh9aaFAMD7rxAIuTRMAHMeBtgHW2yUdWw732ZNh4MehkF2gdjvtdmikkaIP9bFDDJOPlsvm7avrA=="],
 
@@ -6228,6 +6234,8 @@
     "@myaiapps/english-web/tailwindcss/arg": ["arg@5.0.2", "", {}, "sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg=="],
 
     "@myaiapps/english-web/tailwindcss/chokidar": ["chokidar@3.6.0", "", { "dependencies": { "anymatch": "~3.1.2", "braces": "~3.0.2", "glob-parent": "~5.1.2", "is-binary-path": "~2.1.0", "is-glob": "~4.0.1", "normalize-path": "~3.0.0", "readdirp": "~3.6.0" }, "optionalDependencies": { "fsevents": "~2.3.2" } }, "sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw=="],
+
+    "@myaiapps/english-web/tailwindcss/postcss": ["postcss@8.5.28", "", { "dependencies": { "nanoid": "^3.3.18", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A=="],
 
     "@myaiapps/english-web/typescript-eslint/@typescript-eslint/eslint-plugin": ["@typescript-eslint/eslint-plugin@8.69.0", "", { "dependencies": { "@eslint-community/regexpp": "^4.12.2", "@typescript-eslint/scope-manager": "8.69.0", "@typescript-eslint/type-utils": "8.69.0", "@typescript-eslint/utils": "8.69.0", "@typescript-eslint/visitor-keys": "8.69.0", "ignore": "^7.0.5", "natural-compare": "^1.4.0", "ts-api-utils": "^2.5.0" }, "peerDependencies": { "@typescript-eslint/parser": "^8.69.0", "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0", "typescript": ">=4.8.4 <6.1.0" } }, "sha512-t5jQTKPIgVW1PE6dR6H6Qz5gm8zjMlX5/2gRaOGd9eO6V7J+tQc6iWKukEe7dY8u9HyYasQ0yfF0/FSSTEO2gA=="],
 

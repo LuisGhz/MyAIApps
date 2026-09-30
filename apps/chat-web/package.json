@@ -56,6 +56,7 @@
     "ajv": "8.18.0"
   },
   "devDependencies": {
+    "@myaiapps/eslint-config": "workspace:*",
     "@angular-eslint/builder": "22.5.0",
     "@angular/build": "22.2.0",
     "@angular/cli": "22.2.0",

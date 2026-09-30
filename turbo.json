@@ -1,7 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
-  "globalDependencies": ["packages/eslint-config-apis/**"],
+  "globalDependencies": ["packages/eslint-config/**"],
   "remoteCache": {
     "enabled": true
   },
