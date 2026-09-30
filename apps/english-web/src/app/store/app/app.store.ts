@@ -33,7 +33,7 @@ export class AppStore {
   }
 
   @Action(AppActions.UpdateIsMobile)
-  setIsMobile(ctx: StateContext<AppStoreModel>, action: AppActions.UpdateIsMobile) {
+  setIsMobile(ctx: StateContext<AppStoreModel>, action: InstanceType<typeof AppActions.UpdateIsMobile>) {
     ctx.patchState({ isMobile: action.isMobile });
   }
 
