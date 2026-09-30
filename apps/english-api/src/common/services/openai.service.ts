@@ -1,15 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
-import {
-  compareInstructions,
-  CompareSchema,
-  getComparePrompt,
-  getPrompt,
-  openAICompareFormat,
-  openAITranslationFormat,
-  translationInstructions,
-  TranslationSchema,
-} from '../utils';
 
 @Injectable()
 export class OpenAIService {

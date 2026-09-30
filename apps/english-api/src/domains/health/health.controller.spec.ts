@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  HealthCheckService,
-  type HealthIndicatorFunction,
-  TypeOrmHealthIndicator,
-} from '@nestjs/terminus';
+import { HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
 import { HealthController } from './health.controller';
 
 describe('HealthController', () => {
@@ -14,14 +10,10 @@ describe('HealthController', () => {
   beforeEach(async () => {
     const healthCheckServiceMock = {
       check: jest.fn(),
-    } as Partial<
-      jest.Mocked<HealthCheckService>
-    > as jest.Mocked<HealthCheckService>;
+    } as Partial<jest.Mocked<HealthCheckService>>;
     const typeOrmHealthIndicatorMock = {
       pingCheck: jest.fn(),
-    } as Partial<
-      jest.Mocked<TypeOrmHealthIndicator>
-    > as jest.Mocked<TypeOrmHealthIndicator>;
+    } as Partial<jest.Mocked<TypeOrmHealthIndicator>>;
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
@@ -56,8 +48,8 @@ describe('HealthController', () => {
       status: 'ok',
     };
 
-    healthCheckService.check.mockResolvedValue(result as never);
-    typeOrmHealthIndicator.pingCheck.mockResolvedValue(result.info as never);
+    healthCheckService.check.mockResolvedValue(result);
+    typeOrmHealthIndicator.pingCheck.mockResolvedValue(result.info);
 
     await expect(controller.check()).resolves.toEqual(result);
     expect(healthCheckService.check).toHaveBeenCalledTimes(1);

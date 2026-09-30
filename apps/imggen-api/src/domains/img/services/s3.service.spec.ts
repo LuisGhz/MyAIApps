@@ -28,7 +28,7 @@ const createMockStream = (chunks: Buffer[], streamError?: Error) => {
 
 describe('S3Service', () => {
   let service: S3Service;
-  let envServiceInstance: EnvService;
+  // let envServiceInstance: EnvService;
   let s3ClientMock: jest.Mocked<S3Client>;
 
   const envServiceMock = {
@@ -60,7 +60,7 @@ describe('S3Service', () => {
     }).compile();
 
     service = module.get<S3Service>(S3Service);
-    envServiceInstance = module.get<EnvService>(EnvService);
+    // envServiceInstance = module.get<EnvService>(EnvService);
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();

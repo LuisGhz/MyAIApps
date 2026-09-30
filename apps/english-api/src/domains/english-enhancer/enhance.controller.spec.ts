@@ -10,7 +10,7 @@ describe('EnhanceController', () => {
   beforeEach(async () => {
     const enhanceServiceMock = {
       enhanceText: jest.fn(),
-    } as Partial<jest.Mocked<EnhanceService>> as jest.Mocked<EnhanceService>;
+    } as Partial<jest.Mocked<EnhanceService>>;
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EnhanceController],

@@ -37,9 +37,11 @@
         <textarea
           id="prompt-content"
           nz-input
+          cdkTextareaAutosize
           formControlName="content"
           placeholder="Enter prompt content"
-          [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+          [cdkAutosizeMinRows]="3"
+          [cdkAutosizeMaxRows]="6"
           class="bg-dark-input! border-dark-border! text-gray-200! placeholder:text-gray-500!"
         ></textarea>
       </nz-form-control>
@@ -106,10 +108,12 @@
               <textarea
                 [attr.id]="'message-content-' + i"
                 nz-input
+                cdkTextareaAutosize
                 formControlName="content"
                 aria-label="Message content"
                 placeholder="Enter message content"
-                [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+                [cdkAutosizeMinRows]="2"
+                [cdkAutosizeMaxRows]="4"
                 class="bg-dark-muted! border-dark-border-light! text-gray-200! placeholder:text-gray-500!"
               ></textarea>
             </div>

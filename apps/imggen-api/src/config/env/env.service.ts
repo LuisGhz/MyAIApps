@@ -27,7 +27,13 @@ export class EnvService {
   }
 
   get dbPort(): number {
-    return this.configService.get<number>('DB_PORT', { infer: true })!;
+    const dbPort: unknown = this.configService.get<number>('DB_PORT', {
+      infer: true,
+    });
+    if (typeof dbPort !== 'number' || !Number.isFinite(dbPort)) {
+      throw new Error('DB_PORT must be a finite number');
+    }
+    return dbPort;
   }
 
   get dbUsername(): string {

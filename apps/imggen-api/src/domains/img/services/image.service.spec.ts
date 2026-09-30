@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+// import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { Image } from '../entities/image.entity';
@@ -8,8 +8,8 @@ import { EnvService } from '@config/env';
 
 describe('ImageService', () => {
   let service: ImageService;
-  let imageRepositoryInstance: Repository<Image>;
-  let envServiceInstance: EnvService;
+  // let imageRepositoryInstance: Repository<Image>;
+  // let envServiceInstance: EnvService;
 
   const imageRepositoryMock = {
     create: jest.fn(),
@@ -51,10 +51,10 @@ describe('ImageService', () => {
     }).compile();
 
     service = module.get<ImageService>(ImageService);
-    imageRepositoryInstance = module.get<Repository<Image>>(
-      getRepositoryToken(Image),
-    );
-    envServiceInstance = module.get<EnvService>(EnvService);
+    // imageRepositoryInstance = module.get<Repository<Image>>(
+    //   getRepositoryToken(Image),
+    // );
+    // envServiceInstance = module.get<EnvService>(EnvService);
   });
 
   afterEach(() => {

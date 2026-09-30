@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { PhraseComparisonService } from './services/phrase-comparison.service';
 import { ComparePhrasesReqDto } from './dtos/compare-phrases.req.dto';
 import { CompareSchema } from 'src/common/utils';

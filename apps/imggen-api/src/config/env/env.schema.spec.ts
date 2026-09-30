@@ -1,4 +1,4 @@
-import { validateEnv, envSchema } from './env.schema';
+import { validateEnv } from './env.schema';
 
 describe('EnvSchema', () => {
   describe('validateEnv', () => {
@@ -59,6 +59,7 @@ describe('EnvSchema', () => {
     });
 
     it('should default NODE_ENV to development when not provided', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { NODE_ENV, ...envWithoutNodeEnv } = validEnv;
 
       const result = validateEnv(envWithoutNodeEnv);
@@ -83,6 +84,7 @@ describe('EnvSchema', () => {
     });
 
     it('should throw error when OPENAI_API_KEY is missing', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { OPENAI_API_KEY, ...envWithoutOpenAI } = validEnv;
 
       expect(() => validateEnv(envWithoutOpenAI)).toThrow(
@@ -91,6 +93,7 @@ describe('EnvSchema', () => {
     });
 
     it('should throw error when GEMINI_API_KEY is missing', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { GEMINI_API_KEY, ...envWithoutGemini } = validEnv;
 
       expect(() => validateEnv(envWithoutGemini)).toThrow(
@@ -99,6 +102,7 @@ describe('EnvSchema', () => {
     });
 
     it('should throw error when PORT is missing', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { PORT, ...envWithoutPort } = validEnv;
 
       expect(() => validateEnv(envWithoutPort)).toThrow(
@@ -107,6 +111,7 @@ describe('EnvSchema', () => {
     });
 
     it('should throw error when DB_HOST is missing', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { DB_HOST, ...envWithoutDbHost } = validEnv;
 
       expect(() => validateEnv(envWithoutDbHost)).toThrow(
@@ -140,10 +145,12 @@ describe('EnvSchema', () => {
 
     it('should log error message when validation fails', () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { OPENAI_API_KEY, ...envWithoutOpenAI } = validEnv;
 
       try {
         validateEnv(envWithoutOpenAI);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
           'Invalid environment variables: ',

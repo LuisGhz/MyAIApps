@@ -15,6 +15,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -42,6 +43,7 @@ interface PromptFormGroup {
   selector: 'app-prompt-form-page',
   imports: [
     ReactiveFormsModule,
+    TextFieldModule,
     NzButtonModule,
     NzFormModule,
     NzIconModule,

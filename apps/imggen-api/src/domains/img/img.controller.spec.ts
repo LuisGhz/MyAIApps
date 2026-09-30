@@ -33,10 +33,10 @@ const imageServiceMock = {
 
 describe('ImgController', () => {
   let controller: ImgController;
-  let openAIServiceInstance: OpenAIService;
-  let geminiServiceInstance: GeminiService;
-  let s3ServiceInstance: S3Service;
-  let imageServiceInstance: ImageService;
+  // let openAIServiceInstance: OpenAIService;
+  // let geminiServiceInstance: GeminiService;
+  // let s3ServiceInstance: S3Service;
+  // let imageServiceInstance: ImageService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -52,10 +52,10 @@ describe('ImgController', () => {
     }).compile();
 
     controller = module.get<ImgController>(ImgController);
-    openAIServiceInstance = module.get<OpenAIService>(OpenAIService);
-    geminiServiceInstance = module.get<GeminiService>(GeminiService);
-    s3ServiceInstance = module.get<S3Service>(S3Service);
-    imageServiceInstance = module.get<ImageService>(ImageService);
+    // openAIServiceInstance = module.get<OpenAIService>(OpenAIService);
+    // geminiServiceInstance = module.get<GeminiService>(GeminiService);
+    // s3ServiceInstance = module.get<S3Service>(S3Service);
+    // imageServiceInstance = module.get<ImageService>(ImageService);
   });
 
   it('should be defined', () => {

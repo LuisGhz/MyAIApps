@@ -1,11 +1,5 @@
-import { Type, Transform, plainToInstance } from 'class-transformer';
-import {
-  IsIn,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { Transform, plainToInstance } from 'class-transformer';
+import { IsIn, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export class OpenAIModelOptionsReqDto {
   @IsString()
@@ -21,8 +15,9 @@ export class OpenAINewImageReqDto {
   prompt: string;
   @IsIn(['gpt-image-1.5', 'gpt-image-1-mini'])
   model: string;
-  @Transform(({ value }) => {
-    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  @Transform(({ value }: { value: unknown }) => {
+    const parsed: unknown =
+      typeof value === 'string' ? (JSON.parse(value) as unknown) : value;
     return plainToInstance(OpenAIModelOptionsReqDto, parsed);
   })
   @ValidateNested()

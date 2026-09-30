@@ -1,15 +1,21 @@
 import { OpenAIService } from '../../../common';
+import {
+  compareInstructions,
+  getComparePrompt,
+  openAICompareFormat,
+} from '../../../common/utils';
 import { ComparePhrasesReqDto } from '../dtos/compare-phrases.req.dto';
 import { PhraseComparisonService } from './phrase-comparison.service';
 
 describe('PhraseComparisonService', () => {
   let service: PhraseComparisonService;
-  let openAIService: jest.Mocked<OpenAIService>;
+  let parseResponse: jest.Mock;
 
   beforeEach(() => {
-    openAIService = {
-      compare: jest.fn(),
-    } as Partial<jest.Mocked<OpenAIService>> as jest.Mocked<OpenAIService>;
+    parseResponse = jest.fn();
+    const openAIService = {
+      client: { responses: { parse: parseResponse } },
+    } as unknown as OpenAIService;
     service = new PhraseComparisonService(openAIService);
   });
 
@@ -36,9 +42,14 @@ describe('PhraseComparisonService', () => {
       summary: 'Use discuss directly without about in this sentence.',
     };
 
-    openAIService.compare.mockResolvedValue(result);
+    parseResponse.mockResolvedValue({ output_parsed: result });
 
     await expect(service.comparePhrases(dto)).resolves.toEqual(result);
-    expect(openAIService.compare).toHaveBeenCalledWith(dto.inputs, dto.context);
+    expect(parseResponse).toHaveBeenCalledWith({
+      model: 'gpt-4o-mini',
+      instructions: compareInstructions,
+      input: getComparePrompt(dto.inputs, dto.context),
+      text: { format: openAICompareFormat },
+    });
   });
 });

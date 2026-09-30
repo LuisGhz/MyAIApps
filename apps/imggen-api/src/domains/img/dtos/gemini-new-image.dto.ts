@@ -26,8 +26,9 @@ export class GeminiNewImageReqDto {
   prompt: string;
   @IsIn(['gemini-2.5-flash-image', 'gemini-3-pro-image-preview'])
   model: string;
-  @Transform(({ value }) => {
-    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  @Transform(({ value }: { value: unknown }) => {
+    const parsed: unknown =
+      typeof value === 'string' ? (JSON.parse(value) as unknown) : value;
     return plainToInstance(GeminiModelOptionsReqDto, parsed);
   })
   @ValidateNested()

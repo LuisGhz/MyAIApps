@@ -7,13 +7,12 @@
     "module": "ESNext",
     "types": ["vite/client"],
     "skipLibCheck": true,
-    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@core/*": ["src/core/*"],
-      "@st/*": ["src/store/*"],
-      "@home/*": ["src/features/home/*"],
-      "@img/*": ["src/features/img/*"]
+      "@/*": ["./src/*"],
+      "@core/*": ["./src/core/*"],
+      "@st/*": ["./src/store/*"],
+      "@home/*": ["./src/features/home/*"],
+      "@img/*": ["./src/features/img/*"]
     },
     /* Bundler mode */
     "moduleResolution": "bundler",

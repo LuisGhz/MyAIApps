@@ -1,15 +1,21 @@
 import { OpenAIService } from '../../../common';
+import {
+  getPrompt,
+  openAITranslationFormat,
+  translationInstructions,
+} from '../../../common/utils';
 import { EnhanceTextReqDto } from '../dtos/enhance-text.req.dto';
 import { EnhanceService } from './enhance.service';
 
 describe('EnhanceService', () => {
   let service: EnhanceService;
-  let openAIService: jest.Mocked<OpenAIService>;
+  let parseResponse: jest.Mock;
 
   beforeEach(() => {
-    openAIService = {
-      enhanceText: jest.fn(),
-    } as Partial<jest.Mocked<OpenAIService>> as jest.Mocked<OpenAIService>;
+    parseResponse = jest.fn();
+    const openAIService = {
+      client: { responses: { parse: parseResponse } },
+    } as unknown as OpenAIService;
     service = new EnhanceService(openAIService);
   });
 
@@ -30,12 +36,14 @@ describe('EnhanceService', () => {
       formalC1: 'I am unable to understand this error.',
     };
 
-    openAIService.enhanceText.mockResolvedValue(result);
+    parseResponse.mockResolvedValue({ output_parsed: result });
 
     await expect(service.enhanceText(dto)).resolves.toEqual(result);
-    expect(openAIService.enhanceText).toHaveBeenCalledWith(
-      dto.textToEnhance,
-      dto.context,
-    );
+    expect(parseResponse).toHaveBeenCalledWith({
+      model: 'gpt-4o-mini',
+      instructions: translationInstructions,
+      input: getPrompt(dto.textToEnhance, dto.context),
+      text: { format: openAITranslationFormat },
+    });
   });
 });

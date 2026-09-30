@@ -11,7 +11,7 @@ describe('JwtAuthGuard', () => {
   beforeEach(() => {
     reflector = {
       getAllAndOverride: jest.fn(),
-    } as unknown as jest.Mocked<Reflector>;
+    };
     guard = new JwtAuthGuard(reflector);
     context = {
       getClass: jest.fn(),

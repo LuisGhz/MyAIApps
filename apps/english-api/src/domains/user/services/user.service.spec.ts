@@ -13,9 +13,7 @@ describe('UserService', () => {
       create: jest.fn(),
       findOneBy: jest.fn(),
       save: jest.fn(),
-    } as Partial<jest.Mocked<Repository<User>>> as jest.Mocked<
-      Repository<User>
-    >;
+    } as Partial<jest.Mocked<Repository<User>>>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

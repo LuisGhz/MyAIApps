@@ -24,4 +24,11 @@ async function bootstrap() {
   await app.listen(envService.port);
   logger.log(`Application is running on port ${envService.port}`);
 }
-bootstrap();
+bootstrap().catch((error: unknown) => {
+  const logger = new Logger('Main');
+  logger.error(
+    'Application failed to start',
+    error instanceof Error ? error.stack : String(error),
+  );
+  process.exitCode = 1;
+});

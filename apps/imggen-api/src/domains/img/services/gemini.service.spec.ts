@@ -10,7 +10,7 @@ jest.mock('@img/util/base64toImage.util');
 
 describe('GeminiService', () => {
   let service: GeminiService;
-  let envServiceInstance: EnvService;
+  // let envServiceInstance: EnvService;
   let geminiClientMock: jest.Mocked<GoogleGenAI>;
 
   const envServiceMock = {
@@ -46,7 +46,7 @@ describe('GeminiService', () => {
     }).compile();
 
     service = module.get<GeminiService>(GeminiService);
-    envServiceInstance = module.get<EnvService>(EnvService);
+    // envServiceInstance = module.get<EnvService>(EnvService);
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();

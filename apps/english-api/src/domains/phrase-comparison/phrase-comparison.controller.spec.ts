@@ -11,9 +11,7 @@ describe('PhraseComparisonController', () => {
   beforeEach(async () => {
     const phraseComparisonServiceMock = {
       comparePhrases: jest.fn(),
-    } as Partial<
-      jest.Mocked<PhraseComparisonService>
-    > as jest.Mocked<PhraseComparisonService>;
+    } as Partial<jest.Mocked<PhraseComparisonService>>;
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PhraseComparisonController],

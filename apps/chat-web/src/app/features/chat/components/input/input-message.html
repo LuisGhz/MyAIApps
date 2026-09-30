@@ -18,7 +18,9 @@
           (ngModelChange)="onMessageTextChange($event)"
           (keydown)="onKeydown($event)"
           placeholder="Ask anything"
-          [nzAutosize]="{ minRows: 1, maxRows: 6 }"
+          cdkTextareaAutosize
+          [cdkAutosizeMinRows]="1"
+          [cdkAutosizeMaxRows]="6"
         ></textarea>
 
         <div class="flex items-center gap-1 shrink-0">

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { MessagesHandler } from '@chat/services/message-handler';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -15,6 +16,7 @@ import { Microphone } from '../microphone/microphone';
   selector: 'app-input-message',
   imports: [
     FormsModule,
+    TextFieldModule,
     NzInputModule,
     NzIconModule,
     MoreOptions,

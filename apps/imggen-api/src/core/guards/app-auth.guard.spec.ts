@@ -2,15 +2,14 @@ import { PUBLIC_KEY } from '@common/decorators/public.decorator';
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
+import { lastValueFrom, Observable, of } from 'rxjs';
 import { AppAuthGuard } from './app-auth.guard';
 
 describe('AppAuthGuard', () => {
   let guard: AppAuthGuard;
   let reflector: Reflector;
 
-  const createMockExecutionContext = (
-    isPublic: boolean = false,
-  ): ExecutionContext => {
+  const createMockExecutionContext = (): ExecutionContext => {
     const mockHandler = {};
     const mockClass = class {};
 
@@ -30,11 +29,11 @@ describe('AppAuthGuard', () => {
   });
 
   describe('public routes', () => {
-    it('should return true for public routes', () => {
+    it('should return true for public routes', async () => {
       const context = createMockExecutionContext();
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
 
-      const result = guard.canActivate(context);
+      const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
       expect(reflector.getAllAndOverride).toHaveBeenCalledWith(PUBLIC_KEY, [
@@ -43,7 +42,7 @@ describe('AppAuthGuard', () => {
       ]);
     });
 
-    it('should not call parent canActivate for public routes', () => {
+    it('should not call parent canActivate for public routes', async () => {
       const context = createMockExecutionContext();
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
       const superCanActivateSpy = jest.spyOn(
@@ -51,7 +50,7 @@ describe('AppAuthGuard', () => {
         'canActivate',
       );
 
-      guard.canActivate(context);
+      expect(await guard.canActivate(context)).toBe(true);
 
       expect(superCanActivateSpy).not.toHaveBeenCalled();
     });
@@ -119,13 +118,13 @@ describe('AppAuthGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should use correct metadata keys and context properties', () => {
+    it('should use correct metadata keys and context properties', async () => {
       const context = createMockExecutionContext();
       const reflectorSpy = jest
         .spyOn(reflector, 'getAllAndOverride')
         .mockReturnValue(true);
 
-      guard.canActivate(context);
+      expect(await guard.canActivate(context)).toBe(true);
 
       expect(reflectorSpy).toHaveBeenCalledWith(PUBLIC_KEY, [
         context.getHandler(),
@@ -135,7 +134,7 @@ describe('AppAuthGuard', () => {
       expect(context.getClass).toHaveBeenCalled();
     });
 
-    it('should return Observable from parent canActivate', (done) => {
+    it('should return Observable from parent canActivate', async () => {
       const context = createMockExecutionContext();
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
       jest
@@ -143,18 +142,16 @@ describe('AppAuthGuard', () => {
           Object.getPrototypeOf(Object.getPrototypeOf(guard)),
           'canActivate',
         )
-        .mockReturnValue({ subscribe: jest.fn((callback) => callback(true)) });
+        .mockReturnValue(of(true));
 
       const result = guard.canActivate(context);
 
-      if (result && typeof result === 'object' && 'subscribe' in result) {
-        (result as any).subscribe((value: any) => {
-          expect(value).toBe(true);
-          done();
-        });
-      } else {
-        done();
+      expect(result).toBeInstanceOf(Observable);
+      if (!(result instanceof Observable)) {
+        throw new Error('Expected canActivate to return an Observable');
       }
+
+      await expect(lastValueFrom(result)).resolves.toBe(true);
     });
   });
 });
