@@ -53,11 +53,50 @@ jobs:
               - 'turbo.json'
               - 'packages/**'
 
-  validate:
-    uses: ./.github/workflows/ci.yml
+  validate-chat-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['chat-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Lint
+        run: bunx turbo run lint --filter=@myaiapps/chat-api
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - name: Test
+        run: bunx turbo run test --filter=@myaiapps/chat-api
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+  validate-chat-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['chat-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Lint
+        run: bunx turbo run lint --filter=@myaiapps/chat-web
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - name: Test
+        run: bunx turbo run test --filter=@myaiapps/chat-web
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
   build-chat-api:
-    needs: [changes, validate]
+    needs: [changes, validate-chat-api]
     if: ${{ needs.changes.outputs['chat-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-api' }}
     runs-on: ubuntu-latest
     steps:
@@ -132,7 +171,7 @@ jobs:
           script_path: deploy/chat-api.sh
 
   build-chat-web:
-    needs: [changes, validate]
+    needs: [changes, validate-chat-web]
     if: ${{ needs.changes.outputs['chat-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'chat-web' }}
     runs-on: ubuntu-latest
     steps:

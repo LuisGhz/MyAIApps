@@ -53,11 +53,50 @@ jobs:
               - 'turbo.json'
               - 'packages/**'
 
-  validate:
-    uses: ./.github/workflows/ci.yml
+  validate-imggen-api:
+    needs: changes
+    if: ${{ needs.changes.outputs['imggen-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-api' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Lint
+        run: bunx turbo run lint --filter=@myaiapps/imggen-api
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - name: Test
+        run: bunx turbo run test --filter=@myaiapps/imggen-api
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+  validate-imggen-web:
+    needs: changes
+    if: ${{ needs.changes.outputs['imggen-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-web' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - name: Lint
+        run: bunx turbo run lint --filter=@myaiapps/imggen-web
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - name: Test
+        run: bunx turbo run test --filter=@myaiapps/imggen-web
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
   build-imggen-api:
-    needs: [changes, validate]
+    needs: [changes, validate-imggen-api]
     if: ${{ needs.changes.outputs['imggen-api'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-api' }}
     runs-on: ubuntu-latest
     steps:
@@ -120,7 +159,7 @@ jobs:
           script_path: deploy/imggen-api.sh
 
   build-imggen-web:
-    needs: [changes, validate]
+    needs: [changes, validate-imggen-web]
     if: ${{ needs.changes.outputs['imggen-web'] == 'true' || github.event.inputs.app == 'all' || github.event.inputs.app == 'imggen-web' }}
     runs-on: ubuntu-latest
     steps:
