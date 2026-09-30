@@ -191,7 +191,7 @@ describe('Header', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    let menuButtonAfterUncollapse = screen.queryByRole('button', { name: /open sidenav/i });
+    const menuButtonAfterUncollapse = screen.queryByRole('button', { name: /open sidenav/i });
     expect(menuButtonAfterUncollapse).not.toBeInTheDocument();
 
     store.dispatch(new AppActions.CollapseSidebar());

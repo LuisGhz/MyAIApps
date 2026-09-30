@@ -1,13 +1,13 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
 import { dispatch, select } from '@ngxs/store';
 import { AuthActions } from '@st/auth/auth.actions';
 import { AuthStore } from '@st/auth/auth.store';
 
-type SseOptions = {
+interface SseOptions {
   headers?: Record<string, string>;
-  params?: Record<string, string | number | boolean | ReadonlyArray<string | number | boolean>>;
+  params?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>;
   credentials?: RequestCredentials;
   cache?: RequestCache;
   mode?: RequestMode;
@@ -15,7 +15,7 @@ type SseOptions = {
   referrer?: string;
   integrity?: string;
   timeout?: number;
-};
+}
 
 @Injectable({
   providedIn: 'root',
@@ -118,7 +118,7 @@ export class SseBaseService {
   }
 
   #buildUrl(path: string, params?: SseOptions['params']): string {
-    let url = `${this.#apiUrl}${path}`;
+    const url = `${this.#apiUrl}${path}`;
 
     if (!params) {
       return url;

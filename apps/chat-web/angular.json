@@ -102,11 +102,18 @@
             "setupFiles": ["src/test-setup.ts"],
             "coverageReporters": ["lcov", "lcovonly", "html", "json-summary"]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": "95c18d77-6df1-44c7-a189-3a7c0f31a127"
+    "analytics": "95c18d77-6df1-44c7-a189-3a7c0f31a127",
+    "schematicCollections": ["angular-eslint"]
   }
 }

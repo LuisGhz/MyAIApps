@@ -47,7 +47,7 @@ export class ModelsHomePage {
           await this.#modelsApi.deleteModel(model.id);
           this.models.reload();
           this.#message.success('Model deleted successfully');
-        } catch (error) {
+        } catch {
           // Error handled by interceptor
         }
       },

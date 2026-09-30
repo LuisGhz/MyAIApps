@@ -3,18 +3,18 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { DeveloperModel } from '../models';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-export type PriceFormModel = {
+export interface PriceFormModel {
   input: FormControl<number>;
   output: FormControl<number>;
-};
+}
 
-export type MetadataFormModel = {
+export interface MetadataFormModel {
   contextWindow: FormControl<number>;
   maxOutputTokens: FormControl<number>;
   knowledgeCutoff: FormControl<string>;
-};
+}
 
-export type ModelFormModel = {
+export interface ModelFormModel {
   name: FormControl<string>;
   shortName: FormControl<string>;
   value: FormControl<string>;
@@ -26,7 +26,7 @@ export type ModelFormModel = {
   reasoningLevel: FormControl<string | null>;
   metadata: FormGroup<MetadataFormModel>;
   developerId: FormControl<string | null>;
-};
+}
 
 @Injectable({ providedIn: 'root' })
 export class ModelFormService {

@@ -3,7 +3,7 @@ import { Router, CanActivateFn } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { AuthStore } from '@st/auth/auth.store';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = () => {
   const store = inject(Store);
   const router = inject(Router);
 

@@ -26,7 +26,7 @@ export class Microphone implements OnDestroy {
   recordingTime = signal(INITIAL_TIME);
   #mediaRecorder: MediaRecorder | null = null;
   #chunks: Blob[] = [];
-  #timerInterval: any;
+  #timerInterval: ReturnType<typeof setInterval> | null = null;
   #startTime = 0;
 
   async toggleRecording() {

@@ -62,7 +62,7 @@ describe('SuccessPage', () => {
 
 		const [action] = dispatchSpy.mock.calls[0];
 		expect(action).toBeInstanceOf(AuthActions.Login);
-		expect((action as AuthActions.Login).payload).toEqual({ token: accessToken });
+		expect((action as InstanceType<typeof AuthActions.Login>).payload).toEqual({ token: accessToken });
 
 		vi.runAllTimers();
 

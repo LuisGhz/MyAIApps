@@ -50,6 +50,9 @@ class MockRenameChatModal {
   @Input() chatTitle = '';
 }
 
+@Component({ template: '' })
+class DummyRouteComponent {}
+
 const mockChats: UserChatsModel[] = [
   { id: '1', title: 'Chat 1', createdAt: new Date('2024-01-01') },
   { id: '2', title: 'Chat 2', createdAt: new Date('2024-01-02') },
@@ -65,7 +68,11 @@ interface RenderOptions {
 }
 
 describe('Sider', () => {
-  let mockChatApi: any;
+  let mockChatApi: {
+    getChats: ReturnType<typeof vi.fn>;
+    deleteChat: ReturnType<typeof vi.fn>;
+    renameChat: ReturnType<typeof vi.fn>;
+  };
   let mockModalService: ReturnType<typeof createMockNzModalService>;
 
   beforeEach(() => {
@@ -88,8 +95,8 @@ describe('Sider', () => {
         provideNoopAnimations(),
         provideTestNzIcons(),
         provideRouter([
-          { path: '', component: {} as any },
-          { path: 'chat/:id', component: {} as any },
+          { path: '', component: DummyRouteComponent },
+          { path: 'chat/:id', component: DummyRouteComponent },
         ]),
         { provide: ChatApi, useValue: mockChatApi },
         {
@@ -203,18 +210,19 @@ describe('Sider', () => {
     expect(toggleButton).toBeInTheDocument();
     await user.click(toggleButton);
 
-    const state = store.selectSnapshot((s: any) => s.app);
-    expect(state.sidebarCollapsed).toBe(true);
+    expect(store.selectSnapshot(AppStore.sidebarCollapsed)).toBe(true);
   });
 
   it('should show confirm modal and delete chat when confirmed', async () => {
     let capturedOnOk: (() => Promise<void>) | undefined;
-    const mockConfirm = vi.fn().mockImplementation((config: any) => {
-      capturedOnOk = config.nzOnOk;
-      return { afterClose: { subscribe: vi.fn() } };
+    const mockConfirm = vi.fn((config: Parameters<NzModalService['confirm']>[0]) => {
+      capturedOnOk = config?.nzOnOk as (() => Promise<void>) | undefined;
+      return { afterClose: { subscribe: vi.fn() } } as unknown as ReturnType<
+        NzModalService['confirm']
+      >;
     });
 
-    const { store, fixture } = await renderComponent({
+    const { store } = await renderComponent({
       chats: mockChats,
       modalServiceOverrides: { confirm: mockConfirm },
     });
@@ -223,10 +231,10 @@ describe('Sider', () => {
       expect(screen.getByText('Chat 1')).toBeInTheDocument();
     });
 
-    const chatItem = screen.getByText('Chat 1').closest('a[class*="group"]');
-    expect(chatItem).toBeInTheDocument();
+    const chatRow = screen.getByText('Chat 1').closest('div.group');
+    expect(chatRow).toBeInTheDocument();
 
-    const moreComponent = chatItem!.querySelector('app-more');
+    const moreComponent = chatRow!.querySelector('app-more');
     expect(moreComponent).toBeInTheDocument();
 
     const deleteEvent = new CustomEvent('deleteChat', { bubbles: true });
@@ -243,8 +251,9 @@ describe('Sider', () => {
 
     expect(mockChatApi.deleteChat).toHaveBeenCalledWith('1');
 
-    const state = store.selectSnapshot((s: any) => s.app);
-    expect(state.userChats).not.toContainEqual(expect.objectContaining({ id: '1' }));
+    expect(store.selectSnapshot(AppStore.userChats)).not.toContainEqual(
+      expect.objectContaining({ id: '1' }),
+    );
   });
 
   it('should collapse sidebar when clicking a chat on mobile', async () => {
@@ -262,7 +271,6 @@ describe('Sider', () => {
     componentInstance.collapseIfMobileAndNotCollapsed();
     await fixture.whenStable();
 
-    const state = store.selectSnapshot((s: any) => s.app);
-    expect(state.sidebarCollapsed).toBe(true);
+    expect(store.selectSnapshot(AppStore.sidebarCollapsed)).toBe(true);
   });
 });

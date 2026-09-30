@@ -1,6 +1,5 @@
-import { expect, beforeAll, afterEach } from 'vitest';
+import { expect, beforeAll } from 'vitest';
 import * as matchers from '@testing-library/jest-dom/matchers';
-import { TestBed } from '@angular/core/testing';
 
 expect.extend(matchers);
 

@@ -14,7 +14,7 @@ import { AuthActions } from './auth.actions';
 @Injectable()
 export class AuthStore {
   @Action(AuthActions.Login)
-  login(ctx: StateContext<AuthStoreModel>, action: AuthActions.Login) {
+  login(ctx: StateContext<AuthStoreModel>, action: InstanceType<typeof AuthActions.Login>) {
     ctx.setState({
       isAuthenticated: true,
       token: action.payload.token,
@@ -22,7 +22,7 @@ export class AuthStore {
   }
 
   @Action(AuthActions.UploadToken)
-  uploadToken(ctx: StateContext<AuthStoreModel>, action: AuthActions.UploadToken) {
+  uploadToken(ctx: StateContext<AuthStoreModel>, action: InstanceType<typeof AuthActions.UploadToken>) {
     ctx.patchState({
       token: action.payload.token,
     });

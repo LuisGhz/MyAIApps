@@ -3,15 +3,15 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
-type HttpClientOptions = {
+interface HttpClientOptions {
   headers?: HttpHeaders | Record<string, string | string[]>;
   context?: HttpContext;
   params?:
     | HttpParams
-    | Record<string, string | number | boolean | ReadonlyArray<string | number | boolean>>;
+    | Record<string, string | number | boolean | readonly (string | number | boolean)[]>;
   reportProgress?: boolean;
   withCredentials?: boolean;
-};
+}
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class HttpBaseService {
     return firstValueFrom(this.#http.get<T>(`${this.#apiUrl}${path}`, options));
   }
 
-  protected post<T>(path: string, body: any, options?: HttpClientOptions) {
+  protected post<T>(path: string, body: unknown, options?: HttpClientOptions) {
     return this.#http.post<T>(`${this.#apiUrl}${path}`, body, options);
   }
 

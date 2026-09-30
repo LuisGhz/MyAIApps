@@ -11,7 +11,6 @@ import { AuthActions } from '@st/auth/auth.actions';
 import { AuthStore } from '@st/auth/auth.store';
 import { ChatStore } from '@st/chat/chat.store';
 import {
-  AiModelModel,
   PromptItemSummaryResModel,
   TranscribeAudioResModel,
   UpdateAIFeaturesReqModel,

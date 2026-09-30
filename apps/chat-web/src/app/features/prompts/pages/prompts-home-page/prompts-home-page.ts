@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { PromptsApi } from '@prompts/services';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
@@ -13,7 +13,7 @@ import { dispatch } from '@ngxs/store';
   templateUrl: './prompts-home-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PromptsHomePage {
+export class PromptsHomePage implements OnInit {
   readonly #router = inject(Router);
   readonly #setPageTitle = dispatch(AppActions.SetPageTitle);
   readonly #promptsApi = inject(PromptsApi);

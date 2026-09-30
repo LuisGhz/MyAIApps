@@ -22,10 +22,6 @@ let mockMediaRecorderInstance: {
   state: string;
 };
 
-const mockMediaStream = {
-  getTracks: vi.fn().mockReturnValue([{ stop: vi.fn() }]),
-};
-
 class MockMediaRecorder {
   ondataavailable: ((e: { data: Blob }) => void) | null = null;
   onstop: (() => void) | null = null;
@@ -63,7 +59,7 @@ class MockMediaRecorder {
 }
 
 describe('Microphone', () => {
-  let mediaStreamTracks: Array<{ stop: Mock }> = [];
+  let mediaStreamTracks: { stop: Mock }[] = [];
 
   const renderComponent = async () => {
     const result = await render(Microphone, {

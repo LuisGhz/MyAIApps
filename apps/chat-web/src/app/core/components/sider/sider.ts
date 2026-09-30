@@ -95,11 +95,10 @@ export class Sider {
           await this.#chatApi.deleteChat(chatId);
           this.#deleteChat(chatId);
           if (this.currentChatId() === chatId) await this.#router.navigateByUrl('/');
-        } catch (error) {
+        } catch {
           this.#updateUserChats(originalChats);
         }
       },
-      nzOnCancel: () => {},
     });
   }
 

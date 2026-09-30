@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { BehaviorSubject, of, Observable } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { convertToParamMap, ParamMap, Params } from '@angular/router';
 
 /**
@@ -22,7 +22,7 @@ import { convertToParamMap, ParamMap, Params } from '@angular/router';
  * });
  * ```
  */
-export function createMockRouter(overrides?: Partial<any>) {
+export function createMockRouter(overrides?: Partial<unknown>) {
   return {
     navigate: vi.fn().mockResolvedValue(true),
     navigateByUrl: vi.fn().mockResolvedValue(true),
@@ -62,16 +62,18 @@ export function createMockRouter(overrides?: Partial<any>) {
  * });
  * ```
  */
-export function createMockActivatedRoute(params: {
-  params?: Params;
-  queryParams?: Params;
-  data?: any;
-  fragment?: string | null;
-  url?: any[];
-  outlet?: string;
-  paramMap?: ParamMap;
-  queryParamMap?: ParamMap;
-} = {}) {
+export function createMockActivatedRoute(
+  params: {
+    params?: Params;
+    queryParams?: Params;
+    data?: unknown;
+    fragment?: string | null;
+    url?: unknown[];
+    outlet?: string;
+    paramMap?: ParamMap;
+    queryParamMap?: ParamMap;
+  } = {},
+) {
   const {
     params: routeParams = {},
     queryParams = {},
@@ -89,12 +91,8 @@ export function createMockActivatedRoute(params: {
   const fragmentSubject = new BehaviorSubject(fragment);
   const urlSubject = new BehaviorSubject(url);
 
-  const paramMapSubject = new BehaviorSubject(
-    paramMap || convertToParamMap(routeParams)
-  );
-  const queryParamMapSubject = new BehaviorSubject(
-    queryParamMap || convertToParamMap(queryParams)
-  );
+  const paramMapSubject = new BehaviorSubject(paramMap || convertToParamMap(routeParams));
+  const queryParamMapSubject = new BehaviorSubject(queryParamMap || convertToParamMap(queryParams));
 
   return {
     params: paramsSubject.asObservable(),
@@ -124,7 +122,7 @@ export function createMockActivatedRoute(params: {
     outlet,
     component: null,
     routeConfig: null,
-    root: {} as any,
+    root: {} as unknown,
     parent: null,
     firstChild: null,
     children: [],
@@ -139,13 +137,13 @@ export function createMockActivatedRoute(params: {
       queryParamsSubject.next(newQueryParams);
       queryParamMapSubject.next(convertToParamMap(newQueryParams));
     },
-    _updateData: (newData: any) => {
+    _updateData: (newData: unknown) => {
       dataSubject.next(newData);
     },
     _updateFragment: (newFragment: string | null) => {
       fragmentSubject.next(newFragment);
     },
-    _updateUrl: (newUrl: any[]) => {
+    _updateUrl: (newUrl: unknown[]) => {
       urlSubject.next(newUrl);
     },
   };
@@ -165,14 +163,16 @@ export function createMockActivatedRoute(params: {
  * });
  * ```
  */
-export function createMockActivatedRouteSnapshot(params: {
-  params?: Params;
-  queryParams?: Params;
-  data?: any;
-  fragment?: string | null;
-  url?: any[];
-  outlet?: string;
-} = {}) {
+export function createMockActivatedRouteSnapshot(
+  params: {
+    params?: Params;
+    queryParams?: Params;
+    data?: unknown;
+    fragment?: string | null;
+    url?: unknown[];
+    outlet?: string;
+  } = {},
+) {
   const {
     params: routeParams = {},
     queryParams = {},
@@ -191,7 +191,7 @@ export function createMockActivatedRouteSnapshot(params: {
     outlet,
     paramMap: convertToParamMap(routeParams),
     queryParamMap: convertToParamMap(queryParams),
-    root: {} as any,
+    root: {} as unknown,
     parent: null,
     firstChild: null,
     children: [],
@@ -213,10 +213,7 @@ export function createMockActivatedRouteSnapshot(params: {
  * const mockRouterState = createMockRouterStateSnapshot('/home');
  * ```
  */
-export function createMockRouterStateSnapshot(
-  url: string = '/',
-  root?: any
-) {
+export function createMockRouterStateSnapshot(url = '/', root?: unknown) {
   return {
     url,
     root: root || createMockActivatedRouteSnapshot(),

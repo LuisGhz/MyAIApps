@@ -39,28 +39,34 @@ export class AppStore {
   }
 
   @Action(AppActions.SetIsMobile)
-  setIsMobile(ctx: StateContext<AppStoreModel>, { payload }: AppActions.SetIsMobile) {
+  setIsMobile(
+    ctx: StateContext<AppStoreModel>,
+    { payload }: InstanceType<typeof AppActions.SetIsMobile>,
+  ) {
     ctx.patchState({
       isMobile: payload,
     });
   }
 
   @Action(AppActions.SelectChat)
-  selectChat(ctx: StateContext<AppStoreModel>, { payload }: AppActions.SelectChat) {
+  selectChat(ctx: StateContext<AppStoreModel>, { payload }: InstanceType<typeof AppActions.SelectChat>) {
     ctx.patchState({
       selectedChatId: payload,
     });
   }
 
   @Action(AppActions.UpdateUserChats)
-  updateUserChats(ctx: StateContext<AppStoreModel>, { payload }: AppActions.UpdateUserChats) {
+  updateUserChats(
+    ctx: StateContext<AppStoreModel>,
+    { payload }: InstanceType<typeof AppActions.UpdateUserChats>,
+  ) {
     ctx.patchState({
       userChats: payload,
     });
   }
 
   @Action(AppActions.AddUserChat)
-  addUserChat(ctx: StateContext<AppStoreModel>, { payload }: AppActions.AddUserChat) {
+  addUserChat(ctx: StateContext<AppStoreModel>, { payload }: InstanceType<typeof AppActions.AddUserChat>) {
     const state = ctx.getState();
     ctx.patchState({
       userChats: [payload, ...state.userChats],
@@ -68,7 +74,7 @@ export class AppStore {
   }
 
   @Action(AppActions.DeleteChat)
-  deleteChat(ctx: StateContext<AppStoreModel>, { payload }: AppActions.DeleteChat) {
+  deleteChat(ctx: StateContext<AppStoreModel>, { payload }: InstanceType<typeof AppActions.DeleteChat>) {
     const state = ctx.getState();
     ctx.patchState({
       userChats: state.userChats.filter((chat) => chat.id !== payload),
@@ -76,7 +82,7 @@ export class AppStore {
   }
 
   @Action(AppActions.RenameChat)
-  renameChat(ctx: StateContext<AppStoreModel>, { payload }: AppActions.RenameChat) {
+  renameChat(ctx: StateContext<AppStoreModel>, { payload }: InstanceType<typeof AppActions.RenameChat>) {
     const state = ctx.getState();
     ctx.patchState({
       userChats: state.userChats.map((chat) =>
@@ -86,7 +92,7 @@ export class AppStore {
   }
 
   @Action(AppActions.SetPageTitle)
-  setPageTitle(ctx: StateContext<AppStoreModel>, { payload }: AppActions.SetPageTitle) {
+  setPageTitle(ctx: StateContext<AppStoreModel>, { payload }: InstanceType<typeof AppActions.SetPageTitle>) {
     ctx.patchState({
       pageTitle: payload,
     });

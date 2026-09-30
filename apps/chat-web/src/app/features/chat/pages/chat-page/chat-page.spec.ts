@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { Component, inject, Input, provideEnvironmentInitializer } from '@angular/core';
+import { Component, inject, provideEnvironmentInitializer } from '@angular/core';
 import { provideRouter, ActivatedRoute } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -34,7 +34,6 @@ class MockInputMessage {}
   template: '<div data-testid="messages">Mock Messages</div>',
 })
 class MockMessages {
-  @Input('animate.enter') animateEnter?: string;
 }
 
 // Mock data

@@ -4,6 +4,7 @@ import {
   DestroyRef,
   effect,
   inject,
+  OnInit,
   resource,
   signal,
 } from '@angular/core';
@@ -22,7 +23,7 @@ import { DevelopersApi, ModelFormService, ModelsApi } from '../../services';
   templateUrl: './model-form-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ModelFormPage {
+export class ModelFormPage implements OnInit {
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
   readonly #destroyRef = inject(DestroyRef);
@@ -89,7 +90,7 @@ export class ModelFormPage {
       });
 
       this.developerName.set(model.developer.name);
-    } catch (error) {
+    } catch {
       // Error handled by interceptor
     }
   }
@@ -132,7 +133,7 @@ export class ModelFormPage {
       }
 
       this.#router.navigate(['/admin']);
-    } catch (error) {
+    } catch {
       // Error handled by interceptor
     } finally {
       this.isSubmitting.set(false);

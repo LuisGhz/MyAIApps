@@ -37,7 +37,7 @@ export class UsersHomePage {
       await this.#usersApi.updateUserRole(user.id, { roleId });
       this.users.reload();
       this.#message.success('User role updated successfully');
-    } catch (error) {
+    } catch {
       // Error handled by interceptor
     } finally {
       this.updatingUserId.set(null);

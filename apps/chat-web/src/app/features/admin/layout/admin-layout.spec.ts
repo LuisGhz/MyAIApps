@@ -14,6 +14,8 @@ import { AppStore } from '@st/app/app.store';
 import { AdminLayout } from './admin-layout';
 
 @Component({
+  // ng-zorro selectors are required to match the production template in this test double.
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'nz-tab',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,6 +25,8 @@ class MockNzTab {
 }
 
 @Component({
+  // ng-zorro selectors are required to match the production template in this test double.
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'nz-tabs',
   template: `
     <div role="tablist" [attr.data-size]="nzSize()">
@@ -60,10 +64,6 @@ class MockNzTabs {
 })
 class DummyRouteComponent {}
 
-interface RenderOptions {
-  // Add custom options here
-}
-
 describe('AdminLayout', () => {
   const routes: Routes = [
     { path: 'admin/models', component: DummyRouteComponent },
@@ -80,7 +80,7 @@ describe('AdminLayout', () => {
     });
   });
 
-  const renderComponent = async (options: RenderOptions = {}) => {
+  const renderComponent = async () => {
     const result = await render(AdminLayout, {
       providers: [
         provideStore([AppStore]),

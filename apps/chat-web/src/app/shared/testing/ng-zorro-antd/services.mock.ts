@@ -110,7 +110,7 @@ export function provideTestNzIcons() {
  * });
  * ```
  */
-export function createMockNzMessageService(overrides?: Partial<any>) {
+export function createMockNzMessageService(overrides?: Partial<unknown>) {
   return {
     success: vi.fn().mockReturnValue({ messageId: 'success-id' }),
     error: vi.fn().mockReturnValue({ messageId: 'error-id' }),
@@ -145,7 +145,7 @@ export function createMockNzMessageService(overrides?: Partial<any>) {
  * });
  * ```
  */
-export function createMockNzModalService(overrides?: Partial<any>) {
+export function createMockNzModalService(overrides?: Partial<unknown>) {
   const mockModalRef = {
     afterOpen: { subscribe: vi.fn() },
     afterClose: { subscribe: vi.fn() },
@@ -188,7 +188,7 @@ export function createMockNzModalService(overrides?: Partial<any>) {
  * });
  * ```
  */
-export function createMockNzNotificationService(overrides?: Partial<any>) {
+export function createMockNzNotificationService(overrides?: Partial<unknown>) {
   return {
     success: vi.fn().mockReturnValue({ messageId: 'success-id' }),
     error: vi.fn().mockReturnValue({ messageId: 'error-id' }),

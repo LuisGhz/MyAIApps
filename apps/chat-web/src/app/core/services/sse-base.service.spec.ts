@@ -16,7 +16,7 @@ class TestSseBaseService extends SseBaseService {
     formData: FormData,
     options?: {
       headers?: Record<string, string>;
-      params?: Record<string, string | number | boolean | ReadonlyArray<string | number | boolean>>;
+      params?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>;
       timeout?: number;
     },
   ) {
@@ -82,8 +82,8 @@ describe('SseBaseService', () => {
     } as Response);
     vi.stubGlobal('fetch', fetchMock);
 
-    const events = await new Promise<Array<{ type: string; data: unknown }>>((resolve, reject) => {
-      const received: Array<{ type: string; data: unknown }> = [];
+    const events = await new Promise<{ type: string; data: unknown }[]>((resolve, reject) => {
+      const received: { type: string; data: unknown }[] = [];
 
       service
         .stream(new FormData(), {

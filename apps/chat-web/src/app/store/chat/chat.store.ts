@@ -51,7 +51,10 @@ export class ChatStore {
   }
 
   @Action(ChatActions.SetCurrentChatId)
-  setCurrentChatId(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.SetCurrentChatId) {
+  setCurrentChatId(
+    ctx: StateContext<ChatStoreModel>,
+    { payload }: InstanceType<typeof ChatActions.SetCurrentChatId>,
+  ) {
     const state = ctx.getState();
     ctx.setState({
       ...state,
@@ -60,7 +63,7 @@ export class ChatStore {
   }
 
   @Action(ChatActions.SetOps)
-  setOps(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.SetOps) {
+  setOps(ctx: StateContext<ChatStoreModel>, { payload }: InstanceType<typeof ChatActions.SetOps>) {
     const state = ctx.getState();
     ctx.setState({
       ...state,
@@ -69,7 +72,10 @@ export class ChatStore {
   }
 
   @Action(ChatActions.AddUserMessage)
-  addUserMessage(ctx: StateContext<ChatStoreModel>, { payload, file }: ChatActions.AddUserMessage) {
+  addUserMessage(
+    ctx: StateContext<ChatStoreModel>,
+    { payload, file }: InstanceType<typeof ChatActions.AddUserMessage>,
+  ) {
     const state = ctx.getState();
     ctx.setState({
       ...state,
@@ -81,7 +87,7 @@ export class ChatStore {
   @Action(ChatActions.AddAssistantMessage)
   addAssistantMessage(
     ctx: StateContext<ChatStoreModel>,
-    { payload }: ChatActions.AddAssistantMessage,
+    { payload }: InstanceType<typeof ChatActions.AddAssistantMessage>,
   ) {
     const state = ctx.getState();
     ctx.setState({
@@ -91,7 +97,10 @@ export class ChatStore {
   }
 
   @Action(ChatActions.AddAssistantChunk)
-  addAssistantChunk(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.AddAssistantChunk) {
+  addAssistantChunk(
+    ctx: StateContext<ChatStoreModel>,
+    { payload }: InstanceType<typeof ChatActions.AddAssistantChunk>,
+  ) {
     const state = ctx.getState();
     const messages = [...state.messages];
     const lastMessage = messages[messages.length - 1];
@@ -109,7 +118,10 @@ export class ChatStore {
   }
 
   @Action(ChatActions.LoadMessages)
-  loadMessages(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.LoadMessages) {
+  loadMessages(
+    ctx: StateContext<ChatStoreModel>,
+    { payload }: InstanceType<typeof ChatActions.LoadMessages>,
+  ) {
     ctx.setState({
       ...ctx.getState(),
       messages: payload.messages,
@@ -122,7 +134,7 @@ export class ChatStore {
   @Action(ChatActions.SetMessagesMetadata)
   setMessagesMetadata(
     ctx: StateContext<ChatStoreModel>,
-    { payload }: ChatActions.SetMessagesMetadata,
+    { payload }: InstanceType<typeof ChatActions.SetMessagesMetadata>,
   ) {
     const state = ctx.getState();
     const messages = [...state.messages];
@@ -201,7 +213,10 @@ export class ChatStore {
   }
 
   @Action(ChatActions.SetMessageText)
-  setMessageText(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.SetMessageText) {
+  setMessageText(
+    ctx: StateContext<ChatStoreModel>,
+    { payload }: InstanceType<typeof ChatActions.SetMessageText>,
+  ) {
     const state = ctx.getState();
     ctx.setState({
       ...state,
@@ -210,17 +225,26 @@ export class ChatStore {
   }
 
   @Action(ChatActions.SetIsTranscribing)
-  setIsTranscribing(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.SetIsTranscribing) {
+  setIsTranscribing(
+    ctx: StateContext<ChatStoreModel>,
+    { payload }: InstanceType<typeof ChatActions.SetIsTranscribing>,
+  ) {
     ctx.patchState({ isTranscribing: payload });
   }
 
   @Action(ChatActions.SetIsSending)
-  setIsSending(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.SetIsSending) {
+  setIsSending(
+    ctx: StateContext<ChatStoreModel>,
+    { payload }: InstanceType<typeof ChatActions.SetIsSending>,
+  ) {
     ctx.patchState({ isSending: payload });
   }
 
   @Action(ChatActions.PrependMessages)
-  prependMessages(ctx: StateContext<ChatStoreModel>, { payload }: ChatActions.PrependMessages) {
+  prependMessages(
+    ctx: StateContext<ChatStoreModel>,
+    { payload }: InstanceType<typeof ChatActions.PrependMessages>,
+  ) {
     const state = ctx.getState();
     ctx.setState({
       ...state,
@@ -232,7 +256,7 @@ export class ChatStore {
   @Action(ChatActions.SetIsLoadingOlderMessages)
   setIsLoadingOlderMessages(
     ctx: StateContext<ChatStoreModel>,
-    { payload }: ChatActions.SetIsLoadingOlderMessages,
+    { payload }: InstanceType<typeof ChatActions.SetIsLoadingOlderMessages>,
   ) {
     ctx.patchState({ isLoadingOlderMessages: payload });
   }
