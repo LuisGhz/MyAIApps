@@ -1,0 +1,15 @@
+{
+  "name": "@myaiapps/eslint-config-apis",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./nestjs.mjs"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^16.0.0",
+    "typescript-eslint": "^8.71.0"
+  }
+}
