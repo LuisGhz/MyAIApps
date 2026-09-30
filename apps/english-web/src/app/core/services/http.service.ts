@@ -3,12 +3,12 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
-type HttpClientOptions = {
+interface HttpClientOptions {
   headers?: HttpHeaders | Record<string, string | string[]>;
   context?: HttpContext;
   params?:
     | HttpParams
-    | Record<string, string | number | boolean | ReadonlyArray<string | number | boolean>>;
+    | Record<string, string | number | boolean | readonly (string | number | boolean)[]>;
   reportProgress?: boolean;
   withCredentials?: boolean;
   credentials?: RequestCredentials;

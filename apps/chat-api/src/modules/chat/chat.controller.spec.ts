@@ -716,7 +716,6 @@ describe('ChatController', () => {
       let eventCallback: ((event: ChatStreamEvent) => void) | undefined;
 
       chatStreamServiceMock.handleStreamMessage.mockImplementation(
-        // eslint-disable-next-line @typescript-eslint/require-await
         async (params) => {
           eventCallback = params.onEvent;
           eventCallback({

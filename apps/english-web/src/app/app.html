@@ -1,11 +1,12 @@
 @if (isAuthenticated()) {
   @if (isMobile() && !isCollapsed()) {
-    <div
+    <button
+      type="button"
       class="backdrop-menu"
       (click)="collapseFromBackdrop()"
       aria-label="Backdrop menu"
       [aria-hidden]="!isMobile() || isCollapsed()"
-    ></div>
+    ></button>
   }
   <div class="min-h-dvh bg-[#0a111d]">
     <nz-layout class="workspace-shell min-h-dvh w-full overflow-hidden">

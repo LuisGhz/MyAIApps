@@ -35,7 +35,7 @@ class SuffixStorageEngine implements StorageEngine {
     return raw ? JSON.parse(raw) : null;
   }
 
-  setItem(key: string, value: any) {
+  setItem(key: string, value: unknown) {
     localStorage.setItem(this.#prefix + key, JSON.stringify(value));
   }
 

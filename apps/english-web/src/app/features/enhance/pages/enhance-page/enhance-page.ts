@@ -7,7 +7,7 @@ import { EnhanceTextRes } from '@enhance/models/enhance-text-res.model';
 
 const COPY_RESET_DELAY_MS = 2000;
 
-const RESULT_FIELDS: ReadonlyArray<{ key: keyof EnhanceTextRes; label: string }> = [
+const RESULT_FIELDS: readonly { key: keyof EnhanceTextRes; label: string }[] = [
   { key: 'grammarFix', label: 'Grammar Fix' },
   { key: 'informalB2', label: 'Informal B2' },
   { key: 'informalC1', label: 'Informal C1' },
