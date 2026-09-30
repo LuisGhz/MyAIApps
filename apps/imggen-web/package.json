@@ -28,6 +28,7 @@
     "zustand": "5.0.9"
   },
   "devDependencies": {
+    "@typescript/native": "npm:typescript@7.0.2",
     "@eslint/js": "9.39.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -42,8 +43,8 @@
     "eslint-plugin-react-refresh": "0.4.24",
     "globals": "16.5.0",
     "happy-dom": "^20.3.9",
-    "typescript": "5.9.3",
-    "typescript-eslint": "8.46.4",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "typescript-eslint": "8.71.0",
     "vite": "npm:rolldown-vite@7.2.5",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.18",

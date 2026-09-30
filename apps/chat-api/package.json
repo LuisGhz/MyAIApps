@@ -67,12 +67,13 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@myaiapps/eslint-config-apis": "workspace:*",
     "@types/ms": "^2.1.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@liively/swc-jest-coverage-nestjs-plugin": "^0.4.1",
-    "@nestjs/cli": "^11.0.0",
-    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/cli": "12.0.0",
+    "@nestjs/schematics": "12.0.0",
     "@nestjs/testing": "^11.0.1",
     "@swc/cli": "^0.7.10",
     "@swc/core": "^1.15.24",
@@ -90,12 +91,11 @@
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
-    "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "typescript-eslint": "^8.71.0"
   },
   "overrides": {
     "minimatch": "^10.2.1",
