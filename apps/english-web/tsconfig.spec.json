@@ -7,7 +7,7 @@
     "rootDir": "./src",
     "types": [
       "vitest/globals",
-      "node"
+      "@testing-library/jest-dom"
     ]
   },
   "files": [

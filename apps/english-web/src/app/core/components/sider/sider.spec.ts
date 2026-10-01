@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { provideStore, Store } from '@ngxs/store';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { LogoutOutline, MenuFoldOutline, MenuUnfoldOutline } from '@ant-design/icons-angular/icons';
+import { LogoutOutline, MenuFoldOutline, MenuUnfoldOutline, ReadOutline } from '@ant-design/icons-angular/icons';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { CompareIcon } from '@shared/components/icons/compare-icon/compare-icon';
 import { EnhanceIcon } from '@shared/components/icons/enhance-icon/enhance-icon';
@@ -54,7 +54,7 @@ async function setup() {
         { path: 'enhance', component: RouteStub },
         { path: 'compare', component: RouteStub },
       ]),
-      provideNzIcons([MenuFoldOutline, MenuUnfoldOutline, LogoutOutline]),
+      provideNzIcons([MenuFoldOutline, MenuUnfoldOutline, LogoutOutline, ReadOutline]),
       { provide: AuthService, useValue: authService },
     ],
   });
