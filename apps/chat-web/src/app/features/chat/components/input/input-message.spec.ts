@@ -7,6 +7,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideTestNzIcons } from '@sh/testing';
 import { FormsModule } from '@angular/forms';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 
@@ -79,6 +80,7 @@ describe('InputMessage', () => {
       ],
       componentImports: [
         FormsModule,
+        TextFieldModule,
         NzInputModule,
         NzIconModule,
         MockMoreOptions,
